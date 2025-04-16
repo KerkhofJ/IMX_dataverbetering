@@ -5,8 +5,9 @@ import typer
 from rich import print
 from rich.console import Console
 
-from cliApp.exception_handler import handle_input_validation
-from utils.input_validation import validate_process_input
+from imxCli.cliApp.exception_handler import handle_input_validation
+from imxCli.process_dataverbetering import process_imx_revisions
+from imxCli.utils.input_validation import validate_process_input
 
 app = typer.Typer()
 
@@ -31,6 +32,7 @@ def process(
     out_path: Annotated[Path, typer.Option(help="The output folder for processed imx and excel report.")],
 ):
     validate_process_input(imx_input, excel_input, out_path)
+    process_imx_revisions(imx_input, excel_input, out_path)
 
 
 @app.callback()

@@ -17,8 +17,8 @@ from utils.input_validation import ErrorList
 
 
 from utils.custom_logger import logger
-from imxRevision.settings import ROOT_PATH, SET_METADATA_PARENTS
-from imxRevision.utils.imx_utils import set_attribute_or_element_by_path, delete_attribute_if_matching, delete_element, \
+from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
+from imxCli.utils.imx_utils import set_attribute_or_element_by_path, delete_attribute_if_matching, delete_element, \
     set_metadata, create_element_under, delete_element_that_matches
 
 load_dotenv()
@@ -133,7 +133,6 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
 
     try:
         imx_output, excel_output = validate_process_input(input_imx, input_excel, out_path)
-    # TODO: use Exception Handler Decorater
     except ErrorList as e:
         raise ValueError("Invalid input:\n" + "\n".join(e.errors))
 

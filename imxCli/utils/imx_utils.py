@@ -4,7 +4,7 @@ from loguru import logger
 from lxml import etree
 from lxml.etree import Element
 
-from imxRevision.settings import ADD_COMMENTS, ADD_TIMESTAMP, TIMESTAMP
+from imxCli.settings import ADD_COMMENTS, ADD_TIMESTAMP, TIMESTAMP
 
 
 def clear_directory(directory: Path):
