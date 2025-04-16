@@ -7,25 +7,24 @@ import pandas as pd
 
 from lxml import etree
 from lxml.etree import Element
-from imxInsights import ImxContainer
-from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
+# from imxInsights import ImxContainer
+# from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 
 from dotenv import load_dotenv
 
-from cliApp.cli_app import validate_process_input
-from imxCli.utils.input_validation import ErrorList
-
+from imxCli.revision.imx_modifier import (
+    set_attribute_or_element_by_path,
+    delete_attribute_if_matching,
+    set_metadata,
+    create_element_under,
+    delete_element,
+    delete_element_that_matches,
+)
+from imxCli.utils.input_validation import ErrorList, validate_process_input
 
 from imxCli.utils.custom_logger import logger
 from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
-from revision.imx_utils import (
-    set_attribute_or_element_by_path,
-    delete_attribute_if_matching,
-    delete_element,
-    set_metadata,
-    create_element_under,
-    delete_element_that_matches,
-)
+
 
 load_dotenv()
 
@@ -161,6 +160,7 @@ def process_imx_revisions(
     verbose: bool = True,
 ):
     if not isinstance(input_imx, Path):
+        # TODO: We could have a imx v12.x.x then we need to implement design petals (very low prio)
         input_imx = Path(input_imx)
     if not isinstance(input_excel, Path):
         input_excel = Path(input_excel)
@@ -190,7 +190,8 @@ def process_imx_revisions(
     puic_objects = tree.findall(".//*[@puic]")
     puic_dict = {value.get("puic"): value for value in puic_objects}
 
-    # TODO: Always use the third sheet, this is a workaround for the excel file that is not always the same
+    # TODO: loop true every sheet, this includes a process report excel!
+    # Always use the third sheet, this is a workaround for the excel file that is not always the same
     df = pd.read_excel(input_excel, sheet_name=2, na_values="", keep_default_na=False)
     df = df.fillna("")
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
@@ -219,20 +220,18 @@ def process_imx_revisions(
         worksheet.freeze_panes(1, 0)
         worksheet.autofilter(0, 0, 0, len(df.columns) - 1)
 
-    manifest = ManifestBuilder(out_path)
-    manifest.create_manifest()
 
-    manifest.to_zip(out_path / "O_D_003122_ERTMS_SignalingDesign-20250408.zip")
-    logger.success("finished creating manifest and zip container")
 
-    # TODO: Create container or singleFile dependent on IMXversion
-    imx = ImxContainer(out_path / "O_D_003122_ERTMS_SignalingDesign-20250408.zip")
-    # imx = ImxSingleFile(out_path / "SignalingDesign.xml")
 
-    # TODO: create a diff between the input and output imx independent on version
+    # TODO: Create a manifest as cli function (allso for a pre imx v12.x.x ? (more then very low prio!!))
+    # manifest = ManifestBuilder(out_path)
+    # manifest.create_manifest()
+    # manifest.to_zip(out_path / "imx_container.zip")
+    # logger.success("finished creating manifest and zip container")
 
-    # input_imx = ImxContainer(ROOT_PATH / "input/O_D_003122_ERTMS_SignalingDesign.zip")
 
+
+    # TODO: create a diff as cli function, reuse here to diff input and output imx version independent
     # multi_repo = ImxMultiRepo([input_imx, imx], version_safe=False)
     # compare = multi_repo.compare(input_imx.container_id, imx.container_id)
     # compare.to_excel(ROOT_PATH/ "output/diff.xlsx")

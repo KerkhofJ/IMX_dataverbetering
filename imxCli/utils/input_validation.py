@@ -1,10 +1,6 @@
 from pathlib import Path
 
-
-class ErrorList(Exception):
-    def __init__(self, errors: list[str]):
-        self.errors = errors
-        super().__init__("\n".join(errors))
+from imxCli.utils.exceptions import ErrorList
 
 
 def validate_process_input(

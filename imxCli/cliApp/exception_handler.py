@@ -2,7 +2,7 @@ import typer
 from rich.panel import Panel
 from rich.console import Console
 
-from imxCli.utils.input_validation import ErrorList
+from imxCli.utils.exceptions import ErrorList
 
 console = Console()
 
