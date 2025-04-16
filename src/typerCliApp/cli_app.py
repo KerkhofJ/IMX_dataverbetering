@@ -35,19 +35,27 @@ def process(
     elif not imx_input.suffix == '.xml':
         input_errors.append(f"[red]❌ imx_input is not a xml file: [bold]{imx_input}[/bold][/red]")
 
-    imx_output = imx_input.with_name(f"{imx_input.stem}-processed{imx_input.suffix}")
-
     if not excel_input.exists():
         input_errors.append(f"[red]❌ excel_input does not exist: [bold]{excel_input}[/bold][/red]")
     elif not excel_input.suffix == '.xlsx' or not excel_input.suffix == '.xlsm':
         input_errors.append(f"[red]❌ excel_input is not a excel file: [bold]{imx_input}[/bold][/red]")
 
+    imx_output = imx_input.with_name(f"{imx_input.stem}-processed{imx_input.suffix}")
     excel_output = imx_input.with_name(f"{excel_input.stem}-processed{excel_input.suffix}")
+
+    if not out_path.exists():
+        out_path.mkdir(parents=True, exist_ok=True)
+        if state["verbose"]:
+            print(f"[green]✔ Created output directory: {out_path}[/green]")
+    else:
+        if imx_output.exists():
+            input_errors.append(f"[red]❌ imx_output already exists: [bold]{imx_output}[/bold][/red]")
+        if excel_output.exists():
+            input_errors.append(f"[red]❌ excel_output already exists: [bold]{excel_output}[/bold][/red]")
 
     if input_errors:
         console.print(Panel("\n".join(input_errors), title="[bold red]Invalid Input[/bold red]", expand=False))
         raise typer.Exit(code=1)
-
 
     print("[green]✔ Inputs look good. Proceeding...[/green]")
 
