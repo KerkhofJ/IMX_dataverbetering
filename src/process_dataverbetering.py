@@ -142,27 +142,13 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
         if verbose:
             print(f"✔ Created output directory: {out_path}")
 
-    in_path = ROOT_PATH / "input"
-
-    # clear_directory(out_path)
-
-    # input
-    xml_file =  input_imx
-
-    # we use a dot env variable to link to the LOKAL exccel file
-    excel_file = input_excel
-
     #TODO: get specific excel_sheet working
     #excel_sheet = "Specifiek"
 
 
-    # output
-    output_xml_file = out_path / "SignalingDesign.xml"
-    output_excel_file = out_path / "data_verbetering_prorail-TEST.xlsx"
-
     logger.info("loading xml")
     parser = etree.XMLParser(remove_blank_text=True)
-    tree = etree.parse(xml_file, parser=parser)
+    tree = etree.parse(input_imx, parser=parser)
     logger.success("loading xml finished")
 
     root = tree.getroot()
@@ -174,7 +160,7 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
 
 
     #TODO: Always use the third sheet, this is a workaround for the excel file that is not always the same
-    df = pd.read_excel(excel_file, sheet_name=2, na_values='', keep_default_na=False )
+    df = pd.read_excel(input_excel, sheet_name=2, na_values='', keep_default_na=False )
     df = df.fillna("")
 
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
@@ -190,7 +176,7 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
     process_changes(change_items, puic_dict)
     logger.success("processing xml finshed")
 
-    tree.write(output_xml_file, encoding="UTF-8", pretty_print=True)
+    tree.write(imx_output, encoding="UTF-8", pretty_print=True)
 
     df = pd.DataFrame(change_items)
 
@@ -198,7 +184,7 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
   #  columns_to_remove = ['puic status RVTO 4.0', 'geo b&s', 'geo_tb']
   #  df = df.drop(columns=columns_to_remove)
 
-    with pd.ExcelWriter(output_excel_file, engine="xlsxwriter") as writer:
+    with pd.ExcelWriter(excel_output, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="process-log")
         workbook = writer.book
         worksheet = writer.sheets["process-log"]
