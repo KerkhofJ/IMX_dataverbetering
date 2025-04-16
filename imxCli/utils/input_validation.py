@@ -7,17 +7,19 @@ class ErrorList(Exception):
         super().__init__("\n".join(errors))
 
 
-def validate_process_input(imx_input: Path, excel_input: Path, out_path: Path) -> tuple[Path, Path]:
+def validate_process_input(
+    imx_input: Path, excel_input: Path, out_path: Path
+) -> tuple[Path, Path]:
     input_errors = []
 
     if not imx_input.exists():
         input_errors.append(f"❌ imx_input does not exist: {imx_input}")
-    elif imx_input.suffix.lower() != '.xml':
+    elif imx_input.suffix.lower() != ".xml":
         input_errors.append(f"❌ imx_input is not an xml file: {imx_input}")
 
     if not excel_input.exists():
         input_errors.append(f"❌ excel_input does not exist: {excel_input}")
-    elif excel_input.suffix.lower() not in ['.xlsx', '.xlsm']:
+    elif excel_input.suffix.lower() not in [".xlsx", ".xlsm"]:
         input_errors.append(f"❌ excel_input is not a valid Excel file: {excel_input}")
 
     imx_output = out_path / f"{imx_input.stem}-processed{imx_input.suffix}"

@@ -34,10 +34,12 @@ def get_elements_by_name(element: Element, element_name: str) -> list[Element]:
     return element.xpath(f'./*[local-name()="{element_name}"]')
 
 
-def get_all_elements_containing_attribute(element: Element, attribute_name: str, value: str | None = None) -> list[Element]:
+def get_all_elements_containing_attribute(
+    element: Element, attribute_name: str, value: str | None = None
+) -> list[Element]:
     if value:
         return element.xpath(f'..//*[{attribute_name}="{value}"]')
-    return element.xpath(f'..//*[{attribute_name}]')
+    return element.xpath(f"..//*[{attribute_name}]")
 
 
 def set_attribute(element: Element, attribute_name: str, value: str):
@@ -45,7 +47,11 @@ def set_attribute(element: Element, attribute_name: str, value: str):
     element.set(attribute_name.replace("@", ""), value)
 
     if ADD_COMMENTS:
-        add_comment(element, None, f"Attribute element below changed {attribute_name} old: {old_value} new: {value}")
+        add_comment(
+            element,
+            None,
+            f"Attribute element below changed {attribute_name} old: {old_value} new: {value}",
+        )
 
 
 def set_element_text(element: Element, element_name: str, value: str):
@@ -54,25 +60,35 @@ def set_element_text(element: Element, element_name: str, value: str):
         old_value = temp[0].text
         temp[0].text = value
         if ADD_COMMENTS:
-            add_comment(temp[0], None, f"Element text below changed {element_name} old: {old_value} new: {value}")
+            add_comment(
+                temp[0],
+                None,
+                f"Element text below changed {element_name} old: {old_value} new: {value}",
+            )
 
 
-def get_parent_and_target(element: Element, path_split: list[str]) -> tuple[Element, str]:
+def get_parent_and_target(
+    element: Element, path_split: list[str]
+) -> tuple[Element, str]:
     parent = element
     for idx, element_name in enumerate(path_split[:-1]):
         elements = get_elements_by_name(parent, element_name)
         if len(elements) > 1:
             try:
-                parent = elements[int(path_split[idx+1])]
+                parent = elements[int(path_split[idx + 1])]
             except Exception as e:
-                raise ValueError(f'{".".join(path_split)} index "{int(path_split[idx+1])}" out of range')
+                raise ValueError(
+                    f'{".".join(path_split)} index "{int(path_split[idx + 1])}" out of range'
+                )
         else:
             if elements:
                 parent = elements[0]
     return parent, path_split[-1] if len(path_split) != 0 else ""
 
 
-def handle_attribute(parent: Element, attribute_name: str, value: str, old_value: str | None):
+def handle_attribute(
+    parent: Element, attribute_name: str, value: str, old_value: str | None
+):
     attr_key = attribute_name.replace("@", "")
     if old_value:
         if parent.attrib.get(attr_key) == old_value:
@@ -80,13 +96,17 @@ def handle_attribute(parent: Element, attribute_name: str, value: str, old_value
         elif not parent.attrib.get(attr_key):
             raise ValueError(f"Attribute not found: {attr_key}")
         else:
-            raise ValueError(f"Attribute mismatch: {attr_key} has value {parent.attrib.get(attr_key)}")
+            raise ValueError(
+                f"Attribute mismatch: {attr_key} has value {parent.attrib.get(attr_key)}"
+            )
     else:
         if attr_key not in parent.attrib:
             set_attribute(parent, attribute_name, value)
 
 
-def handle_element(parent: Element, element_name: str, value: str, old_value: str | None):
+def handle_element(
+    parent: Element, element_name: str, value: str, old_value: str | None
+):
     elements = get_elements_by_name(parent, element_name)
     if elements and elements[0].text == old_value:
         set_element_text(parent, element_name, value)
@@ -94,7 +114,9 @@ def handle_element(parent: Element, element_name: str, value: str, old_value: st
         raise ValueError("Mismatch in old value for element text.")
 
 
-def set_attribute_or_element_by_path(puic_object: Element, path: str, value: str, old_value: str | None):
+def set_attribute_or_element_by_path(
+    puic_object: Element, path: str, value: str, old_value: str | None
+):
     path_split = path.split(".")
     path_split = [_.replace("gml:", "") for _ in path_split if isinstance(_, str)]
     if path_split[-1].startswith("@"):  # Attribute case
@@ -118,7 +140,9 @@ def delete_attribute_if_matching(puic_object: Element, path: str, value: str):
         if ADD_COMMENTS:
             add_comment(parent, None, f"Attribute {attribute_name} removed removed")
     else:
-        raise ValueError(f"Attribute '{attribute_name}' value does not match '{value}'.")
+        raise ValueError(
+            f"Attribute '{attribute_name}' value does not match '{value}'."
+        )
 
 
 def delete_element(element: Element):
@@ -129,13 +153,13 @@ def delete_element(element: Element):
             add_comment(parent, None, f"Element {element} removed")
 
 
-def set_metadata(node:Element, set_meta_parents: bool = False):
+def set_metadata(node: Element, set_meta_parents: bool = False):
     set_metadata_node(node)
 
     if set_meta_parents:
         parent = node.getparent()
         while parent is not None:
-            puic_ = parent.get('puic')
+            puic_ = parent.get("puic")
             prorail_tags = {
                 "{http://www.prorail.nl/IMSpoor}Project",
                 "{http://www.prorail.nl/IMSpoor}Situation",
@@ -151,10 +175,11 @@ def set_metadata(node:Element, set_meta_parents: bool = False):
             parent = parent.getparent()
 
 
-def set_metadata_node(node:Element):
-    metadata = node.find('.//{http://www.prorail.nl/IMSpoor}Metadata')
+def set_metadata_node(node: Element):
+    metadata = node.find(".//{http://www.prorail.nl/IMSpoor}Metadata")
     original_source = [
-        item for item in metadata.get("source", "").split("_")
+        item
+        for item in metadata.get("source", "").split("_")
         if not any(keyword in item.lower() for keyword in ("prorail", "measure", "dv"))
     ]
 
@@ -171,7 +196,7 @@ def set_metadata_node(node:Element):
     if ADD_COMMENTS:
         add_comment(node, metadata, f"MetadataChanged")
 
-    puic_ = node.get('puic')
+    puic_ = node.get("puic")
     logger.success(f"metadata for {puic_} set")
 
 
@@ -180,7 +205,7 @@ def create_element_under(node: Element, under_element: str, xml_str: str):
     under_node = node.findall(f"{{http://www.prorail.nl/IMSpoor}}{under_element}")
     under_node[0].addnext(xml_to_insert)
 
-    puic_ = node.get('puic')
+    puic_ = node.get("puic")
     set_metadata(node)
     logger.success(f"metadata for {puic_} set")
 
@@ -188,22 +213,29 @@ def create_element_under(node: Element, under_element: str, xml_str: str):
 def delete_element_that_matches(node: Element, xml_str: str):
     xml_to_insert = etree.fromstring(xml_str)
 
-    tag = xml_to_insert.tag.split('}')[-1] if '}' in xml_to_insert.tag else xml_to_insert.tag
+    tag = (
+        xml_to_insert.tag.split("}")[-1]
+        if "}" in xml_to_insert.tag
+        else xml_to_insert.tag
+    )
 
     conditions = [f"@{k}='{v}'" for k, v in xml_to_insert.attrib.items()]
-    condition_str = f"{' and '.join(conditions)}" if conditions else ''
+    condition_str = f"{' and '.join(conditions)}" if conditions else ""
     xpath_query = f".//*[local-name() = '{tag}' and {condition_str} ]"
 
     node_to_remove = node.xpath(xpath_query)
     parent = node_to_remove[0].getparent()
     parent.remove(node_to_remove[0])
-    puic_ = parent.get('puic')
+    puic_ = parent.get("puic")
     set_metadata(parent)
     logger.success(f"metadata for {puic_} set")
 
+
 def get_imx_version(imx_tree: Element):
     imx_version = imx_tree.findall(".//*[@imxVersion]")
-    assert len(imx_version) == 1, "There should be exactly one imxVersion element in the XML file"
+    assert len(imx_version) == 1, (
+        "There should be exactly one imxVersion element in the XML file"
+    )
     imx_version = imx_version[0].get("imxVersion")
-   
+
     return imx_version

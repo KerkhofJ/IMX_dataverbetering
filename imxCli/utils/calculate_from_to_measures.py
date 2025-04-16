@@ -37,29 +37,29 @@ def extract_boundary_points(line: LineString, polygon: Polygon) -> list[Point]:
     if intersection.is_empty:
         return points
 
-    if intersection.geom_type == 'Point':
+    if intersection.geom_type == "Point":
         add_point(intersection)
 
-    elif intersection.geom_type == 'MultiPoint':
+    elif intersection.geom_type == "MultiPoint":
         for pt in intersection.geoms:
             add_point(pt)
 
-    elif intersection.geom_type == 'LineString':
+    elif intersection.geom_type == "LineString":
         coords = list(intersection.coords)
         add_point(Point(coords[0]))
         add_point(Point(coords[-1]))
 
-    elif intersection.geom_type == 'MultiLineString':
+    elif intersection.geom_type == "MultiLineString":
         for linestring in intersection.geoms:
             coords = list(linestring.coords)
             add_point(Point(coords[0]))
             add_point(Point(coords[-1]))
 
-    elif intersection.geom_type == 'GeometryCollection':
+    elif intersection.geom_type == "GeometryCollection":
         for geom in intersection.geoms:
-            if geom.geom_type == 'Point':
+            if geom.geom_type == "Point":
                 add_point(geom)
-            elif geom.geom_type == 'LineString':
+            elif geom.geom_type == "LineString":
                 coords = list(geom.coords)
                 add_point(Point(coords[0]))
                 add_point(Point(coords[-1]))
@@ -85,7 +85,9 @@ def create_new_rail_con_infos_polygon(imx: ImxRepoProtocol, obj_puic: str) -> li
 
     rail_cons = []
     for item in polygon_object.refs:
-        if item.field.startswith("RailConnectionInfo") and item.field.endswith('@railConnectionRef'):
+        if item.field.startswith("RailConnectionInfo") and item.field.endswith(
+            "@railConnectionRef"
+        ):
             rail_cons.append(imx.find(item.field_value))
 
     out_list = []
@@ -96,12 +98,16 @@ def create_new_rail_con_infos_polygon(imx: ImxRepoProtocol, obj_puic: str) -> li
         for pt in points:
             projection_result = measure_line.project(pt)
             measures.append(projection_result.measure_3d)
-        out_list.append(f'<RailConnectionInfo xmlns="http://www.prorail.nl/IMSpoor" railConnectionRef="{rail_con.puic}" direction="None" fromMeasure="{min(measures):.3f}" toMeasure="{max(measures):.3f}" />')
+        out_list.append(
+            f'<RailConnectionInfo xmlns="http://www.prorail.nl/IMSpoor" railConnectionRef="{rail_con.puic}" direction="None" fromMeasure="{min(measures):.3f}" toMeasure="{max(measures):.3f}" />'
+        )
 
     return out_list
 
 
-def create_new_rail_con_infos_linestring(imx: ImxRepoProtocol, obj_puic: str) -> list[str]:
+def create_new_rail_con_infos_linestring(
+    imx: ImxRepoProtocol, obj_puic: str
+) -> list[str]:
     """
     Generates XML elements for RailConnectionInfo from a line object by projecting its coordinates.
 
@@ -120,7 +126,9 @@ def create_new_rail_con_infos_linestring(imx: ImxRepoProtocol, obj_puic: str) ->
 
     rail_cons = []
     for item in line_object.refs:
-        if item.field.startswith("RailConnectionInfo") and item.field.endswith('@railConnectionRef'):
+        if item.field.startswith("RailConnectionInfo") and item.field.endswith(
+            "@railConnectionRef"
+        ):
             rail_cons.append(imx.find(item.field_value))
 
     out_list = []
@@ -131,10 +139,11 @@ def create_new_rail_con_infos_linestring(imx: ImxRepoProtocol, obj_puic: str) ->
             pt = Point(coord)
             projection_result = measure_line.project(pt)
             measures.append(projection_result.measure_3d)
-        out_list.append(f'<RailConnectionInfo xmlns="http://www.prorail.nl/IMSpoor" railConnectionRef="{rail_con.puic}" direction="None" fromMeasure="{min(measures):.3f}" toMeasure="{max(measures):.3f}" />')
+        out_list.append(
+            f'<RailConnectionInfo xmlns="http://www.prorail.nl/IMSpoor" railConnectionRef="{rail_con.puic}" direction="None" fromMeasure="{min(measures):.3f}" toMeasure="{max(measures):.3f}" />'
+        )
 
     return out_list
-
 
 
 if __name__ == "__main__":
@@ -144,8 +153,12 @@ if __name__ == "__main__":
     # container = ImxSingleFile("path_to_imx_file").initial_situation
 
     if container:  # for single files the situation can be none
-        rail_con_infos = create_new_rail_con_infos_linestring(container, "puic_to_line_track_asset")
-        print('\n'.join(rail_con_infos))
+        rail_con_infos = create_new_rail_con_infos_linestring(
+            container, "puic_to_line_track_asset"
+        )
+        print("\n".join(rail_con_infos))
 
-        rail_con_infos = create_new_rail_con_infos_polygon(container, "puic_to_polygon_track_asset")
-        print('\n'.join(rail_con_infos))
+        rail_con_infos = create_new_rail_con_infos_polygon(
+            container, "puic_to_polygon_track_asset"
+        )
+        print("\n".join(rail_con_infos))

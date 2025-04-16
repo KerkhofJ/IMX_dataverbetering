@@ -28,8 +28,12 @@ def create_template():
 @handle_input_validation
 def process(
     imx_input: Annotated[Path, typer.Option(help="The input imx file as a xml file.")],
-    excel_input: Annotated[Path, typer.Option(help="The input excel whit items to process.")],
-    out_path: Annotated[Path, typer.Option(help="The output folder for processed imx and excel report.")],
+    excel_input: Annotated[
+        Path, typer.Option(help="The input excel whit items to process.")
+    ],
+    out_path: Annotated[
+        Path, typer.Option(help="The output folder for processed imx and excel report.")
+    ],
 ):
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)
@@ -47,7 +51,6 @@ def main(verbose: bool = False, debug: bool = False):
     if debug:
         print("[blue]Debug mode enabled[/blue]")
         state["debug"] = True
-
 
 
 if __name__ == "__main__":
