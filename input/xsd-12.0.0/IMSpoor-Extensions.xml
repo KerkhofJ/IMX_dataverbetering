@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Extensions xmlns="http://www.prorail.nl/IMSpoor" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.prorail.nl/IMSpoor IMSpoor-Extensions.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" imxVersion="12.0.0">
+	<DocumentReferences>
+		<BaseReference parentDocumentName="IMSpoor-SignalingDesign.xml" parentHashcode="0cf1e28c667cdd403ec284f71e6ac7379dd903ab5076bb24b96c3208e1853724"/>
+	</DocumentReferences>
+	<Extension>		
+		<!-- extensie buiten namespace -->
+		<ExternalXmlNode>
+			<FromUnknownSchema someAttribute="true"/>
+		</ExternalXmlNode>
+		<!-- extensie binnen namespace -->
+	</Extension>
+</Extensions>

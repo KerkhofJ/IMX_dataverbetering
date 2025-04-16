@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bgt xmlns="http://www.prorail.nl/IMSpoor" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml" xmlns:gml3="http://www.opengis.net/gml3" xsi:schemaLocation="http://www.prorail.nl/IMSpoor IMSpoor-BGTObjects.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" imxVersion="12.0.0">
+	<DocumentReferences>
+		<BaseReference parentDocumentName="IMSpoor-SignalingDesign.xml" parentHashcode="0cf1e28c667cdd403ec284f71e6ac7379dd903ab5076bb24b96c3208e1853724"/>
+	</DocumentReferences>
+	<Ramps>
+		<Ramp puic="addf3266-5b8e-40ba-9d70-4ec12edc824b" applicationPropertyOfTrafficArea="name" isTrafficAreaOnSlope="True">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<CrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</CrestLine>
+		</Ramp>
+	</Ramps>
+	<Elevators>
+		<Elevator puic="191e7585-f2a0-41d0-8f3a-d1366a070925" applicationPropertyOfTrafficArea="name" isTrafficAreaOnSlope="True">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,47</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<CrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</CrestLine>
+		</Elevator>
+	</Elevators>
+	<Escalators>
+		<Escalator puic="607b2e02-5e5f-469b-b341-3e916dcfdf9d" applicationPropertyOfTrafficArea="name" isTrafficAreaOnSlope="True">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<CrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</CrestLine>
+		</Escalator>
+	</Escalators>
+	<StationTunnels>
+		<StationTunnel puic="19ebce04-d4b9-4880-a09a-c7b403784d62">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</StationTunnel>
+	</StationTunnels>
+	<FootBridges>
+		<FootBridge puic="8d0a55ad-acaa-4dd6-a505-d26d513f87e7">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</FootBridge>
+	</FootBridges>
+	<PlatformRoofs>
+		<PlatformRoof puic="6b5c78bb-01e9-4282-a8a9-9d797397859c" otherConstructionType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</PlatformRoof>
+	</PlatformRoofs>
+	<BicycleParkingStations>
+		<BicycleParkingStation puic="ee44f8ca-6a83-40c5-b9a6-b4bf59d63c3f" otherConstructionType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</BicycleParkingStation>
+	</BicycleParkingStations>
+	<Shelters>
+		<Shelter puic="839a3deb-52f4-4377-bc84-d83230840a8a" otherConstructionType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</Shelter>
+	</Shelters>
+	<AntiTrespassPanels>
+		<AntiTrespassPanel puic="c96f9d1f-5631-4adc-a66d-0bd8b5deea60">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</AntiTrespassPanel>
+	</AntiTrespassPanels>
+	<VegetationControlMats>
+		<VegetationControlMat puic="ab166a5e-71d5-4cfe-93e3-d8a61e45aaab">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</VegetationControlMat>
+	</VegetationControlMats>
+	<SlopeStairsCollection>
+		<SlopeStairs puic="899875db-016c-475d-871d-162ed4303c07" applicationPropertyOfTrafficArea="name" isTrafficAreaOnSlope="True">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<CrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</CrestLine>
+		</SlopeStairs>
+	</SlopeStairsCollection>
+	<BgtAreas>
+		<BgtArea puic="5c6bf662-ea2d-469d-b321-39307a731871" bgtAreaType="NotVisible" isLandUseOnSlope="True">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<LandUseCrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</LandUseCrestLine>
+		</BgtArea>
+	</BgtAreas>
+	<ServicePlatforms>
+		<ServicePlatform puic="cbc8b119-9887-4487-bcad-12bae78a3d7c">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</ServicePlatform>
+	</ServicePlatforms>
+	<Trees>
+		<Tree puic="1e7da287-f666-4295-a41d-fbc9b2efe225">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Point srsName="EPSG:28992">
+						<gml3:pos>252338.848,474903.023</gml3:pos>
+					</gml3:Point>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+		</Tree>
+	</Trees>
+	<ImGeoObjects>
+		<PlantCover puic="ff530ff9-4922-489c-88a0-ff8b3da625c3" imgeoType="name" isOnSlope="False">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+			<CrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</CrestLine>
+		</PlantCover>
+		<BgtCivilConstructionPart puic="44cdd55f-d40e-47b1-9fb1-c8cbc675314b" imgeoType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+		</BgtCivilConstructionPart>
+		<LandUse puic="9c6565e4-3d57-4791-a739-8f239f2c39ba" imgeoType="name" isOnSlope="False">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+			<CrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</CrestLine>
+		</LandUse>
+		<AuxiliaryWaterBody puic="faa3428d-5eff-4001-b701-c9f7f61d91a5" imgeoType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+		</AuxiliaryWaterBody>
+		<AuxiliaryTrafficArea puic="d0e983c8-1e0b-4b79-87a4-f1bbe3f1365f" imgeoType="name" isOnSlope="False">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+			<CrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</CrestLine>
+		</AuxiliaryTrafficArea>
+		<BridgePart puic="9e29a237-628b-46b0-a888-79cf89696f4a" imgeoType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+		</BridgePart>
+		<OtherConstruction puic="b0297157-22b7-4c29-9547-9462ff390e0c" imgeoType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+		</OtherConstruction>
+		<Building puic="aaf75f3e-37d4-46bc-a7c7-0ec7ebb1f936" imgeoType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:MultiSurface>
+						<gml3:surfaceMember>
+							<gml3:Polygon srsName="EPSG:28992">
+								<gml3:exterior>
+									<gml3:LinearRing>
+										<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+									</gml3:LinearRing>
+								</gml3:exterior>
+							</gml3:Polygon>
+						</gml3:surfaceMember>
+					</gml3:MultiSurface>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+		</Building>
+		<Barrier puic="9de2b2d1-c7c3-4189-b29a-043c3b3581d9" imgeoType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+		</Barrier>
+		<TunnelPart puic="26908761-0936-4205-9f5e-c22976db4e1d" imgeoType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+		</TunnelPart>
+		<WaterBody puic="19d98e9e-0f92-442a-bee3-60eecbce73a0" imgeoType="name">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+		</WaterBody>
+		<TrafficArea puic="897ba71e-fd02-4009-96c1-24d569c25849" imgeoType="name" isOnSlope="False">
+			<Metadata objectBeginTime="2001-12-17T09:30:47Z" objectEndTime="2001-12-17T09:30:47Z" source="ProRail" registrationTime="2001-12-17T09:30:47Z" lifeCycleStatus="Existing" relativeElevation="15678" localID="name" originType="Unknown" isInService="True"/>
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS" accuracy="15">
+					<gml3:Polygon srsName="EPSG:28992">
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+				<KmRibbonLocation kmRibbonRef="0b39bcb4-be80-4fb7-b75d-41480c7f9a2f" value="15678"/>
+			</Location>
+			<Attribute name="key" value="some value"/>
+			<CrestLine dataAcquisitionMethod="DGPS" accuracy="15">
+				<gml3:LineString srsName="EPSG:28992">
+					<gml3:posList>252338.848,474903.023 252338.656,474901.072</gml3:posList>
+				</gml3:LineString>
+			</CrestLine>
+		</TrafficArea>
+		<Railway puic="a81eafaf-0538-4c34-819d-11b8cb23b2e1">
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS">
+					<gml3:Polygon>
+						<gml3:exterior>
+							<gml3:LinearRing>
+								<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952 252334.404,474894.708 252332.675,474893.784 252330.799,474893.215 252328.848,474893.023 252326.897,474893.215 252325.021,474893.784 252323.292,474894.708 252321.777,474895.952 252320.533,474897.467 252319.609,474899.196 252319.04,474901.072 252318.848,474903.023 252319.04,474904.974 252319.609,474906.85 252320.533,474908.579 252321.777,474910.094 252323.292,474911.338 252325.021,474912.262 252326.897,474912.831 252328.848,474913.023 252330.799,474912.831 252332.675,474912.262 252334.404,474911.338 252335.919,474910.094 252337.163,474908.579 252338.087,474906.85 252338.656,474904.974 252338.848,474903.023</gml3:posList>
+							</gml3:LinearRing>
+						</gml3:exterior>
+					</gml3:Polygon>
+				</GeographicLocation>
+			</Location>
+		</Railway>
+		<Hedge puic="025e3172-0645-4298-910a-5ac7f1bce243" imgeoType="vegetatieobject">
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS">
+					<gml3:Point>
+						<gml3:pos>252338.848,474903.023</gml3:pos>
+					</gml3:Point>
+				</GeographicLocation>
+			</Location>
+		</Hedge>
+		<BuildingInstallation puic="82311cf1-c4ba-4a09-83bf-79451d67414f" imgeoType="toegangstrap">
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS">
+					<gml3:Point>
+						<gml3:pos>252338.848,474903.023</gml3:pos>
+					</gml3:Point>
+				</GeographicLocation>
+			</Location>
+		</BuildingInstallation>
+		<RoadFurnishingElement puic="a79299f1-a2f3-4513-bc31-26a006c114fd" imgeoType="lijnafwatering">
+			<Location>
+				<GeographicLocation dataAcquisitionMethod="DGPS">
+					<gml3:LineString>
+						<gml3:posList>252338.848,474903.023 252338.656,474901.072 252338.087,474899.196 252337.163,474897.467 252335.919,474895.952</gml3:posList>
+					</gml3:LineString>
+				</GeographicLocation>
+			</Location>
+		</RoadFurnishingElement>
+	</ImGeoObjects>
+</Bgt>

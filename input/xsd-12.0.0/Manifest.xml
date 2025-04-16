@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Manifest xmlns="http://www.prorail.nl/IMSpoor" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:gml="http://www.opengis.net/gml" imxVersion="12.0.0" xsi:schemaLocation="http://www.prorail.nl/IMSpoor IMSpoor-Manifest.xsd" coreFileName="SignalingDesign.xml" nidRbc="to_fill" nidC="to_fill">
+  <!--This IMX 12 manifest is created (and zipped as a container) using imxInsights, see open-imx.nl for more information.-->
+  <!--Manifest and zip container currently marked as "INTENDED FOR TEST PURPOSES"!-->
+  <ImSpoorDataList>
+    <ImSpoorData fileName="SignalingDesign.xml" hash="27fe0437b741c44948febd0d7aaf01b4e7100e6010b525823da7e9ff1f00f7e1"/>
+  </ImSpoorDataList>
+  <MediaList>
+    <Media fileName="km-kibbon-values-disclamer.md" mediaType="text/markdown" hash="9113bdd16f2b40375f0f7f9f3b1fa1d5e8489829f6ba902c5b7338f7a713ce70"/>
+    <Media fileName="SignalingDesign-original.xml" mediaType="text/xml" hash="db8a894214c0b46c570bd09c6b6b6b0a66d2d3d00010ceb3e834a00349603b31"/>
+    <Media fileName="xsd-validation.md" mediaType="text/markdown" hash="247bcf4a723750f36954a05bd925afe4e394ed03fda89592268b5cf323059da6"/>
+  </MediaList>
+</Manifest>
