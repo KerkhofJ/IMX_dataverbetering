@@ -4,7 +4,6 @@ from pathlib import Path
 
 import xmlschema
 import pandas as pd
-import typer
 
 from lxml import etree
 from lxml.etree import Element
@@ -121,10 +120,7 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
         logger.success(f"processing change {change} done")
 
 
-app = typer.Typer()
-
-@app.command()
-def run(input_imx: str, input_excel: str, out_path: str):
+def process_imx_revisions(input_imx: str, input_excel: str, out_path: str):
     """
     Use INPUT_IMX for defining the path to the imx-file you want to apply changes to
     Use INPUT_EXCEL for defining the path to the excel-file which contains the desired changes
@@ -224,5 +220,3 @@ def run(input_imx: str, input_excel: str, out_path: str):
     # compare = multi_repo.compare(input_imx.container_id, imx.container_id)
     # compare.to_excel(ROOT_PATH/ "output/diff.xlsx")
 
-if __name__ == "__main__":
-    app()
