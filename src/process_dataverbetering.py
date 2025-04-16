@@ -150,20 +150,15 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
     root = tree.getroot()
     load_xsd(root.attrib.get('imxVersion'))
 
-
     puic_objects = tree.findall(".//*[@puic]")
     puic_dict = {value.get("puic"): value for value in puic_objects}
-
 
     #TODO: Always use the third sheet, this is a workaround for the excel file that is not always the same
     df = pd.read_excel(input_excel, sheet_name=2, na_values='', keep_default_na=False )
     df = df.fillna("")
-
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
-    
-    logger.success(df.columns.to_list())
+
     df.columns = map(str.lower, df.columns)
-    logger.success(df.columns.to_list())
 
 
     change_items = df.to_dict(orient="records")
