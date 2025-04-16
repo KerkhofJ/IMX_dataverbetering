@@ -12,7 +12,7 @@ from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 
 from dotenv import load_dotenv
 
-from typerCliApp.cli_app import validate_process_input
+from cliApp.cli_app import validate_process_input
 from utils.input_validation import InputValidationError
 
 
