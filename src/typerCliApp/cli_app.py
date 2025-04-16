@@ -59,7 +59,7 @@ def _validate_process_input(imx_input: Path, excel_input: Path, out_path:Path):
 def process(
     imx_input: Annotated[Path, typer.Option(help="The input imx file as a xml file.")],
     excel_input: Annotated[Path, typer.Option(help="The input excel whit items to process.")],
-    out_path: Annotated[Path, typer.Option(help="Last name of person to greet.")],
+    out_path: Annotated[Path, typer.Option(help="The output folder for processed imx and excel report.")],
 ):
     _validate_process_input(imx_input, excel_input, out_path)
 
