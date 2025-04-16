@@ -52,7 +52,7 @@ def _validate_process_input(imx_input: Path, excel_input: Path, out_path:Path):
         console.print(Panel("\n".join(input_errors), title="[bold red]Invalid Input[/bold red]", expand=False))
         raise typer.Exit(code=1)
 
-    print("[green]✔ Inputs look good. Proceeding...[/green]")
+    console.print("[green]✔ Inputs look good. Proceeding...[/green]")
 
 
 @app.command()
