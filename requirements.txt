@@ -4,3 +4,4 @@ typer
 imxInsights
 python-dotenv
 pyinstaller
+pytest

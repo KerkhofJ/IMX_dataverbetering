@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Annotated
+
 import typer
 
 
@@ -15,7 +18,12 @@ def create_template():
 
 
 @app.command()
-def process():
+def process(
+    imx_input: Annotated[Path, typer.Option(help="The input imx file as a xml file.")],
+    excel_input: Annotated[Path, typer.Option(help="The input excel whit items to process.")],
+    out_path: Annotated[Path, typer.Option(help="Last name of person to greet.")],
+):
+    print("tester")
     pass
 
 @app.callback()
