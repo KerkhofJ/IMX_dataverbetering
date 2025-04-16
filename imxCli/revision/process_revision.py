@@ -18,7 +18,7 @@ from imxCli.utils.input_validation import ErrorList
 
 from imxCli.utils.custom_logger import logger
 from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
-from imxCli.utils.imx_utils import (
+from revision.imx_utils import (
     set_attribute_or_element_by_path,
     delete_attribute_if_matching,
     delete_element,

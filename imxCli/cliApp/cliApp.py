@@ -6,8 +6,8 @@ from rich import print
 from rich.console import Console
 
 from imxCli.cliApp.exception_handler import handle_input_validation
-from imxCli.process_dataverbetering import process_imx_revisions
 from imxCli.utils.input_validation import validate_process_input
+from imxCli.revision.process_revision import process_imx_revisions
 
 app = typer.Typer()
 
