@@ -22,12 +22,7 @@ def create_template():
     pass
 
 
-@app.command()
-def process(
-    imx_input: Annotated[Path, typer.Option(help="The input imx file as a xml file.")],
-    excel_input: Annotated[Path, typer.Option(help="The input excel whit items to process.")],
-    out_path: Annotated[Path, typer.Option(help="Last name of person to greet.")],
-):
+def _validate_process_input(imx_input: Path, excel_input: Path, out_path:Path):
     input_errors = []
 
     if not imx_input.exists():
@@ -58,6 +53,15 @@ def process(
         raise typer.Exit(code=1)
 
     print("[green]✔ Inputs look good. Proceeding...[/green]")
+
+
+@app.command()
+def process(
+    imx_input: Annotated[Path, typer.Option(help="The input imx file as a xml file.")],
+    excel_input: Annotated[Path, typer.Option(help="The input excel whit items to process.")],
+    out_path: Annotated[Path, typer.Option(help="Last name of person to greet.")],
+):
+    _validate_process_input(imx_input, excel_input, out_path)
 
 
 @app.callback()
