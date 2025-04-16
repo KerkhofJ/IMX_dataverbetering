@@ -19,7 +19,7 @@ from imxInsights import ImxSingleFile
 
 from src.custom_logger import logger
 from src.settings import ROOT_PATH, SET_METADATA_PARENTS
-from src.imx_toots.imx_utils import get_imx_version, set_attribute_or_element_by_path, delete_attribute_if_matching, delete_element, \
+from src.utils.imx_utils import get_imx_version, set_attribute_or_element_by_path, delete_attribute_if_matching, delete_element, \
     set_metadata, create_element_under, delete_element_that_matches, clear_directory
 
 load_dotenv()
