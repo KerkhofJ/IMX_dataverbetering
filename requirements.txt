@@ -4,3 +4,6 @@ typer
 imxInsights
 python-dotenv
 pyinstaller
+pytest
+mypy
+ruff

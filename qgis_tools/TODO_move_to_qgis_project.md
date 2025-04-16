@@ -1,0 +1,1 @@
+we should move all qgis stuff to the qgis plugin project
