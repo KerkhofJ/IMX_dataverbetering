@@ -15,18 +15,17 @@ from dotenv import load_dotenv
 from typerCliApp.cli_app import validate_process_input
 from utils.input_validation import InputValidationError
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.custom_logger import logger
-from src.settings import ROOT_PATH, SET_METADATA_PARENTS
-from src.utils.imx_utils import set_attribute_or_element_by_path, delete_attribute_if_matching, delete_element, \
+from imxRevision.settings import ROOT_PATH, SET_METADATA_PARENTS
+from imxRevision.utils.imx_utils import set_attribute_or_element_by_path, delete_attribute_if_matching, delete_element, \
     set_metadata, create_element_under, delete_element_that_matches
 
 load_dotenv()
 
-logger.info("reading xsd")
-#XSD_IMX_V124 = xmlschema.XMLSchema(ROOT_PATH / 'input/xsd-12.0.0/IMSpoor-SignalingDesign.xsd')
-XSD_IMX: None | xmlschema.XMLSchema = None 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+XSD_IMX: None | xmlschema.XMLSchema = None
 
 
 def load_xsd(imx_version):
@@ -157,9 +156,8 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
     df = pd.read_excel(input_excel, sheet_name=2, na_values='', keep_default_na=False )
     df = df.fillna("")
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
-
+    # use map to make sure all columns are lowercase
     df.columns = map(str.lower, df.columns)
-
 
     change_items = df.to_dict(orient="records")
 
@@ -183,6 +181,9 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
             worksheet.set_column(col_num, col_num, max_len)
         worksheet.freeze_panes(1, 0)
         worksheet.autofilter(0, 0, 0, len(df.columns) - 1)
+
+
+
 
 
     manifest = ManifestBuilder(out_path)
