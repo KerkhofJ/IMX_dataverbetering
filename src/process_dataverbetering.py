@@ -142,10 +142,6 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
         if verbose:
             print(f"✔ Created output directory: {out_path}")
 
-    #TODO: get specific excel_sheet working
-    #excel_sheet = "Specifiek"
-
-
     logger.info("loading xml")
     parser = etree.XMLParser(remove_blank_text=True)
     tree = etree.parse(input_imx, parser=parser)
