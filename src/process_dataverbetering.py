@@ -12,7 +12,8 @@ from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 
 from dotenv import load_dotenv
 
-from typerCliApp.cli_app import _validate_process_input
+from typerCliApp.cli_app import validate_process_input
+from utils.input_validation import InputValidationError
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -122,12 +123,8 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
         logger.success(f"processing change {change} done")
 
 
-def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_path: str | Path):
-    """
-    Use INPUT_IMX for defining the path to the imx-file you want to apply changes to
-    Use INPUT_EXCEL for defining the path to the excel-file which contains the desired changes
-    Use OUTPUT_PATH to define the Path where all output files can be stored
-    """
+def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_path: str | Path, verbose: bool = True):
+
     if not isinstance(input_imx, Path):
         input_imx = Path(input_imx)
     if not isinstance(input_excel, Path):
@@ -135,8 +132,15 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
     if not isinstance(out_path, Path):
         out_path = Path(out_path)
 
-    # we should make dir course not in git repo.... its empty ;-)
-    out_path.mkdir(parents=False, exist_ok=True)
+    try:
+        imx_output, excel_output = validate_process_input(input_imx, input_excel, out_path)
+    except InputValidationError as e:
+        raise ValueError("Invalid input:\n" + "\n".join(e.errors))
+
+    if not out_path.exists():
+        out_path.mkdir(parents=True, exist_ok=True)
+        if verbose:
+            print(f"✔ Created output directory: {out_path}")
 
     in_path = ROOT_PATH / "input"
 
