@@ -171,10 +171,6 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
 
     df = pd.DataFrame(change_items)
 
-    #TODO: remove (generic) columns that are not needed
-  #  columns_to_remove = ['puic status RVTO 4.0', 'geo b&s', 'geo_tb']
-  #  df = df.drop(columns=columns_to_remove)
-
     with pd.ExcelWriter(excel_output, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="process-log")
         workbook = writer.book
