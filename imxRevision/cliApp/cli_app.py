@@ -3,10 +3,10 @@ from typing import Annotated
 
 import typer
 from rich import print
-from rich.panel import Panel
 from rich.console import Console
 
-from utils.input_validation import validate_process_input, InputValidationError
+from cliApp.exception_handler import handle_input_validation
+from utils.input_validation import validate_process_input
 
 app = typer.Typer()
 
@@ -24,17 +24,13 @@ def create_template():
 
 
 @app.command()
+@handle_input_validation
 def process(
     imx_input: Annotated[Path, typer.Option(help="The input imx file as a xml file.")],
     excel_input: Annotated[Path, typer.Option(help="The input excel whit items to process.")],
     out_path: Annotated[Path, typer.Option(help="The output folder for processed imx and excel report.")],
 ):
-    try:
-        validate_process_input(imx_input, excel_input, out_path)
-    except InputValidationError as e:
-        console.print(Panel("\n".join(e.errors), title="[bold red]Invalid Input[/bold red]", expand=True))
-        raise typer.Exit(code=1)
-
+    validate_process_input(imx_input, excel_input, out_path)
 
 
 @app.callback()

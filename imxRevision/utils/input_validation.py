@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-class InputValidationError(Exception):
+class ErrorList(Exception):
     def __init__(self, errors: list[str]):
         self.errors = errors
         super().__init__("\n".join(errors))
@@ -29,6 +29,6 @@ def validate_process_input(imx_input: Path, excel_input: Path, out_path: Path) -
         input_errors.append(f"❌ excel_output already exists: {excel_output}")
 
     if input_errors:
-        raise InputValidationError(input_errors)
+        raise ErrorList(input_errors)
 
     return imx_output, excel_output

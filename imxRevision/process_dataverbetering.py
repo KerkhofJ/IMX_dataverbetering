@@ -13,7 +13,7 @@ from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 from dotenv import load_dotenv
 
 from cliApp.cli_app import validate_process_input
-from utils.input_validation import InputValidationError
+from utils.input_validation import ErrorList
 
 
 from utils.custom_logger import logger
@@ -133,7 +133,8 @@ def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_pa
 
     try:
         imx_output, excel_output = validate_process_input(input_imx, input_excel, out_path)
-    except InputValidationError as e:
+    # TODO: use Exception Handler Decorater
+    except ErrorList as e:
         raise ValueError("Invalid input:\n" + "\n".join(e.errors))
 
     if not out_path.exists():
