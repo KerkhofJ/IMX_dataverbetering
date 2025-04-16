@@ -12,6 +12,8 @@ from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 
 from dotenv import load_dotenv
 
+from typerCliApp.cli_app import _validate_process_input
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.custom_logger import logger
@@ -120,14 +122,19 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
         logger.success(f"processing change {change} done")
 
 
-def process_imx_revisions(input_imx: str, input_excel: str, out_path: str):
+def process_imx_revisions(input_imx: str | Path, input_excel: str | Path, out_path: str | Path):
     """
     Use INPUT_IMX for defining the path to the imx-file you want to apply changes to
     Use INPUT_EXCEL for defining the path to the excel-file which contains the desired changes
     Use OUTPUT_PATH to define the Path where all output files can be stored
     """
+    if not isinstance(input_imx, Path):
+        input_imx = Path(input_imx)
+    if not isinstance(input_excel, Path):
+        input_excel = Path(input_excel)
+    if not isinstance(out_path, Path):
+        out_path = Path(out_path)
 
-    out_path = Path(out_path)
     # we should make dir course not in git repo.... its empty ;-)
     out_path.mkdir(parents=False, exist_ok=True)
 
