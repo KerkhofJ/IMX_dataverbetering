@@ -38,12 +38,12 @@ def load_xsd(imx_version):
     match imx_version:
         case "1.2.4":
             XSD_IMX = xmlschema.XMLSchema(
-                ROOT_PATH / "xsd-1.2.4/IMSpoor-1.2.4-Communication.xsd"
+                ROOT_PATH / "data/xsd-1.2.4/IMSpoor-1.2.4-Communication.xsd"
             )
             logger.success("xsd 1.2.4 loading finished")
         case "12.0.0":
             XSD_IMX = xmlschema.XMLSchema(
-                ROOT_PATH / "xsd-12.0.0/IMSpoor-SignalingDesign.xsd"
+                ROOT_PATH / "data/xsd-12.0.0/IMSpoor-SignalingDesign.xsd"
             )
             logger.success("xsd 12.0.0 loading finished")
         case _:

@@ -8,7 +8,11 @@ console = Console()
 
 
 def handle_input_validation(func):
-    """Decorator to handle InputValidationError exceptions in a reusable way."""
+    """
+    Decorator to handle InputValidationError exceptions in a reusable way.
+
+    Decorator should be placed before the cli command decorator!
+    """
 
     def wrapper(*args, **kwargs):
         try:
