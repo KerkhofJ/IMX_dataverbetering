@@ -47,8 +47,15 @@ def validate_manifest():
 
 @handle_input_validation
 @app.command()
-def add_km_manifest():
+def add_km():
     # TODO: add km to imx cli command
+    pass
+
+
+@handle_input_validation
+@app.command()
+def measure_check():
+    # TODO: create measure check excel cli command
     pass
 
 
