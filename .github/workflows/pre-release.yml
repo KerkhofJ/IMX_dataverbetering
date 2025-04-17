@@ -99,7 +99,6 @@ jobs:
     - name: Build exe
       run: |
         python build-cli-app.py
-        mv dist/imxCli dist/imxCli.exe
       if: env.match == 'false'
 
     - name: Create draft release
