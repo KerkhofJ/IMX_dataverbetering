@@ -16,6 +16,9 @@ markers = [
 [tool.isort]
 profile = "black"  # Adjust this to match your style preference
 
+[tool.mypy]
+exclude = "^imxCli/utils/calculate_from_to_measures.py$"
+
 [tool.hatch]
 
 [tool.hatch.metadata]

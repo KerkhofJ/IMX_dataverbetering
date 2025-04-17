@@ -1,7 +1,16 @@
+from os.path import isdir
+
 from imxInsights import ImxContainer
 from imxInsights.repo.imxRepoProtocol import ImxRepoProtocol
 from imxInsights.utils.measure_3d.measureCalculator import MeasureLine
-from shapely import LineString, Point, Polygon
+from shapely import (
+    GeometryCollection,
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    Point,
+    Polygon,
+)
 
 # TODO: move this to imxInsights as a utility.
 
@@ -34,29 +43,29 @@ def extract_boundary_points(line: LineString, polygon: Polygon) -> list[Point]:
     if intersection.is_empty:
         return points
 
-    if intersection.geom_type == "Point":
+    if isinstance(intersection, Point):
         add_point(intersection)
 
-    elif intersection.geom_type == "MultiPoint":
+    elif isinstance(intersection, MultiPoint):
         for pt in intersection.geoms:
             add_point(pt)
 
-    elif intersection.geom_type == "LineString":
+    elif isinstance(intersection, LineString):
         coords = list(intersection.coords)
         add_point(Point(coords[0]))
         add_point(Point(coords[-1]))
 
-    elif intersection.geom_type == "MultiLineString":
+    elif isinstance(intersection, MultiLineString):
         for linestring in intersection.geoms:
             coords = list(linestring.coords)
             add_point(Point(coords[0]))
             add_point(Point(coords[-1]))
 
-    elif intersection.geom_type == "GeometryCollection":
+    elif isinstance(intersection, GeometryCollection):
         for geom in intersection.geoms:
-            if geom.geom_type == "Point":
+            if isinstance(geom, Point):
                 add_point(geom)
-            elif geom.geom_type == "LineString":
+            elif isinstance(geom, LineString):
                 coords = list(geom.coords)
                 add_point(Point(coords[0]))
                 add_point(Point(coords[-1]))
@@ -79,6 +88,8 @@ def create_new_rail_con_infos_polygon(imx: ImxRepoProtocol, obj_puic: str) -> li
         A list of XML strings representing RailConnectionInfo elements with from/to measures.
     """
     polygon_object = imx.find(obj_puic)
+    if not polygon_object:
+        return []
 
     rail_cons = []
     for item in polygon_object.refs:
@@ -89,6 +100,8 @@ def create_new_rail_con_infos_polygon(imx: ImxRepoProtocol, obj_puic: str) -> li
 
     out_list = []
     for rail_con in rail_cons:
+        if not rail_con:
+            continue
         points = extract_boundary_points(rail_con.geometry, polygon_object.geometry)
         measure_line = MeasureLine(rail_con.geometry)
         measures = []
