@@ -6,7 +6,7 @@ import pandas as pd
 import xmlschema
 from dotenv import load_dotenv
 from lxml import etree
-from lxml.etree import Element
+from lxml.etree import _Element
 
 from imxCli.revision.imx_modifier import (
     create_element_under,
@@ -54,7 +54,8 @@ def _raise_tag_mismatch_error(expected_tag: str, actual_tag: str) -> None:
         f"Object tag {expected_tag} does not match tag of found object {actual_tag}"
     )
 
-def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
+
+def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
     for change in change_items:
         if not change["verbeteren"]:
             continue
@@ -67,17 +68,18 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
             change["status"] = f"object not present: {puic}"
             continue
 
-        imx_object_element: Element = puic_dict[puic]
+        imx_object_element: _Element = puic_dict[puic]
 
         object_type = change["objecttype"]
         operation = change["operation"]
 
-
         try:
-            expected_tag = f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
+            expected_tag = (
+                f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
+            )
             actual_tag = imx_object_element.tag
             if actual_tag != expected_tag:
-                _raise_tag_mismatch_error(object_type, actual_tag.split('}')[1])
+                _raise_tag_mismatch_error(object_type, actual_tag.split("}")[1])
 
             match operation:
                 case "CreateAttribute":
