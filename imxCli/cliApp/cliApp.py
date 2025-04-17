@@ -44,6 +44,13 @@ def validate_manifest():
 
 @handle_input_validation
 @app.command()
+def add_km_manifest():
+    # TODO: add km to imx cli command
+    pass
+
+
+@handle_input_validation
+@app.command()
 def extract_comments():
     # TODO: create excel sheet / file of all comments in diff or population report
     pass

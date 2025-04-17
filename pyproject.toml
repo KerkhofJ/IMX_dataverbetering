@@ -1,0 +1,98 @@
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+extend-select = ["I", "TRY", "UP"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=imxCli --cov-report=term-missing"
+asyncio_mode = "strict"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "serial",
+]
+
+[tool.isort]
+profile = "black"  # Adjust this to match your style preference
+
+[tool.hatch]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+source = "regex_commit"
+commit_message = "🚀 Version {new_version}"
+path = "imxCli/__init__.py"
+tag_sign = false
+
+[tool.hatch.envs.default]
+python = "3.10"
+dependencies = [
+    "mypy",
+    "ruff",
+    "pytest",
+    "pytest-cov",
+    "python-dotenv",
+    "pyinstaller",
+    "zizmor",
+]
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.10", "3.11", "3.12", "3.13"]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest"
+test-cov-xml = "pytest --cov-report=xml"
+lint = [
+  "isort imxCli/",
+  "ruff format imxCli/",
+  "ruff format --check imxCli/",
+  "mypy imxCli/ --check-untyped-defs",
+]
+lint-check = [
+  "ruff format --check imxCli/",
+  "ruff check imxCli/",
+  "mypy imxCli/ --check-untyped-defs",
+  "zizmor .github/workflows/",
+]
+docs-serve = "mkdocs serve"
+docs-build = "mkdocs build"
+
+[build-system]
+requires = ["hatchling", "hatch-regex-commit", "isort"]
+build-backend = "hatchling.build"
+
+[project]
+name = "imxCli"
+authors = [
+    { name = "Hzd", email = "Hazedd@users.noreply.github.com" },
+    { name = "KerkhofJ", email = "KerkhofJ@users.noreply.github.com" },
+    { name = "Open-Imx", email = "open-imx@organisation.noreply.github.com" },
+]
+description = "python imx cli app from imx files"
+readme = "README.md"
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "xmlschema",
+    "pandas",
+    "typer",
+    "imxInsights",
+    "types-lxml",
+    "openpyxl",
+]
+
+
+[project.urls]
+Documentation = "https://open-imx.github.io/imxCli/"
+Source = "https://github.com/open-imx/imxCli"

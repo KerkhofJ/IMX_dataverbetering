@@ -1,0 +1,12 @@
+{
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${workspaceFolder}/imxCli",
+    },
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "${workspaceFolder}/imxCli",
+    },
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${workspaceFolder}/imxCli",
+    },
+    "python.envFile": "${workspaceFolder}/.env",
+}
