@@ -23,68 +23,71 @@ def test_revision_template_help_command():
     assert result.exit_code == 0
 
 
-def test_revision_template():
-    clear_directory(Path("output"))
+def test_revision_template(output_path: str):
+    clear_directory(Path(output_path))
+    print(output_path)
 
     # valid run
     result = runner.invoke(
         app,
         [
             "revision-template",
-            "--out-path", "output/template.xlsx",
+            "--out-path", f"{output_path}/template.xlsx",
         ],
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, "Should create a template file"
 
     # file exist
     result = runner.invoke(
         app,
         [
             "revision-template",
-            "--out-path", "output/template.xlsx",
+            "--out-path", f"{output_path}/template.xlsx",
         ],
     )
-    assert result.exit_code == 1
+    assert result.exit_code == 1, "Should not create template file if file exists"
 
     # file not excel
     result = runner.invoke(
         app,
         [
             "revision-template",
-            "--out-path", "output/template.xl",
+            "--out-path", f"{output_path}/template.not_xlsx",
         ],
     )
-    assert result.exit_code == 1
+    assert result.exit_code == 1, "Should not create template file if file is not .xlsx or xlsm"
 
 
-def test_process_command():
+
+
+def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str):
 
     # clean output dir
-    clear_directory(Path("output"))
+    clear_directory(Path(output_path))
 
     # valid run
     result = runner.invoke(
         app,
         [
             "revision",
-            "--imx-input", "data/O_D_003122_ERTMS_SignalingDesign.xml",
-            "--excel-input", "data/issuelist.xlsx",
-            "--out-path", "output",
+            "--imx-input", imx_12_xml_file,
+            "--excel-input", issue_list,
+            "--out-path", output_path,
         ],
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, "Should create processed imx and excel log"
 
     # output exist
     result = runner.invoke(
         app,
         [
             "revision",
-            "--imx-input", "data/O_D_003122_ERTMS_SignalingDesign.xml",
-            "--excel-input", "data/issuelist.xlsx",
-            "--out-path", "output",
+            "--imx-input", imx_12_xml_file,
+            "--excel-input", issue_list,
+            "--out-path", output_path,
         ],
     )
-    assert result.exit_code == 1
+    assert result.exit_code == 1, "Should not create processed imx and excel log if output exist"
 
     # imx-input not present
     result = runner.invoke(
@@ -92,22 +95,20 @@ def test_process_command():
         [
             "revision",
             "--imx-input", "data/123.xml",
-            "--excel-input", "data/issuelist.xlsx",
-            "--out-path", "output",
+            "--excel-input", issue_list,
+            "--out-path", output_path
         ],
     )
-    assert result.exit_code == 1
+    assert result.exit_code == 1, "Should not create processed imx and excel log if input imx not present"
 
     # excel-input not present
     result = runner.invoke(
         app,
         [
             "revision",
-            "--imx-input", "data/O_D_003122_ERTMS_SignalingDesign.xml",
+            "--imx-input", imx_12_xml_file,
             "--excel-input", "data/123.xlsx",
-            "--out-path", "output",
+            "--out-path", output_path,
         ],
     )
-    assert result.exit_code == 1
-
-
+    assert result.exit_code == 1, "Should not create processed imx and excel log if input excel not present"
