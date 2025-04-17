@@ -1,11 +1,11 @@
 from loguru import logger
 from lxml import etree
-from lxml.etree import Element
+from lxml.etree import _Element
 
 from imxCli.settings import ADD_COMMENTS, ADD_TIMESTAMP, TIMESTAMP
 
 
-def add_comment(parent: Element, child: Element, comment: str):
+def add_comment(parent: _Element, child: _Element, comment: str):
     if child:
         parent.insert(parent.index(child), etree.Comment(comment))
     else:
@@ -14,23 +14,23 @@ def add_comment(parent: Element, child: Element, comment: str):
         new_parent.insert(new_parent.index(child), etree.Comment(comment))
 
 
-def get_all_elements_by_name(element: Element, element_name: str) -> list[Element]:
+def get_all_elements_by_name(element: _Element, element_name: str) -> list[_Element]:
     return element.xpath(f'.//*[local-name()="{element_name}"]')
 
 
-def get_elements_by_name(element: Element, element_name: str) -> list[Element]:
+def get_elements_by_name(element: _Element, element_name: str) -> list[_Element]:
     return element.xpath(f'./*[local-name()="{element_name}"]')
 
 
 def get_all_elements_containing_attribute(
-    element: Element, attribute_name: str, value: str | None = None
-) -> list[Element]:
+    element: _Element, attribute_name: str, value: str | None = None
+) -> list[_Element]:
     if value:
         return element.xpath(f'..//*[{attribute_name}="{value}"]')
     return element.xpath(f"..//*[{attribute_name}]")
 
 
-def set_attribute(element: Element, attribute_name: str, value: str):
+def set_attribute(element: _Element, attribute_name: str, value: str):
     old_value = element.get(attribute_name.replace("@", ""))
     element.set(attribute_name.replace("@", ""), value)
 
@@ -42,7 +42,7 @@ def set_attribute(element: Element, attribute_name: str, value: str):
         )
 
 
-def set_element_text(element: Element, element_name: str, value: str):
+def set_element_text(element: _Element, element_name: str, value: str):
     temp = get_elements_by_name(element, element_name)
     if temp:
         old_value = temp[0].text
@@ -51,13 +51,13 @@ def set_element_text(element: Element, element_name: str, value: str):
             add_comment(
                 temp[0],
                 None,
-                f"Element text below changed {element_name} old: {old_value} new: {value}",
+                f"_Element text below changed {element_name} old: {old_value} new: {value}",
             )
 
 
 def get_parent_and_target(
-    element: Element, path_split: list[str]
-) -> tuple[Element, str]:
+    element: _Element, path_split: list[str]
+) -> tuple[_Element, str]:
     parent = element
     for idx, element_name in enumerate(path_split[:-1]):
         elements = get_elements_by_name(parent, element_name)
@@ -75,7 +75,7 @@ def get_parent_and_target(
 
 
 def handle_attribute(
-    parent: Element, attribute_name: str, value: str, old_value: str | None
+    parent: _Element, attribute_name: str, value: str, old_value: str | None
 ):
     attr_key = attribute_name.replace("@", "")
     if old_value:
@@ -93,7 +93,7 @@ def handle_attribute(
 
 
 def handle_element(
-    parent: Element, element_name: str, value: str, old_value: str | None
+    parent: _Element, element_name: str, value: str, old_value: str | None
 ):
     elements = get_elements_by_name(parent, element_name)
     if elements and elements[0].text == old_value:
@@ -103,19 +103,19 @@ def handle_element(
 
 
 def set_attribute_or_element_by_path(
-    puic_object: Element, path: str, value: str, old_value: str | None
+    puic_object: _Element, path: str, value: str, old_value: str | None
 ):
     path_split = path.split(".")
     path_split = [_.replace("gml:", "") for _ in path_split if isinstance(_, str)]
     if path_split[-1].startswith("@"):  # Attribute case
         parent, attribute_name = get_parent_and_target(puic_object, path_split)
         handle_attribute(parent, attribute_name, value, old_value)
-    else:  # Element case
+    else:  # _Element case
         parent, element_name = get_parent_and_target(puic_object, path_split)
         handle_element(parent, element_name, value, old_value)
 
 
-def delete_attribute_if_matching(puic_object: Element, path: str, value: str):
+def delete_attribute_if_matching(puic_object: _Element, path: str, value: str):
     path_split = path.split(".")
     attribute_name = path_split[-1]
     if not attribute_name.startswith("@"):  # Ensure it's an attribute
@@ -133,15 +133,15 @@ def delete_attribute_if_matching(puic_object: Element, path: str, value: str):
         )
 
 
-def delete_element(element: Element):
+def delete_element(element: _Element):
     parent = element.getparent()
     if parent is not None:
         parent.remove(element)
         if ADD_COMMENTS:
-            add_comment(parent, None, f"Element {element} removed")
+            add_comment(parent, None, f"_Element {element} removed")
 
 
-def set_metadata(node: Element, set_meta_parents: bool = False):
+def set_metadata(node: _Element, set_meta_parents: bool = False):
     set_metadata_node(node)
 
     if set_meta_parents:
@@ -163,7 +163,7 @@ def set_metadata(node: Element, set_meta_parents: bool = False):
             parent = parent.getparent()
 
 
-def set_metadata_node(node: Element):
+def set_metadata_node(node: _Element):
     metadata = node.find(".//{http://www.prorail.nl/IMSpoor}Metadata")
     original_source = [
         item
@@ -188,7 +188,7 @@ def set_metadata_node(node: Element):
     logger.success(f"metadata for {puic_} set")
 
 
-def create_element_under(node: Element, under_element: str, xml_str: str):
+def create_element_under(node: _Element, under_element: str, xml_str: str):
     xml_to_insert = etree.fromstring(xml_str)
     under_node = node.findall(f"{{http://www.prorail.nl/IMSpoor}}{under_element}")
     under_node[0].addnext(xml_to_insert)
@@ -198,7 +198,7 @@ def create_element_under(node: Element, under_element: str, xml_str: str):
     logger.success(f"metadata for {puic_} set")
 
 
-def delete_element_that_matches(node: Element, xml_str: str):
+def delete_element_that_matches(node: _Element, xml_str: str):
     xml_to_insert = etree.fromstring(xml_str)
 
     tag = (
@@ -219,7 +219,7 @@ def delete_element_that_matches(node: Element, xml_str: str):
     logger.success(f"metadata for {puic_} set")
 
 
-def get_imx_version(imx_tree: Element):
+def get_imx_version(imx_tree: _Element):
     imx_version = imx_tree.findall(".//*[@imxVersion]")
     assert len(imx_version) == 1, (
         "There should be exactly one imxVersion element in the XML file"
