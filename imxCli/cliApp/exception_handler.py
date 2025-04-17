@@ -30,7 +30,7 @@ def handle_input_validation(func):
         except ValueError as e:
             console.print(
                 Panel(
-                    "\n".join(e),
+                    f"{e}",
                     title="[bold red]Invalid Input[/bold red]",
                     expand=True,
                 )
