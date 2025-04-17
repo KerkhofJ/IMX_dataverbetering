@@ -2,11 +2,11 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from revision.revision_template import get_revision_template
 from rich import print
 
 from imxCli.cliApp.exception_handler import handle_input_validation
 from imxCli.revision.process_revision import process_imx_revisions
+from imxCli.revision.revision_template import get_revision_template
 from imxCli.utils.input_validation import validate_process_input
 
 app = typer.Typer()
