@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+from xml.etree.ElementTree import QName
 
 import pandas as pd
 import xmlschema
@@ -78,8 +79,28 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
                 f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
             )
             actual_tag = imx_object_element.tag
+
+            if isinstance(actual_tag, QName):
+                actual_tag = str(actual_tag).split("}")[-1]
+            elif isinstance(actual_tag, (str, bytes, bytearray)):
+                tag_str = (
+                    actual_tag.decode()
+                    if isinstance(actual_tag, (bytes, bytearray))
+                    else actual_tag
+                )
+                actual_tag = tag_str
+            else:
+                raise TypeError(f"Unsupported tag type: {type(actual_tag)}")
+
+            expected_tag = (
+                f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
+            )
+
             if actual_tag != expected_tag:
-                _raise_tag_mismatch_error(object_type, actual_tag.split("}")[1])
+                actual_localname = (
+                    actual_tag.split("}")[-1] if "}" in actual_tag else actual_tag
+                )
+                _raise_tag_mismatch_error(object_type, actual_localname)
 
             match operation:
                 case "CreateAttribute":
@@ -147,10 +168,16 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
             change["status"] = f"Error: {e}"
 
         finally:
-            errors = list(XSD_IMX.iter_errors(imx_object_element))
+            assert XSD_IMX is not None
+            xml_bytes = etree.tostring(imx_object_element)
+            errors = list(XSD_IMX.iter_errors(xml_bytes))
             if errors:
                 change["status"] = f"{change['status']} - XSD invalid!"
-                change["xsd_errors"] = "".join([error.reason for error in errors])
+                change["xsd_errors"] = "".join(
+                    reason
+                    for error in errors
+                    if error is not None and (reason := error.reason) is not None
+                )
                 logger.error(change["xsd_errors"])
 
         logger.success(f"processing change {change} done")
@@ -199,12 +226,13 @@ def process_imx_revisions(
     df = df.fillna("")
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
     # use map to make sure all columns are lowercase
-    df.columns = map(str.lower, df.columns)
+    df.columns = pd.Index([col.lower() for col in df.columns])
 
     change_items = df.to_dict(orient="records")
 
     logger.info("processing xml")
-    process_changes(change_items, puic_dict)
+    puic_dict_ = {k: v for k, v in puic_dict.items() if k is not None}
+    process_changes(change_items, puic_dict_)
     logger.success("processing xml finshed")
 
     tree.write(imx_output, encoding="UTF-8", pretty_print=True)
