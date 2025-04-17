@@ -1,29 +1,27 @@
-import sys
 import os
+import sys
 from pathlib import Path
 
-import xmlschema
 import pandas as pd
-
+import xmlschema
+from dotenv import load_dotenv
 from lxml import etree
 from lxml.etree import Element
-# from imxInsights import ImxContainer
-# from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
-
-from dotenv import load_dotenv
 
 from imxCli.revision.imx_modifier import (
-    set_attribute_or_element_by_path,
-    delete_attribute_if_matching,
-    set_metadata,
     create_element_under,
+    delete_attribute_if_matching,
     delete_element,
     delete_element_that_matches,
+    set_attribute_or_element_by_path,
+    set_metadata,
 )
+from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
+from imxCli.utils.custom_logger import logger
 from imxCli.utils.input_validation import ErrorList, validate_process_input
 
-from imxCli.utils.custom_logger import logger
-from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
+# from imxInsights import ImxContainer
+# from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 
 
 load_dotenv()
@@ -220,16 +218,11 @@ def process_imx_revisions(
         worksheet.freeze_panes(1, 0)
         worksheet.autofilter(0, 0, 0, len(df.columns) - 1)
 
-
-
-
     # TODO: Create a manifest as cli function (allso for a pre imx v12.x.x ? (more then very low prio!!))
     # manifest = ManifestBuilder(out_path)
     # manifest.create_manifest()
     # manifest.to_zip(out_path / "imx_container.zip")
     # logger.success("finished creating manifest and zip container")
-
-
 
     # TODO: create a diff as cli function, reuse here to diff input and output imx version independent
     # multi_repo = ImxMultiRepo([input_imx, imx], version_safe=False)

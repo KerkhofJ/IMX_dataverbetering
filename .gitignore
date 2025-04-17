@@ -174,5 +174,5 @@ cython_debug/
 .pypirc
 
 ## project
-/output/
 *.log
+/sample_data/output/

@@ -1,10 +1,7 @@
-from shapely import Point, LineString, Polygon
-
-from imxInsights.repo.imxRepoProtocol import ImxRepoProtocol
-
 from imxInsights import ImxContainer, ImxSingleFile
+from imxInsights.repo.imxRepoProtocol import ImxRepoProtocol
 from imxInsights.utils.measure_3d.measureCalculator import MeasureLine
-
+from shapely import LineString, Point, Polygon
 
 # TODO: move this to imxInsights as a utility.
 

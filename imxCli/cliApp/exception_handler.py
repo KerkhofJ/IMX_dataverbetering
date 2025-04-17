@@ -1,6 +1,6 @@
 import typer
-from rich.panel import Panel
 from rich.console import Console
+from rich.panel import Panel
 
 from imxCli.utils.exceptions import ErrorList
 
@@ -36,6 +36,5 @@ def handle_input_validation(func):
                 )
             )
             raise typer.Exit(code=1)
-
 
     return wrapper
