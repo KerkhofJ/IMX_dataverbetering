@@ -156,7 +156,7 @@ def process_imx_revisions(
     input_excel: str | Path,
     out_path: str | Path,
     verbose: bool = True,
-):
+) -> pd.DataFrame:
     if not isinstance(input_imx, Path):
         # TODO: We could have a imx v12.x.x then we need to implement design petals (very low prio)
         input_imx = Path(input_imx)
@@ -217,6 +217,8 @@ def process_imx_revisions(
             worksheet.set_column(col_num, col_num, max_len)
         worksheet.freeze_panes(1, 0)
         worksheet.autofilter(0, 0, 0, len(df.columns) - 1)
+
+    return df
 
     # TODO: Create a manifest as cli function (allso for a pre imx v12.x.x ? (more then very low prio!!))
     # manifest = ManifestBuilder(out_path)

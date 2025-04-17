@@ -1,6 +1,6 @@
 from loguru import logger
 from lxml import etree
-from lxml.etree import _Element
+from lxml.etree import QName, _Element
 
 from imxCli.settings import ADD_COMMENTS, ADD_TIMESTAMP, TIMESTAMP
 
@@ -166,7 +166,7 @@ def set_metadata(node: _Element, set_meta_parents: bool = False):
 
 def set_metadata_node(node: _Element):
     metadata = node.find(".//{http://www.prorail.nl/IMSpoor}Metadata")
-    if not metadata:
+    if metadata is None:
         logger.warning("No metadata node present, metadata not set!]")
         return
 
@@ -206,29 +206,45 @@ def create_element_under(node: _Element, under_element: str, xml_str: str):
 def delete_element_that_matches(node: _Element, xml_str: str):
     xml_to_insert = etree.fromstring(xml_str)
 
-    tag = (
-        xml_to_insert.tag.split("}")[-1]
-        if "}" in xml_to_insert.tag
-        else xml_to_insert.tag
-    )
+    tag_raw = xml_to_insert.tag
+    if isinstance(tag_raw, QName):
+        tag = tag_raw.localname
+    elif isinstance(tag_raw, (str, bytes, bytearray)):
+        tag_str = (
+            tag_raw.decode() if isinstance(tag_raw, (bytes, bytearray)) else tag_raw
+        )
+        tag = tag_str.split("}")[-1] if "}" in tag_str else tag_str
+    else:
+        raise TypeError(f"Unsupported tag type: {type(tag_raw)}")
 
     conditions = [f"@{k}='{v}'" for k, v in xml_to_insert.attrib.items()]
     condition_str = f"{' and '.join(conditions)}" if conditions else ""
-    xpath_query = f".//*[local-name() = '{tag}' and {condition_str} ]"
+    xpath_query = (
+        f".//*[local-name() = '{tag}'"
+        + (f" and {condition_str}" if condition_str else "")
+        + "]"
+    )
 
     node_to_remove = node.xpath(xpath_query)
+    if not node_to_remove:
+        logger.warning(
+            f"No element found for deletion with tag '{tag}' and attributes {xml_to_insert.attrib}"
+        )
+        return
+
     parent = node_to_remove[0].getparent()
-    parent.remove(node_to_remove[0])
-    puic_ = parent.get("puic")
-    set_metadata(parent)
-    logger.success(f"metadata for {puic_} set")
+    if parent is not None:
+        parent.remove(node_to_remove[0])
+        puic_ = parent.get("puic")
+        set_metadata(parent)
+        logger.success(f"metadata for {puic_} set")
+    else:
+        logger.warning("Element has no parent and could not be removed.")
 
 
-def get_imx_version(imx_tree: _Element):
+def get_imx_version(imx_tree: _Element) -> str:
     imx_version = imx_tree.findall(".//*[@imxVersion]")
     assert len(imx_version) == 1, (
         "There should be exactly one imxVersion element in the XML file"
     )
-    imx_version = imx_version[0].get("imxVersion")
-
-    return imx_version
+    return f"{imx_version[0].get('imxVersion')}"
