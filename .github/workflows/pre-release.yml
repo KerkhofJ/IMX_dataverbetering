@@ -93,6 +93,9 @@ jobs:
         fi
         echo "MATCH=$GITHUB_ENV.match"
 
+    - name: Install pyinstaller
+      run: pip install pyinstaller
+
     - name: Build exe
       run: |
         hatch build
