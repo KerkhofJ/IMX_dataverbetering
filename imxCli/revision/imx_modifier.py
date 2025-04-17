@@ -5,13 +5,14 @@ from lxml.etree import _Element
 from imxCli.settings import ADD_COMMENTS, ADD_TIMESTAMP, TIMESTAMP
 
 
-def add_comment(parent: _Element, child: _Element, comment: str):
+def add_comment(parent: _Element, child: _Element | None, comment: str):
     if child:
         parent.insert(parent.index(child), etree.Comment(comment))
     else:
         new_parent = parent.getparent()
         child = parent
-        new_parent.insert(new_parent.index(child), etree.Comment(comment))
+        if new_parent:
+            new_parent.insert(new_parent.index(child), etree.Comment(comment))
 
 
 def get_all_elements_by_name(element: _Element, element_name: str) -> list[_Element]:
