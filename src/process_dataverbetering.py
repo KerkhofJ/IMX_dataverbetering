@@ -25,18 +25,19 @@ from src.imx_toots.imx_utils import get_imx_version, set_attribute_or_element_by
 load_dotenv()
 
 logger.info("reading xsd")
-#XSD_IMX_V124 = xmlschema.XMLSchema(ROOT_PATH / 'input/xsd-12.0.0/IMSpoor-SignalingDesign.xsd')
+
 XSD_IMX: None | xmlschema.XMLSchema = None 
 
 
 def load_xsd(imx_version):
     global XSD_IMX
     match imx_version:
+        #TODO: "input/" is required for running python script, but not for the executable
         case "1.2.4":
-            XSD_IMX = xmlschema.XMLSchema(ROOT_PATH / 'xsd-1.2.4/IMSpoor-1.2.4-Communication.xsd')
+            XSD_IMX = xmlschema.XMLSchema(ROOT_PATH / 'input/xsd-1.2.4/IMSpoor-1.2.4-Communication.xsd')
             logger.success("xsd 1.2.4 loading finished")
         case "12.0.0":
-            XSD_IMX = xmlschema.XMLSchema(ROOT_PATH / 'xsd-12.0.0/IMSpoor-SignalingDesign.xsd')
+            XSD_IMX = xmlschema.XMLSchema(ROOT_PATH / 'input/xsd-12.0.0/IMSpoor-SignalingDesign.xsd')
             logger.success("xsd 12.0.0 loading finished")
         case _:
             raise NotImplementedError(f"IMX version {imx_version} not supported")
@@ -161,7 +162,8 @@ def run(input_imx: str, input_excel: str, out_path: str):
     logger.success("loading xml finished")
 
     root = tree.getroot()
-    load_xsd(root.attrib.get('imxVersion'))
+    imx_version = root.attrib.get('imxVersion')
+    load_xsd(imx_version)
 
 
     puic_objects = tree.findall(".//*[@puic]")
@@ -214,8 +216,17 @@ def run(input_imx: str, input_excel: str, out_path: str):
     logger.success("finished creating manifest and zip container")
 
     #TODO: Create container or singleFile dependent on IMXversion
-    imx = ImxContainer(out_path / "O_D_003122_ERTMS_SignalingDesign-20250408.zip")
-    #imx = ImxSingleFile(out_path / "SignalingDesign.xml")
+    # match imx_version:
+    #     case "1.2.4":
+    #         imx = ImxSingleFile(out_path / "SignalingDesign.xml")
+    #     case "12.0.0":
+    #         imx = ImxContainer(out_path / "O_D_003122_ERTMS_SignalingDesign-20250408.zip")
+
+            #input_imx = ImxContainer(ROOT_PATH / "input/O_D_003122_ERTMS_SignalingDesign.zip")
+            # multi_repo = ImxMultiRepo([input_imx, imx], version_safe=False)
+            # compare = multi_repo.compare(input_imx.container_id, imx.container_id)
+            # compare.to_excel(ROOT_PATH/ "output/diff.xlsx")
+
 
 
     #TODO: create a diff between the input and output imx independent on version
