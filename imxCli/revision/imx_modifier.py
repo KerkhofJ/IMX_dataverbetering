@@ -166,10 +166,15 @@ def set_metadata(node: _Element, set_meta_parents: bool = False):
 
 def set_metadata_node(node: _Element):
     metadata = node.find(".//{http://www.prorail.nl/IMSpoor}Metadata")
+    if not metadata:
+        logger.warning("No metadata node present, metadata not set!]")
+
     original_source = [
         item
         for item in metadata.get("source", "").split("_")
-        if not any(keyword in item.lower() for keyword in ("prorail", "measure", "dv"))
+        if not any(
+            keyword in item.lower() for keyword in ("prorail", "measure", "dv")
+        )
     ]
 
     original_source.append("ProRail")
