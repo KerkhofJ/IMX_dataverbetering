@@ -23,10 +23,44 @@ def test_revision_template_help_command():
     assert result.exit_code == 0
 
 
+def test_revision_template():
+    clear_directory(Path("output"))
+
+    # valid run
+    result = runner.invoke(
+        app,
+        [
+            "revision-template",
+            "--out-path", "output/template.xlsx",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # file exist
+    result = runner.invoke(
+        app,
+        [
+            "revision-template",
+            "--out-path", "output/template.xlsx",
+        ],
+    )
+    assert result.exit_code == 1
+
+    # file not excel
+    result = runner.invoke(
+        app,
+        [
+            "revision-template",
+            "--out-path", "output/template.xl",
+        ],
+    )
+    assert result.exit_code == 1
+
+
 def test_process_command():
 
     # clean output dir
-    clear_directory(Path("data/output"))
+    clear_directory(Path("output"))
 
     # valid run
     result = runner.invoke(
@@ -35,7 +69,7 @@ def test_process_command():
             "revision",
             "--imx-input", "data/O_D_003122_ERTMS_SignalingDesign.xml",
             "--excel-input", "data/issuelist.xlsx",
-            "--out-path", "data/output",
+            "--out-path", "output",
         ],
     )
     assert result.exit_code == 0
@@ -47,7 +81,7 @@ def test_process_command():
             "revision",
             "--imx-input", "data/O_D_003122_ERTMS_SignalingDesign.xml",
             "--excel-input", "data/issuelist.xlsx",
-            "--out-path", "data/output",
+            "--out-path", "output",
         ],
     )
     assert result.exit_code == 1
@@ -59,7 +93,7 @@ def test_process_command():
             "revision",
             "--imx-input", "data/123.xml",
             "--excel-input", "data/issuelist.xlsx",
-            "--out-path", "data/output",
+            "--out-path", "output",
         ],
     )
     assert result.exit_code == 1
@@ -71,7 +105,7 @@ def test_process_command():
             "revision",
             "--imx-input", "data/O_D_003122_ERTMS_SignalingDesign.xml",
             "--excel-input", "data/123.xlsx",
-            "--out-path", "data/output",
+            "--out-path", "output",
         ],
     )
     assert result.exit_code == 1

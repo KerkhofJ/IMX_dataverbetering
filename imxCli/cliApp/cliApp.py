@@ -7,6 +7,7 @@ from rich import print
 from imxCli.cliApp.exception_handler import handle_input_validation
 from imxCli.utils.input_validation import validate_process_input
 from imxCli.revision.process_revision import process_imx_revisions
+from revision.revision_template import get_revision_template
 
 app = typer.Typer()
 
@@ -43,6 +44,13 @@ def validate_manifest():
 
 @handle_input_validation
 @app.command()
+def extract_comments():
+    # TODO: create excel sheet / file of all comments in diff or population report
+    pass
+
+
+@handle_input_validation
+@app.command()
 def revision_template(
     out_path: Annotated[
         Path, typer.Option(help="Directory where the revision Excel template will be saved.")
@@ -51,9 +59,11 @@ def revision_template(
     """
     This command generates a revision Excel template to a given directory.
     """
-    # TODO: create revision template excel
-    print(out_path)
-    pass
+    if out_path.suffix not in {'.xlsx', '.xlsm'}:
+        raise ValueError("Path is not a excel file")
+    if out_path.exists():
+        raise ValueError("File all ready exist!")
+    get_revision_template(out_path)
 
 
 @handle_input_validation
@@ -73,7 +83,6 @@ def revision(
     The Excel file should follow a specific format, which can be generated using the `revision_template` command.
     The modified IMX file, along with a corresponding report, will be saved to the specified output directory.
     """
-
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)
 

@@ -27,4 +27,15 @@ def handle_input_validation(func):
             )
             raise typer.Exit(code=1)
 
+        except ValueError as e:
+            console.print(
+                Panel(
+                    "\n".join(e),
+                    title="[bold red]Invalid Input[/bold red]",
+                    expand=True,
+                )
+            )
+            raise typer.Exit(code=1)
+
+
     return wrapper
