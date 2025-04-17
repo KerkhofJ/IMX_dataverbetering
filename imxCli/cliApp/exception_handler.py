@@ -1,6 +1,6 @@
 import typer
-from rich.panel import Panel
 from rich.console import Console
+from rich.panel import Panel
 
 from imxCli.utils.exceptions import ErrorList
 
@@ -30,12 +30,11 @@ def handle_input_validation(func):
         except ValueError as e:
             console.print(
                 Panel(
-                    "\n".join(e),
+                    f"{e}",
                     title="[bold red]Invalid Input[/bold red]",
                     expand=True,
                 )
             )
             raise typer.Exit(code=1)
-
 
     return wrapper

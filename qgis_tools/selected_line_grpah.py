@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from qgis.core import QgsProject
 
 # Get the selected feature
 layer = iface.activeLayer()  # Assuming the active layer is the one you're working with

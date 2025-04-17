@@ -3,7 +3,7 @@ from pathlib import Path
 from typer.testing import CliRunner
 
 from imxCli.cliApp.cliApp import app
-from utils.helpers import clear_directory
+from imxCli.utils.helpers import clear_directory
 
 runner = CliRunner()
 

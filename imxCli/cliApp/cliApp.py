@@ -5,9 +5,9 @@ import typer
 from rich import print
 
 from imxCli.cliApp.exception_handler import handle_input_validation
-from imxCli.utils.input_validation import validate_process_input
 from imxCli.revision.process_revision import process_imx_revisions
-from revision.revision_template import get_revision_template
+from imxCli.revision.revision_template import get_revision_template
+from imxCli.utils.input_validation import validate_process_input
 
 app = typer.Typer()
 
@@ -16,11 +16,13 @@ state = {
     "debug": False,
 }
 
+
 @handle_input_validation
 @app.command()
 def diff():
-    #TODO: create diff cli command
+    # TODO: create diff cli command
     pass
+
 
 @handle_input_validation
 @app.command()
@@ -35,6 +37,7 @@ def create_manifest():
     # TODO: create manifest cli command
     pass
 
+
 @handle_input_validation
 @app.command()
 def validate_manifest():
@@ -44,8 +47,15 @@ def validate_manifest():
 
 @handle_input_validation
 @app.command()
-def add_km_manifest():
+def add_km():
     # TODO: add km to imx cli command
+    pass
+
+
+@handle_input_validation
+@app.command()
+def measure_check():
+    # TODO: create measure check excel cli command
     pass
 
 
@@ -60,13 +70,14 @@ def extract_comments():
 @app.command()
 def revision_template(
     out_path: Annotated[
-        Path, typer.Option(help="Directory where the revision Excel template will be saved.")
+        Path,
+        typer.Option(help="Directory where the revision Excel template will be saved."),
     ],
 ):
     """
     This command generates a revision Excel template to a given directory.
     """
-    if out_path.suffix not in {'.xlsx', '.xlsm'}:
+    if out_path.suffix not in {".xlsx", ".xlsm"}:
         raise ValueError("Path is not a excel file")
     if out_path.exists():
         raise ValueError("File all ready exist!")

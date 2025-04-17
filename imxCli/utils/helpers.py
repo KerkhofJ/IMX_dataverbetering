@@ -9,4 +9,3 @@ def clear_directory(directory: Path):
             elif item.is_dir():
                 clear_directory(item)  # Recursively clear subdirectory
                 item.rmdir()  # Remove empty subdirectory
-

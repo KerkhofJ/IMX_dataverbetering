@@ -1,29 +1,28 @@
-import sys
 import os
+import sys
 from pathlib import Path
+from xml.etree.ElementTree import QName
 
-import xmlschema
 import pandas as pd
-
-from lxml import etree
-from lxml.etree import Element
-# from imxInsights import ImxContainer
-# from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
-
+import xmlschema
 from dotenv import load_dotenv
+from lxml import etree
+from lxml.etree import _Element
 
 from imxCli.revision.imx_modifier import (
-    set_attribute_or_element_by_path,
-    delete_attribute_if_matching,
-    set_metadata,
     create_element_under,
+    delete_attribute_if_matching,
     delete_element,
     delete_element_that_matches,
+    set_attribute_or_element_by_path,
+    set_metadata,
 )
+from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
+from imxCli.utils.custom_logger import logger
 from imxCli.utils.input_validation import ErrorList, validate_process_input
 
-from imxCli.utils.custom_logger import logger
-from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
+# from imxInsights import ImxContainer
+# from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 
 
 load_dotenv()
@@ -51,7 +50,17 @@ def load_xsd(imx_version):
     return XSD_IMX
 
 
-def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
+def _raise_tag_mismatch_error(expected_tag: str, actual_tag: str) -> None:
+    raise ValueError(
+        f"Object tag {expected_tag} does not match tag of found object {actual_tag}"
+    )
+
+
+def raise_type_error(tag):
+    raise TypeError(f"Unsupported tag type: {type(tag)}")
+
+
+def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
     for change in change_items:
         if not change["verbeteren"]:
             continue
@@ -64,19 +73,49 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
             change["status"] = f"object not present: {puic}"
             continue
 
-        imx_object_element: Element = puic_dict[puic]
+        imx_object_element: _Element = puic_dict[puic]
 
         object_type = change["objecttype"]
         operation = change["operation"]
 
         try:
-            if (
-                imx_object_element.tag
-                != f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
-            ):
-                raise ValueError(
-                    f"Object tag {object_type} does not match tag of found object {imx_object_element.tag.split('}')[1]}"
+            expected_tag = (
+                f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
+            )
+            actual_tag = imx_object_element.tag
+
+            if isinstance(actual_tag, QName):
+                actual_tag = str(actual_tag).split("}")[-1]
+            elif isinstance(actual_tag, str | bytes | bytearray):
+                tag_str = (
+                    actual_tag.decode()
+                    if isinstance(actual_tag, bytes | bytearray)
+                    else actual_tag
                 )
+                actual_tag = tag_str
+            else:
+                raise_type_error(actual_tag)
+
+            expected_tag = (
+                f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
+            )
+
+            if actual_tag != expected_tag:
+                # Ensure actual_tag is a string before using .split()
+                if isinstance(actual_tag, str):
+                    actual_localname = (
+                        actual_tag.split("}")[-1] if "}" in actual_tag else actual_tag
+                    )
+                elif isinstance(actual_tag, QName):
+                    actual_localname = (
+                        str(actual_tag).split("}")[-1]
+                        if "}" in str(actual_tag)
+                        else str(actual_tag)
+                    )
+                else:
+                    actual_localname = str(actual_tag)
+
+                _raise_tag_mismatch_error(object_type, actual_localname)
 
             match operation:
                 case "CreateAttribute":
@@ -144,10 +183,16 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
             change["status"] = f"Error: {e}"
 
         finally:
-            errors = list(XSD_IMX.iter_errors(imx_object_element))
+            assert XSD_IMX is not None
+            xml_bytes = etree.tostring(imx_object_element)
+            errors = list(XSD_IMX.iter_errors(xml_bytes))
             if errors:
                 change["status"] = f"{change['status']} - XSD invalid!"
-                change["xsd_errors"] = "".join([error.reason for error in errors])
+                change["xsd_errors"] = "".join(
+                    reason
+                    for error in errors
+                    if error is not None and (reason := error.reason) is not None
+                )
                 logger.error(change["xsd_errors"])
 
         logger.success(f"processing change {change} done")
@@ -158,7 +203,7 @@ def process_imx_revisions(
     input_excel: str | Path,
     out_path: str | Path,
     verbose: bool = True,
-):
+) -> pd.DataFrame:
     if not isinstance(input_imx, Path):
         # TODO: We could have a imx v12.x.x then we need to implement design petals (very low prio)
         input_imx = Path(input_imx)
@@ -196,12 +241,13 @@ def process_imx_revisions(
     df = df.fillna("")
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
     # use map to make sure all columns are lowercase
-    df.columns = map(str.lower, df.columns)
+    df.columns = pd.Index([col.lower() for col in df.columns])
 
     change_items = df.to_dict(orient="records")
 
     logger.info("processing xml")
-    process_changes(change_items, puic_dict)
+    puic_dict_ = {k: v for k, v in puic_dict.items() if k is not None}
+    process_changes(change_items, puic_dict_)
     logger.success("processing xml finshed")
 
     tree.write(imx_output, encoding="UTF-8", pretty_print=True)
@@ -210,7 +256,6 @@ def process_imx_revisions(
 
     with pd.ExcelWriter(excel_output, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="process-log")
-        workbook = writer.book
         worksheet = writer.sheets["process-log"]
         for col_num, value in enumerate(df.columns):
             max_len = (
@@ -220,16 +265,13 @@ def process_imx_revisions(
         worksheet.freeze_panes(1, 0)
         worksheet.autofilter(0, 0, 0, len(df.columns) - 1)
 
-
-
+    return df
 
     # TODO: Create a manifest as cli function (allso for a pre imx v12.x.x ? (more then very low prio!!))
     # manifest = ManifestBuilder(out_path)
     # manifest.create_manifest()
     # manifest.to_zip(out_path / "imx_container.zip")
     # logger.success("finished creating manifest and zip container")
-
-
 
     # TODO: create a diff as cli function, reuse here to diff input and output imx version independent
     # multi_repo = ImxMultiRepo([input_imx, imx], version_safe=False)

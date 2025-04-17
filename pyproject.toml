@@ -1,8 +1,10 @@
 [tool.ruff]
 target-version = "py310"
+exclude = ["qgis_tools"]
 
 [tool.ruff.lint]
 extend-select = ["I", "TRY", "UP"]
+ignore = ["TRY003"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=imxCli --cov-report=term-missing"
@@ -13,6 +15,9 @@ markers = [
 
 [tool.isort]
 profile = "black"  # Adjust this to match your style preference
+
+[tool.mypy]
+exclude = "^imxCli/utils/calculate_from_to_measures.py$"
 
 [tool.hatch]
 
