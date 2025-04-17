@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from openpyxl import Workbook, load_workbook
+from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 

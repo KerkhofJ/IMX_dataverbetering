@@ -65,7 +65,7 @@ def get_parent_and_target(
         if len(elements) > 1:
             try:
                 parent = elements[int(path_split[idx + 1])]
-            except Exception as e:
+            except Exception:
                 raise ValueError(
                     f'{".".join(path_split)} index "{int(path_split[idx + 1])}" out of range'
                 )
@@ -187,7 +187,7 @@ def set_metadata_node(node: _Element):
         metadata.set("registrationTime", TIMESTAMP)
 
     if ADD_COMMENTS:
-        add_comment(node, metadata, f"MetadataChanged")
+        add_comment(node, metadata, "MetadataChanged")
 
     puic_ = node.get("puic")
     logger.success(f"metadata for {puic_} set")
@@ -209,9 +209,9 @@ def delete_element_that_matches(node: _Element, xml_str: str):
     tag_raw = xml_to_insert.tag
     if isinstance(tag_raw, QName):
         tag = tag_raw.localname
-    elif isinstance(tag_raw, (str, bytes, bytearray)):
+    elif isinstance(tag_raw, str | bytes | bytearray):
         tag_str = (
-            tag_raw.decode() if isinstance(tag_raw, (bytes, bytearray)) else tag_raw
+            tag_raw.decode() if isinstance(tag_raw, bytes | bytearray) else tag_raw
         )
         tag = tag_str.split("}")[-1] if "}" in tag_str else tag_str
     else:

@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 
+
 def build_cli_app():
     script_path = Path("imxCli/cliApp/cliApp.py")
     xsd_12_path = Path("data/xsd-12.0.0")

@@ -1,15 +1,15 @@
-from qgis.PyQt.QtCore import QVariant
 from qgis.core import (
-    QgsProject,
-    QgsField,
     QgsFeature,
-    QgsVectorLayer,
+    QgsField,
     QgsGeometry,
-    QgsPointXY,
     QgsPalLayerSettings,
+    QgsPointXY,
+    QgsProject,
+    QgsTextFormat,
+    QgsVectorLayer,
     QgsVectorLayerSimpleLabeling,
-    QgsTextFormat
 )
+from qgis.PyQt.QtCore import QVariant
 
 # Get the active layer and selected features (assuming a 3D linestring layer)
 layer = iface.activeLayer()

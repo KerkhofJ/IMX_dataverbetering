@@ -1,4 +1,4 @@
-from imxInsights import ImxContainer, ImxSingleFile
+from imxInsights import ImxContainer
 from imxInsights.repo.imxRepoProtocol import ImxRepoProtocol
 from imxInsights.utils.measure_3d.measureCalculator import MeasureLine
 from shapely import LineString, Point, Polygon

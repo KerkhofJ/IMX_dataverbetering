@@ -49,6 +49,11 @@ def load_xsd(imx_version):
     return XSD_IMX
 
 
+def _raise_tag_mismatch_error(expected_tag: str, actual_tag: str) -> None:
+    raise ValueError(
+        f"Object tag {expected_tag} does not match tag of found object {actual_tag}"
+    )
+
 def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
     for change in change_items:
         if not change["verbeteren"]:
@@ -67,14 +72,12 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, Element]):
         object_type = change["objecttype"]
         operation = change["operation"]
 
+
         try:
-            if (
-                imx_object_element.tag
-                != f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
-            ):
-                raise ValueError(
-                    f"Object tag {object_type} does not match tag of found object {imx_object_element.tag.split('}')[1]}"
-                )
+            expected_tag = f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
+            actual_tag = imx_object_element.tag
+            if actual_tag != expected_tag:
+                _raise_tag_mismatch_error(object_type, actual_tag.split('}')[1])
 
             match operation:
                 case "CreateAttribute":
@@ -208,7 +211,6 @@ def process_imx_revisions(
 
     with pd.ExcelWriter(excel_output, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="process-log")
-        workbook = writer.book
         worksheet = writer.sheets["process-log"]
         for col_num, value in enumerate(df.columns):
             max_len = (

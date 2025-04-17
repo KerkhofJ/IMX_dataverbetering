@@ -1,14 +1,14 @@
+from PyQt5.QtCore import QVariant
 from qgis.core import (
+    QgsFeature,
+    QgsField,
+    QgsFields,
+    QgsLayerTreeGroup,
+    QgsLayerTreeLayer,
     QgsProject,
     QgsVectorLayer,
-    QgsFeature,
-    QgsFields,
-    QgsField,
     QgsWkbTypes,
-    QgsLayerTreeGroup,
-    QgsLayerTreeLayer
 )
-from PyQt5.QtCore import QVariant
 
 # Define the CRS as EPSG:7415 (Amersfoort / RD New + NAP height)
 crs_code = "EPSG:7415"
@@ -29,7 +29,7 @@ def create_memory_layer(geom_type, layer_name):
         return None
 
     # Set up the URI for the memory layer with the specified CRS.
-    uri = "{}?crs={}".format(geom_str, crs_code)
+    uri = f"{geom_str}?crs={crs_code}"
     mem_layer = QgsVectorLayer(uri, layer_name, "memory")
     provider = mem_layer.dataProvider()
 
@@ -128,7 +128,7 @@ def aggregate_group_layers(group_name="t2-geojson"):
     root = QgsProject.instance().layerTreeRoot()
     group = root.findGroup(group_name)
     if group is None:
-        print("Group '{}' not found.".format(group_name))
+        print(f"Group '{group_name}' not found.")
         return
 
     process_group(group, aggregated_points, aggregated_lines, aggregated_polygons)

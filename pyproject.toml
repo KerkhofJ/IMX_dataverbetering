@@ -1,8 +1,10 @@
 [tool.ruff]
 target-version = "py310"
+exclude = ["qgis_tools"]
 
 [tool.ruff.lint]
 extend-select = ["I", "TRY", "UP"]
+ignore = ["TRY003"]
 
 [tool.pytest.ini_options]
 addopts = "--cov=imxCli --cov-report=term-missing"
