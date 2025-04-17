@@ -1,5 +1,3 @@
-from os.path import isdir
-
 from imxInsights import ImxContainer
 from imxInsights.repo.imxRepoProtocol import ImxRepoProtocol
 from imxInsights.utils.measure_3d.measureCalculator import MeasureLine

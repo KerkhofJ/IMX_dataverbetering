@@ -56,6 +56,10 @@ def _raise_tag_mismatch_error(expected_tag: str, actual_tag: str) -> None:
     )
 
 
+def raise_type_error(tag):
+    raise TypeError(f"Unsupported tag type: {type(tag)}")
+
+
 def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
     for change in change_items:
         if not change["verbeteren"]:
@@ -82,24 +86,37 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
 
             if isinstance(actual_tag, QName):
                 actual_tag = str(actual_tag).split("}")[-1]
-            elif isinstance(actual_tag, (str, bytes, bytearray)):
+            elif isinstance(actual_tag, str | bytes | bytearray):
                 tag_str = (
                     actual_tag.decode()
-                    if isinstance(actual_tag, (bytes, bytearray))
+                    if isinstance(actual_tag, bytes | bytearray)
                     else actual_tag
                 )
                 actual_tag = tag_str
             else:
-                raise TypeError(f"Unsupported tag type: {type(actual_tag)}")
+                raise_type_error(actual_tag)
 
             expected_tag = (
                 f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
             )
 
             if actual_tag != expected_tag:
-                actual_localname = (
-                    actual_tag.split("}")[-1] if "}" in actual_tag else actual_tag
-                )
+                # Ensure actual_tag is a string before using .split()
+                if isinstance(actual_tag, str):
+                    actual_localname = (
+                        actual_tag.split("}")[-1] if "}" in actual_tag else actual_tag
+                    )
+                elif isinstance(actual_tag, QName):
+                    actual_localname = (
+                        str(actual_tag).split("}")[-1]
+                        if "}" in str(actual_tag)
+                        else str(actual_tag)
+                    )
+                else:
+                    actual_localname = str(
+                        actual_tag
+                    )
+
                 _raise_tag_mismatch_error(object_type, actual_localname)
 
             match operation:
