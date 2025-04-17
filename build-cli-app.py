@@ -1,4 +1,5 @@
 import subprocess
+import os
 from pathlib import Path
 
 
@@ -12,7 +13,7 @@ def build_cli_app():
     if not data_path.exists():
         raise FileNotFoundError(f"Data folder not found: {data_path}")
 
-    sep = ';' if Path().anchor != '/' else ':'
+    sep = ';' if os.name == 'nt' else ':'
 
     command = [
         "pyinstaller",
@@ -20,11 +21,12 @@ def build_cli_app():
         "--noconfirm",
         "--onefile",
         "--name", "imxCli",
-        "--add-data", f"{data_path}{sep}data",
+        f"--add-data={data_path}{sep}data",
     ]
 
     print("Running:", " ".join(command))
     subprocess.run(command, check=True)
+
 
 if __name__ == "__main__":
     build_cli_app()
