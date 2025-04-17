@@ -1,6 +1,0 @@
-xmlschema
-pandas
-typer
-imxInsights
-python-dotenv
-pyinstaller
