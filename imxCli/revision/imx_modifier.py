@@ -1,20 +1,8 @@
-from pathlib import Path
-
 from loguru import logger
 from lxml import etree
 from lxml.etree import Element
 
 from imxCli.settings import ADD_COMMENTS, ADD_TIMESTAMP, TIMESTAMP
-
-
-def clear_directory(directory: Path):
-    if directory.exists() and directory.is_dir():
-        for item in directory.iterdir():
-            if item.is_file():
-                item.unlink()  # Remove file
-            elif item.is_dir():
-                clear_directory(item)  # Recursively clear subdirectory
-                item.rmdir()  # Remove empty subdirectory
 
 
 def add_comment(parent: Element, child: Element, comment: str):

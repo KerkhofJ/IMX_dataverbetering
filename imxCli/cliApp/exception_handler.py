@@ -8,7 +8,11 @@ console = Console()
 
 
 def handle_input_validation(func):
-    """Decorator to handle InputValidationError exceptions in a reusable way."""
+    """
+    Decorator to handle InputValidationError exceptions in a reusable way.
+
+    Decorator should be placed before the cli command decorator!
+    """
 
     def wrapper(*args, **kwargs):
         try:
@@ -22,5 +26,16 @@ def handle_input_validation(func):
                 )
             )
             raise typer.Exit(code=1)
+
+        except ValueError as e:
+            console.print(
+                Panel(
+                    "\n".join(e),
+                    title="[bold red]Invalid Input[/bold red]",
+                    expand=True,
+                )
+            )
+            raise typer.Exit(code=1)
+
 
     return wrapper
