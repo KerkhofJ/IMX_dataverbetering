@@ -113,9 +113,7 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
                         else str(actual_tag)
                     )
                 else:
-                    actual_localname = str(
-                        actual_tag
-                    )
+                    actual_localname = str(actual_tag)
 
                 _raise_tag_mismatch_error(object_type, actual_localname)
 
