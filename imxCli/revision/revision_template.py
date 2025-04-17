@@ -61,6 +61,9 @@ def get_revision_template(out_file_path: str | Path):
 
     wb = Workbook()
     ws = wb.active
+    if not ws:
+        raise ValueError("Workbook not found")
+
     ws.title = "revisions"
 
     # set header
