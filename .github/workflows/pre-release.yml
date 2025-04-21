@@ -91,7 +91,7 @@ jobs:
 
     - name: Upload release
       if: env.match == 'false'
-      uses: ncipollo/release-action@v1.16.0
+      uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174
       with:
         draft: true
         name: 🚀 Version ${{ env.version }}
