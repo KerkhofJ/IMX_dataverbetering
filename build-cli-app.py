@@ -3,6 +3,7 @@ import os
 import platform
 from pathlib import Path
 import re
+import sys
 
 
 def extract_version():
@@ -27,21 +28,26 @@ def build_cli_app():
     system = platform.system().lower()
     exe_name = f"imxCli-{version}-{system}"
 
-    sep = ";" if os.name == "nt" else ":"
+    sep = ';' if os.name == 'nt' else ':'
 
-    pyinstaller_cmd = [
+    command = [
         "pyinstaller",
         str(script_path),
         "--noconfirm",
         "--clean",
         "--onefile",
-        "--name", exe_name,
         "--distpath", "dist",
+        "--name", exe_name,
         "--add-data", f"{data_path}{sep}data",
     ]
 
-    print("Running:", " ".join(pyinstaller_cmd))
-    subprocess.run(pyinstaller_cmd, check=True)
+    print("📦 Running:", " ".join(command))
+    try:
+        subprocess.run(command, check=True)
+        print(f"\n✅ Built: dist/{exe_name}{'.exe' if os.name == 'nt' else ''}")
+    except subprocess.CalledProcessError as e:
+        print(f"\n❌ PyInstaller failed: {e}")
+        sys.exit(e.returncode)
 
 
 if __name__ == "__main__":
