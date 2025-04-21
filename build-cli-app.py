@@ -15,13 +15,6 @@ def extract_version():
     return match.group(1)
 
 
-def safe_print(*args, **kwargs):
-    try:
-        print(*args, **kwargs)
-    except UnicodeEncodeError:
-        print(*(arg.encode('ascii', errors='ignore').decode() for arg in args), **kwargs)
-
-
 def build_cli_app():
     script_path = Path("imxCli/cliApp/cliApp.py")
     data_path = Path("data")
@@ -48,12 +41,12 @@ def build_cli_app():
         "--add-data", f"{data_path}{sep}data",
     ]
 
-    safe_print("📦 Running:", " ".join(command))
+    print("Running:", " ".join(command))
     try:
         subprocess.run(command, check=True)
-        safe_print(f"\n✅ Built: dist/{exe_name}{'.exe' if os.name == 'nt' else ''}")
+        print(f"\nBuilt: dist/{exe_name}{'.exe' if os.name == 'nt' else ''}")
     except subprocess.CalledProcessError as e:
-        safe_print(f"\n❌ PyInstaller failed: {e}")
+        print(f"\nPyInstaller failed: {e}")
         sys.exit(e.returncode)
 
 
