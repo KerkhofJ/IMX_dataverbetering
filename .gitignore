@@ -176,3 +176,5 @@ cython_debug/
 ## project
 *.log
 /sample_data/output/
+/dist
+/build
