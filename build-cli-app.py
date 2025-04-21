@@ -35,7 +35,7 @@ def build_cli_app():
         str(script_path),
         "--noconfirm",
         "--clean",
-        "--onefile",
+        # "--onefile",
         "--distpath", "dist",
         "--name", exe_name,
         "--add-data", f"{data_path}{sep}data",
