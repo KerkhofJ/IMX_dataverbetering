@@ -38,7 +38,6 @@ jobs:
     - name: Test
       run: |
         hatch run test
-
   pre-release:
     runs-on: windows-latest
     environment: release
@@ -67,7 +66,7 @@ jobs:
       id: extract_version
       shell: bash
       run: |
-        VERSION=$(grep -oP '__version__\s*=\s*"\K[^"]+' imxCli/__init__.py)
+        VERSION=$(grep -Eo '__version__\s*=\s*"[^"]+"' imxCli/__init__.py | cut -d'"' -f2)
         echo "version=$VERSION" >> $GITHUB_ENV
 
     - name: Fetch latest release version
