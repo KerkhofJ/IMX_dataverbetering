@@ -18,7 +18,6 @@ def build_cli_app():
     script_path = Path("imxCli/cliApp/cliApp.py")
     data_path = Path("data")
 
-    # Ensure paths exist
     if not script_path.exists():
         raise FileNotFoundError(f"Script not found: {script_path}")
     if not data_path.exists():
@@ -28,21 +27,21 @@ def build_cli_app():
     system = platform.system().lower()
     exe_name = f"imxCli-{version}-{system}"
 
-    sep = ';' if os.name == 'nt' else ':'
+    sep = ";" if os.name == "nt" else ":"
 
-    command = [
+    pyinstaller_cmd = [
         "pyinstaller",
         str(script_path),
         "--noconfirm",
         "--clean",
-        "--distpath",
         "--onefile",
         "--name", exe_name,
+        "--distpath", "dist",
         "--add-data", f"{data_path}{sep}data",
     ]
 
-    print("Running:", " ".join(command))
-    subprocess.run(command, check=True)
+    print("Running:", " ".join(pyinstaller_cmd))
+    subprocess.run(pyinstaller_cmd, check=True)
 
 
 if __name__ == "__main__":
