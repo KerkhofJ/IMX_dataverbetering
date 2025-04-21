@@ -4,6 +4,7 @@ import platform
 from pathlib import Path
 import re
 import sys
+import zipfile
 
 
 def extract_version():
@@ -35,7 +36,6 @@ def build_cli_app():
         str(script_path),
         "--noconfirm",
         "--clean",
-        # "--onefile",
         "--distpath", "dist",
         "--name", exe_name,
         "--add-data", f"{data_path}{sep}data",
@@ -44,10 +44,31 @@ def build_cli_app():
     print("Running:", " ".join(command))
     try:
         subprocess.run(command, check=True)
-        print(f"\nBuilt: dist/{exe_name}{'.exe' if os.name == 'nt' else ''}")
+
+        # One-folder app path
+        folder_path = Path("dist") / exe_name
+        exe_filename = exe_name + (".exe" if os.name == "nt" else "")
+
+        exe_path = folder_path / exe_filename
+        if not exe_path.exists():
+            raise FileNotFoundError(f"Executable not found at: {exe_path}")
+
+        print(f"\nBuilt: {exe_path}")
+        zip_result(folder_path, exe_filename)
     except subprocess.CalledProcessError as e:
         print(f"\nPyInstaller failed: {e}")
         sys.exit(e.returncode)
+
+
+def zip_result(folder_path: Path, exe_filename: str):
+    zip_name = f"{exe_filename.rsplit('.', 1)[0]}.zip"
+    zip_path = folder_path.parent / zip_name
+    print(f"Creating ZIP: {zip_path}")
+
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for file in folder_path.rglob("*"):
+            zipf.write(file, arcname=file.relative_to(folder_path))
+    print(f"Packaged: {zip_path}")
 
 
 if __name__ == "__main__":
