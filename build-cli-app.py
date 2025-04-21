@@ -34,6 +34,8 @@ def build_cli_app():
         "pyinstaller",
         str(script_path),
         "--noconfirm",
+        "--clean",
+        "--distpath",
         "--onefile",
         "--name", exe_name,
         "--add-data", f"{data_path}{sep}data",
