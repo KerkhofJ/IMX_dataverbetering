@@ -17,9 +17,9 @@ from imxCli.revision.imx_modifier import (
     set_attribute_or_element_by_path,
     set_metadata,
 )
+from imxCli.revision.input_validation import ErrorList, validate_process_input
 from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
 from imxCli.utils.custom_logger import logger
-from imxCli.revision.input_validation import ErrorList, validate_process_input
 
 # from imxInsights import ImxContainer
 # from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
