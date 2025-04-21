@@ -16,9 +16,12 @@ jobs:
       actions: write
 
   pre-release:
-    runs-on: windows-latest
-    environment: release
+    runs-on: ${{ matrix.os }}
     needs: test
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    environment: release
     permissions:
       contents: write
       id-token: write
@@ -31,7 +34,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.13'
+        python-version: '3.10'
 
     - name: Install dependencies
       run: |
@@ -61,17 +64,45 @@ jobs:
           echo "match=false" >> $GITHUB_ENV
         fi
 
-    - name: Build exe
-      run: python build-cli-app.py
+    - name: Build CLI app
       if: env.match == 'false'
+      run: |
+        pyinstaller imxCli/__main__.py --name imxCli-${{ env.version }} --onefile
+
+    - name: Rename output binary
+      if: env.match == 'false'
+      run: |
+        OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+        EXT=""
+        if [ "$OS" = "windows" ]; then EXT=".exe"; fi
+        mv dist/imxCli-${{ env.version }}$EXT dist/imxCli-${{ env.version }}-${OS}$EXT
+
+    - name: Upload artifact
+      if: env.match == 'false'
+      uses: actions/upload-artifact@v4
+      with:
+        name: imxCli-${{ env.version }}-${{ runner.os }}
+        path: dist/imxCli-${{ env.version }}-${{ runner.os }}*
+        if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-latest
+    needs: pre-release
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        path: artifacts
 
     - name: Upload release
-      if: env.match == 'false'
       uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174
       with:
         draft: true
         name: 🚀 Version ${{ env.version }}
         tag: v${{ env.version }}
         generateReleaseNotes: true
-        artifacts: dist/imxCli-${{ env.version }}-windows.exe
+        artifacts: |
+          artifacts/**/imxCli-*
         token: ${{ secrets.GITHUB_TOKEN }}
