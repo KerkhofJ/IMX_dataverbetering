@@ -1,17 +1,20 @@
+from datetime import datetime
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
-
-# from imxInsights import ImxContainer, ImxMultiRepo, ImxSingleFile
+from imxInsights import ImxContainer, ImxMultiRepo
+from imxInsights.file.singleFileImx.imxSituationEnum import ImxSituationEnum
 from rich import print
 
 from imxTools.cliApp.exception_handler import handle_input_validation
 from imxTools.revision.input_validation import validate_process_input
 from imxTools.revision.process_revision import process_imx_revisions
 from imxTools.revision.revision_template import get_revision_template
+from imxTools.utils.helpers import load_imx
 
 app = typer.Typer()
+
 
 state = {
     "verbose": False,
@@ -19,64 +22,128 @@ state = {
 }
 
 
-# @handle_input_validation
-# @app.command()
-# def diff(
-#     t1_imx: Annotated[
-#         Path,
-#         typer.Argument(help="Imx container t1"),
-#     ],
-#     t1_situation: Annotated[
-#         Optional[Path],
-#         typer.Option(help="Optional: situation file for t1", default=None),
-#     ],
-#     t2_imx: Annotated[
-#         Path,
-#         typer.Argument(help="Imx container t2"),
-#     ],
-#     t2_situation: Annotated[
-#         Optional[Path],
-#         typer.Option(help="Optional: situation file for t2", default=None),
-#     ],
-#     out_path: Annotated[
-#         Path,
-#         typer.Argument(help="Directory where the diff Excel and geojson will be saved."),
-#     ],
-#     geojson: Annotated[
-#         bool,
-#         typer.Option(help="Generate GeoJSON output", default=False),
-#     ],
-# ):
-#     # TODO: create diff cli command
-#     # check if t1 is zip, if not we should have a t1 situation and is a single file else container file
-#     # check if t2 is zip, if not we should have a t1 situation and is a single file else container file
-#     # check if output is empty
-#
-#     # make multi repo
-#     # create diff excel to out_path
-#     # create geojson to out_path
-#
-#     pass
+@handle_input_validation
+@app.command()
+def diff(
+    t1_path: Path = typer.Argument(
+        ...,
+        exists=True,
+        readable=True,
+        help="Path to the IMX T1 xml file or zip container",
+    ),
+    t2_path: Path = typer.Argument(
+        ...,
+        exists=True,
+        readable=True,
+        help="Path to the IMX T2 xml file or zip container",
+    ),
+    out_path: Path = typer.Argument(
+        ...,
+        exists=False,
+        writable=True,
+        help="Path where the output files will be generated (should not exists)",
+    ),
+    t1_situation: ImxSituationEnum | None = typer.Option(
+        None, help="Situation type for IMX T1 (only needed for single imx files)"
+    ),
+    t2_situation: ImxSituationEnum | None = typer.Option(
+        None, help="Situation type for IMX T2 (only needed for single imx files)"
+    ),
+    geojson: bool = typer.Option(
+        False, "--geojson", help="Export GeoJSON to output directory"
+    ),
+    to_wgs: bool = typer.Option(False, "--wgs", help="Geojson in wgs"),
+):
+    """
+    Compare two IMX datasets (T1 and T2) and generate a diff report.
+
+    This command compares two IMX XML files or containers (T1 and T2) and
+    generates an Excel report with the differences. Optionally, it can also
+    export the geographic changes as GeoJSON files.
+
+    - If the input is a container, it must include a valid IMX situation.
+    - If both inputs are the same file, you must specify different situations.
+
+    The generated output is timestamped and saved to the given output path.
+
+    Example:
+        python app.py diff t1.zip t2.zip ./output --geojson --wgs
+    """
+    t1 = load_imx(t1_path, t1_situation)
+    if not t1:
+        raise ValueError(
+            "IMX T1 results in None. Is the situation present in the IMX file?"
+        )
+
+    t2_same_file = t1_path == t2_path and not isinstance(t1, ImxContainer)
+    if t2_same_file:
+        t2 = load_imx(t1_path, t2_situation)
+    else:
+        t2 = load_imx(t2_path, t2_situation)
+
+    if not t2:
+        raise ValueError(
+            "IMX T2 results in None. Is the situation present in the IMX file?"
+        )
+
+    multi_repo = ImxMultiRepo([t1, t2], version_safe=False)  # type: ignore[abstract]
+    compare = multi_repo.compare(
+        container_id_1=t1.container_id,
+        container_id_2=t2.container_id,
+    )
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    compare.to_excel(out_path / f"{timestamp}-diff.xlsx")
+
+    if geojson:
+        compare.create_geojson_files(out_path / f"{timestamp}-geojsons", to_wgs=to_wgs)
 
 
-# @handle_input_validation
-# @app.command()
-# def population(
-#     imx: Annotated[
-#         Path,
-#         typer.Option(help="Imx container t1"),
-#     ],
-#     situation: Annotated[
-#         Optional[Path],
-#         typer.Option(help="Optional: situation file for t1", default=None),
-#     ],
-#     out_path: Annotated[
-#         Path,
-#         typer.Option(help="Directory where the population Excel and geojson will be saved."),
-#     ],
-# ):
-#     # TODO: create geojson cli command
-#     pass
+@handle_input_validation
+@app.command()
+def population(
+    imx: Path = typer.Argument(
+        ...,
+        exists=True,
+        readable=True,
+        help="Path to the IMX xml file or zip container",
+    ),
+    out_path: Path = typer.Argument(
+        ...,
+        exists=False,
+        writable=True,
+        help="Path where the output files will be generated (should not exists)",
+    ),
+    imx_situation: ImxSituationEnum | None = typer.Option(
+        None, help="Situation type for IMX (only needed for single imx files)"
+    ),
+    geojson: bool = typer.Option(
+        False, "--geojson", help="Export GeoJSON to output directory"
+    ),
+    to_wgs: bool = typer.Option(False, "--wgs", help="Geojson in wgs"),
+):
+    """
+    Export population data from a single IMX dataset.
+
+    This command reads a single IMX XML file or zip container, and generates
+    a population report in Excel format. Optionally, it can also export
+    GeoJSON files representing the dataset.
+
+    - If the input is a container, a specific IMX situation may be required.
+    - The output files are saved to the specified output path with a timestamp.
+
+    Example:
+        python app.py population imx.zip ./output --geojson --wgs
+    """
+    t1 = load_imx(imx, imx_situation)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    t1.to_excel(out_path / f"{timestamp}-population.xlsx")
+
+    if geojson:
+        t1.create_geojson_files(out_path / f"{timestamp}-geojsons", to_wgs=to_wgs)
 
 
 # @handle_input_validation
@@ -92,7 +159,8 @@ state = {
 #     # TODO: validate manifest cli command
 #     pass
 #
-#
+
+
 # @handle_input_validation
 # @app.command()
 # def add_km():
@@ -123,7 +191,17 @@ def revision_template(
     ],
 ):
     """
-    This command generates a revision Excel template to a given .xlsx file path.
+    Generate a (example filled) Excel template for performing IMX revisions.
+
+    This command creates an Excel file that can be used to define revisions
+    to an IMX file. The structure of this template must be followed when
+    preparing data for the `revision` command.
+
+    - The file must not already exist.
+    - The output path must end with `.xlsx`.
+
+    Example:
+        python app.py revision-template ./revision_template.xlsx
     """
     if out_path.suffix != ".xlsx":
         raise ValueError("Path must be an Excel file with .xlsx extension.")
@@ -135,24 +213,26 @@ def revision_template(
 @handle_input_validation
 @app.command()
 def revision(
-    imx_input: Annotated[
-        Path,
-        typer.Argument(help="The input IMX file (.xml).")
-    ],
+    imx_input: Annotated[Path, typer.Argument(help="The input IMX file (.xml).")],
     excel_input: Annotated[
-        Path,
-        typer.Argument(help="The Excel file with revision items.")
+        Path, typer.Argument(help="The Excel file with revision items.")
     ],
     out_path: Annotated[
         Path,
-        typer.Argument(help="The output folder for modified IMX and Excel report.")
+        typer.Argument(help="The output folder for modified IMX and Excel report."),
     ],
 ):
     """
-    Applies modifications to an IMX file based on a provided Excel file.
+    Apply revisions to an IMX file using a structured Excel file.
 
-    The Excel file should follow a specific format, which can be generated using the `revision_template` command.
-    The modified IMX file, along with a corresponding report, will be saved to the specified output directory.
+    This command reads an IMX file and applies updates based on revision instructions
+    found in an accompanying Excel file. A new IMX file and a detailed Excel report
+    are written to the given output folder.
+
+    The Excel file must follow the format provided by the `revision-template` command.
+
+    Example:
+        python app.py revision input.imx.xml revisions.xlsx ./output
     """
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)
@@ -161,7 +241,16 @@ def revision(
 @app.callback()
 def main(verbose: bool = False, debug: bool = False):
     """
-    Awesome open-imx.nl CLI app.
+    Open-IMX Command Line Interface (CLI) for managing IMX data.
+
+    This is the main entry point for all Open-IMX CLI commands. It provides
+    flexibility to configure the verbosity of logs and enable debug mode.
+
+    - Use the `verbose` flag to get more detailed logging.
+    - Use the `debug` flag to enable debug mode for deeper insights.
+
+    Example:
+        python app.py --verbose --debug
     """
     if verbose:
         print("[blue]Verbose mode enabled[/blue]")
