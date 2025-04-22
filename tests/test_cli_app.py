@@ -32,7 +32,7 @@ def test_revision_template(output_path: str):
         app,
         [
             "revision-template",
-            "--out-path", f"{output_path}/template.xlsx",
+            f"{output_path}/template.xlsx",
         ],
     )
     assert result.exit_code == 0, "Should create a template file"
@@ -42,7 +42,7 @@ def test_revision_template(output_path: str):
         app,
         [
             "revision-template",
-            "--out-path", f"{output_path}/template.xlsx",
+            f"{output_path}/template.xlsx",
         ],
     )
     assert result.exit_code == 1, "Should not create template file if file exists"
@@ -52,7 +52,7 @@ def test_revision_template(output_path: str):
         app,
         [
             "revision-template",
-            "--out-path", f"{output_path}/template.not_xlsx",
+            f"{output_path}/template.not_xlsx",
         ],
     )
     assert result.exit_code == 1, "Should not create template file if file is not .xlsx or xlsm"
@@ -70,9 +70,9 @@ def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str
         app,
         [
             "revision",
-            "--imx-input", imx_12_xml_file,
-            "--excel-input", issue_list,
-            "--out-path", output_path,
+            imx_12_xml_file,
+            issue_list,
+            output_path,
         ],
     )
     assert result.exit_code == 0, "Should create processed imx and excel log"
@@ -82,9 +82,9 @@ def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str
         app,
         [
             "revision",
-            "--imx-input", imx_12_xml_file,
-            "--excel-input", issue_list,
-            "--out-path", output_path,
+            imx_12_xml_file,
+            issue_list,
+            output_path,
         ],
     )
     assert result.exit_code == 1, "Should not create processed imx and excel log if output exist"
@@ -94,9 +94,9 @@ def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str
         app,
         [
             "revision",
-            "--imx-input", "data/123.xml",
-            "--excel-input", issue_list,
-            "--out-path", output_path
+            "data/123.xml",
+            issue_list,
+            output_path
         ],
     )
     assert result.exit_code == 1, "Should not create processed imx and excel log if input imx not present"
@@ -106,9 +106,9 @@ def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str
         app,
         [
             "revision",
-            "--imx-input", imx_12_xml_file,
-            "--excel-input", "data/123.xlsx",
-            "--out-path", output_path,
+            imx_12_xml_file,
+            "data/123.xlsx",
+            output_path,
         ],
     )
     assert result.exit_code == 1, "Should not create processed imx and excel log if input excel not present"

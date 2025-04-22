@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Annotated  # , Optional
+from typing import Annotated, Optional
 
 import typer
 
@@ -24,7 +24,7 @@ state = {
 # def diff(
 #     t1_imx: Annotated[
 #         Path,
-#         typer.Option(help="Imx container t1"),
+#         typer.Argument(help="Imx container t1"),
 #     ],
 #     t1_situation: Annotated[
 #         Optional[Path],
@@ -32,7 +32,7 @@ state = {
 #     ],
 #     t2_imx: Annotated[
 #         Path,
-#         typer.Option(help="Imx container t2"),
+#         typer.Argument(help="Imx container t2"),
 #     ],
 #     t2_situation: Annotated[
 #         Optional[Path],
@@ -40,7 +40,7 @@ state = {
 #     ],
 #     out_path: Annotated[
 #         Path,
-#         typer.Option(help="Directory where the diff Excel and geojson will be saved."),
+#         typer.Argument(help="Directory where the diff Excel and geojson will be saved."),
 #     ],
 #     geojson: Annotated[
 #         bool,
@@ -119,28 +119,33 @@ state = {
 def revision_template(
     out_path: Annotated[
         Path,
-        typer.Option(help="Directory where the revision Excel template will be saved."),
+        typer.Argument(help="Path to the revision Excel template to create (.xlsx)."),
     ],
 ):
     """
-    This command generates a revision Excel template to a given directory.
+    This command generates a revision Excel template to a given .xlsx file path.
     """
-    if out_path.suffix not in {".xlsx", ".xlsm"}:
-        raise ValueError("Path is not a excel file")
+    if out_path.suffix != ".xlsx":
+        raise ValueError("Path must be an Excel file with .xlsx extension.")
     if out_path.exists():
-        raise ValueError("File all ready exist!")
+        raise ValueError("File already exists!")
     get_revision_template(out_path)
 
 
 @handle_input_validation
 @app.command()
 def revision(
-    imx_input: Annotated[Path, typer.Option(help="The input imx file as a xml file.")],
+    imx_input: Annotated[
+        Path,
+        typer.Argument(help="The input IMX file (.xml).")
+    ],
     excel_input: Annotated[
-        Path, typer.Option(help="The input excel whit revision items to process.")
+        Path,
+        typer.Argument(help="The Excel file with revision items.")
     ],
     out_path: Annotated[
-        Path, typer.Option(help="The output folder for processed imx and excel report.")
+        Path,
+        typer.Argument(help="The output folder for modified IMX and Excel report.")
     ],
 ):
     """
