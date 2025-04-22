@@ -54,14 +54,14 @@ def build_cli_app():
             raise FileNotFoundError(f"Executable not found at: {exe_path}")
 
         print(f"\nBuilt: {exe_path}")
-        zip_result(folder_path, exe_filename)
+        zip_result(folder_path, version)
     except subprocess.CalledProcessError as e:
         print(f"\nPyInstaller failed: {e}")
         sys.exit(e.returncode)
 
 
-def zip_result(folder_path: Path, exe_filename: str):
-    zip_name = f"{exe_filename.rsplit('.', 1)[0]}.zip"
+def zip_result(folder_path: Path, version: str):
+    zip_name = f"imxCli-{version}-windows.zip"
     zip_path = folder_path.parent / zip_name
     print(f"Creating ZIP: {zip_path}")
 
