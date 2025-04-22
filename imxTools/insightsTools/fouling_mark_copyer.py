@@ -1,11 +1,13 @@
 from pathlib import Path
+
 import xmlschema
+from imxInsights.domain.imxObject import ImxObject
 from lxml import etree
 
 NAMESPACE = "http://www.prorail.nl/IMSpoor"
 
 
-#TODO: this is generic, should move to helpers.
+# TODO: this is generic, should move to helpers.
 def load_imx_file(file_path: Path):
     parser = etree.XMLParser(remove_blank_text=True)
     tree = etree.parse(str(file_path), parser=parser)
@@ -13,11 +15,12 @@ def load_imx_file(file_path: Path):
 
 
 def get_fouling_points(root, situation_tag: str):
-    situation_element = root.find(f'*{{{NAMESPACE}}}{situation_tag}')
-    return situation_element.findall(f'.//{{{NAMESPACE}}}FoulingPoint')
+    situation_element = root.find(f"*{{{NAMESPACE}}}{situation_tag}")
+    return situation_element.findall(f".//{{{NAMESPACE}}}FoulingPoint")
 
 
 def create_parent_element_mapping(fouling_points):
+    parent_dict: dict[str, list[ImxObject]] = {}
     parent_dict = {}
     for item in fouling_points:
         parent = item.getparent()
@@ -34,7 +37,7 @@ def add_fouling_marks_and_validate(parent_dict, root_container, xsd_schema):
             raise ValueError(f"Found no or more than one element with PUIC {key}")
 
         matching_element = matching_elements[0]
-        switch_blades = matching_element.findall(f'.//{{{NAMESPACE}}}SwitchBlades')
+        switch_blades = matching_element.findall(f".//{{{NAMESPACE}}}SwitchBlades")
 
         if switch_blades:
             last_blade = switch_blades[-1]
@@ -55,7 +58,7 @@ def copy_fooling_marks(
     imx_file: Path,
     situation_tag: str,
     container_file: Path,
-    output_file: Path
+    output_file: Path,
 ) -> list:
     """
     Process an IMX file to insert FoulingMarks and validate it against the XSD.
@@ -71,7 +74,9 @@ def copy_fooling_marks(
 
     xsd_errors = add_fouling_marks_and_validate(parent_dict, root_container, xsd_schema)
 
-    with open(output_file, 'wb') as f:
-        etree.ElementTree(root_container).write(f, pretty_print=True, xml_declaration=True, encoding='UTF-8')
+    with open(output_file, "wb") as f:
+        etree.ElementTree(root_container).write(
+            f, pretty_print=True, xml_declaration=True, encoding="UTF-8"
+        )
 
     return xsd_errors

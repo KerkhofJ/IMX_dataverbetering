@@ -17,7 +17,8 @@ markers = [
 profile = "black"  # Adjust this to match your style preference
 
 [tool.mypy]
-exclude = "^imxTools/utils/calculate_from_to_measures.py$"
+exclude = "^imxTools/utils/calculate_from_to_measures.py$|^imxTools/insightsTools/kilometer_ribbon.py$|^imxTools/insightsTools/manifest.py$"
+
 
 [tool.hatch]
 
@@ -94,6 +95,7 @@ dependencies = [
     "imxInsights",
     "types-lxml",
     "openpyxl",
+    "kmService",
 ]
 
 [project.urls]

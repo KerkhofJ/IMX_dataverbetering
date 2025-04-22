@@ -10,11 +10,13 @@ from imxTools.insightsTools.diff_and_population import (
     write_diff_output_files,
     write_population_output_files,
 )
+from imxTools.insightsTools.fouling_mark_copyer import copy_fooling_marks
+
+# from imxTools.insightsTools.kilometer_ribbon import add_km_to_imx_xml_file
+# from imxTools.insightsTools.manifest import build_manifest
 from imxTools.revision.input_validation import validate_process_input
 from imxTools.revision.process_revision import process_imx_revisions
 from imxTools.revision.revision_template import get_revision_template
-from imxTools.insightsTools.fouling_mark_copyer import copy_fooling_marks
-from insightsTools.manifest import build_manifest
 
 app = typer.Typer()
 
@@ -122,28 +124,6 @@ def population(
 
 # @handle_input_validation
 # @app.command()
-# def create_manifest():
-#     # TODO: create manifest cli command
-#     pass
-#
-#
-# @handle_input_validation
-# @app.command()
-# def validate_manifest():
-#     # TODO: validate manifest cli command
-#     pass
-#
-
-
-# @handle_input_validation
-# @app.command()
-# def add_km():
-#     # TODO: add km to imx cli command
-#     pass
-
-
-# @handle_input_validation
-# @app.command()
 # def measure_check():
 #     # TODO: create measure check excel cli command
 #     pass
@@ -212,14 +192,19 @@ def revision(
     process_imx_revisions(imx_input, excel_input, out_path)
 
 
-
 @app.command()
-def copy_foulingmarks(
+def copy_fouling_marks(
     xsd_path: Path = typer.Argument(..., help="Path to the IMSpoor XSD schema file."),
     imx_file: Path = typer.Argument(..., help="Path to the IMX single file."),
-    situation_tag: str = typer.Argument(..., help="Tag of the situation in the IMX file."),
-    container_file: Path = typer.Argument(..., help="Path to the container IMX XML file."),
-    output_file: Path = typer.Option("modified_file.xml", help="Output file path for the modified IMX XML.")
+    situation_tag: str = typer.Argument(
+        ..., help="Tag of the situation in the IMX file."
+    ),
+    container_file: Path = typer.Argument(
+        ..., help="Path to the container IMX XML file."
+    ),
+    output_file: Path = typer.Option(
+        "modified_file.xml", help="Output file path for the modified IMX XML."
+    ),
 ):
     """Copy FoulingMarks from to a  IMX container and validate using an XSD.
 
@@ -237,7 +222,9 @@ def copy_foulingmarks(
         python app.py insert-fouling-marks schema/IMSpoor.xsd single.imx.xml SituationA container.imx.xml --output-file modified.xml
     """
     typer.echo("Processing IMX file...")
-    xsd_errors = copy_fooling_marks(xsd_path, imx_file, situation_tag, container_file, output_file)
+    xsd_errors = copy_fooling_marks(
+        xsd_path, imx_file, situation_tag, container_file, output_file
+    )
 
     if xsd_errors:
         typer.echo("XSD validation errors:")
@@ -248,36 +235,53 @@ def copy_foulingmarks(
         typer.echo(f"Modified file written to: {output_file}")
 
 
-
-@app.command()
-def generate_manifest(
-    input_path: str,
-    output_zip: str = "",
-    no_timestamp: bool = False,
-):
-    """
-    Add manifest to a folder or existing zip.
-
-    **WARNING: THIS IS EXPERIMENTAL FEATURE!!!!**
-
-    Examples:
-    python cli.py generate-manifest "C:\\project\\folder"
-    python cli.py generate-manifest "C:\\project\\existing.zip"
-    """
-    input_path = Path(input_path)
-    output_path = Path(output_zip) if output_zip else None
-
-    if not input_path.exists():
-        typer.echo(f"Error: Input path does not exist: {input_path}")
-        raise typer.Exit(code=1)
-
-    zip_path = build_manifest(
-        input_path=input_path,
-        output_zip=output_path,
-        include_timestamp=not no_timestamp
-    )
-
-    typer.echo(f"Manifest added and zipped at: {zip_path}")
+# @app.command()
+# def generate_manifest(
+#     input_path: Path = typer.Argument(..., help="Path to the input zip or folder."),
+#     output_zip: Path = typer.Argument(..., help="Path to the output zip."),
+#     no_timestamp: bool = False,
+# ):
+#     """
+#     Add manifest to a folder or existing zip.
+#
+#     **WARNING: THIS IS EXPERIMENTAL FEATURE!!!!**
+#
+#     Examples:
+#     python cli.py generate-manifest "C:\\project\\folder"
+#     python cli.py generate-manifest "C:\\project\\existing.zip"
+#     """
+#     input_path = Path(input_path)
+#     output_path = Path(output_zip) if output_zip else None
+#     if not output_path:
+#         raise ValueError("no output path, mypy whants this/...")
+#     if not input_path.exists():
+#         typer.echo(f"Error: Input path does not exist: {input_path}")
+#         raise typer.Exit(code=1)
+#
+#     zip_path = build_manifest(
+#         input_path=input_path,
+#         output_zip=output_path,
+#         include_timestamp=not no_timestamp,
+#     )
+#
+#     typer.echo(f"Manifest added and zipped at: {zip_path}")
+#
+#
+# # @handle_input_validation
+# # @app.command()
+# # def validate_manifest():
+# #     # TODO: validate manifest cli command
+# #     pass
+# #
+#
+#
+# @app.command()
+# def add_km_ribbons(imx_file_path: str, output_file: str):
+#     """
+#     Add KM ribbons to the IMX file and save the result.
+#     """
+#     add_km_to_imx_xml_file(imx_file_path, output_file)
+#     typer.echo(f"IMX file processed and saved to {output_file}")
 
 
 @app.callback()
