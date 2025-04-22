@@ -12,6 +12,7 @@ from shapely import (
 
 # TODO: move this to imxInsights as a utility.
 
+
 def extract_boundary_points(line: LineString, polygon: Polygon) -> list[Point]:
     """
     Extracts unique points on a line that intersect with the boundary of a polygon.
