@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from lxml import etree
 from lxml.etree import _Element
 
-from imxCli.revision.imx_modifier import (
+from imxTools.revision.imx_modifier import (
     create_element_under,
     delete_attribute_if_matching,
     delete_element,
@@ -17,9 +17,9 @@ from imxCli.revision.imx_modifier import (
     set_attribute_or_element_by_path,
     set_metadata,
 )
-from imxCli.revision.input_validation import ErrorList, validate_process_input
-from imxCli.settings import ROOT_PATH, SET_METADATA_PARENTS
-from imxCli.utils.custom_logger import logger
+from imxTools.revision.input_validation import ErrorList, validate_process_input
+from imxTools.settings import ROOT_PATH, SET_METADATA_PARENTS
+from imxTools.utils.custom_logger import logger
 
 # from imxInsights import ImxContainer
 # from imxInsights.utils.imx.manifestBuilder import ManifestBuilder

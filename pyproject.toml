@@ -7,7 +7,7 @@ extend-select = ["I", "TRY", "UP"]
 ignore = ["TRY003"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=imxCli --cov-report=term-missing"
+addopts = "--cov=imxTools --cov-report=term-missing"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "serial",
@@ -17,7 +17,7 @@ markers = [
 profile = "black"  # Adjust this to match your style preference
 
 [tool.mypy]
-exclude = "^imxCli/utils/calculate_from_to_measures.py$"
+exclude = "^imxTools/utils/calculate_from_to_measures.py$"
 
 [tool.hatch]
 
@@ -27,7 +27,7 @@ allow-direct-references = true
 [tool.hatch.version]
 source = "regex_commit"
 commit_message = "🚀 Version {new_version}"
-path = "imxCli/__init__.py"
+path = "imxTools/__init__.py"
 tag_sign = false
 
 [tool.hatch.envs.default]
@@ -49,15 +49,15 @@ python = ["3.10", "3.11", "3.12", "3.13"]
 test = "pytest"
 test-cov-xml = "pytest --cov-report=xml"
 lint = [
-  "isort imxCli/",
-  "ruff format imxCli/",
-  "ruff format --check imxCli/",
-  "mypy imxCli/ --check-untyped-defs",
+  "isort imxTools/",
+  "ruff format imxTools/",
+  "ruff format --check imxTools/",
+  "mypy imxTools/ --check-untyped-defs",
 ]
 lint-check = [
-  "ruff format --check imxCli/",
-  "ruff check imxCli/",
-  "mypy imxCli/ --check-untyped-defs",
+  "ruff format --check imxTools/",
+  "ruff check imxTools/",
+  "mypy imxTools/ --check-untyped-defs",
   "zizmor .github/workflows/",
 ]
 docs-serve = "mkdocs serve"
@@ -68,7 +68,7 @@ requires = ["hatchling", "hatch-regex-commit", "isort"]
 build-backend = "hatchling.build"
 
 [project]
-name = "imxCli"
+name = "imxTools"
 authors = [
     { name = "Hzd", email = "Hazedd@users.noreply.github.com" },
     { name = "KerkhofJ", email = "KerkhofJ@users.noreply.github.com" },
@@ -97,5 +97,5 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://open-imx.github.io/imxCli/"
-Source = "https://github.com/open-imx/imxCli"
+Documentation = "https://open-imx.github.io/imxTools/"
+Source = "https://github.com/open-imx/imxTools"

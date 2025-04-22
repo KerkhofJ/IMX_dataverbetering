@@ -8,16 +8,16 @@ import zipfile
 
 
 def extract_version():
-    init_path = Path("imxCli/__init__.py")
+    init_path = Path("imxTools/__init__.py")
     content = init_path.read_text()
     match = re.search(r'__version__\s*=\s*"([^"]+)"', content)
     if not match:
-        raise ValueError("Version not found in imxCli/__init__.py")
+        raise ValueError("Version not found in imxTools/__init__.py")
     return match.group(1)
 
 
 def build_cli_app():
-    script_path = Path("imxCli/cliApp/cliApp.py")
+    script_path = Path("imxTools/cliApp/cliApp.py")
     data_path = Path("data")
 
     if not script_path.exists():
@@ -26,8 +26,7 @@ def build_cli_app():
         raise FileNotFoundError(f"Data folder not found: {data_path}")
 
     version = extract_version()
-    system = platform.system().lower()
-    exe_name = f"imxCli-{version}-{system}"
+    exe_name = f"imxTools"
 
     sep = ';' if os.name == 'nt' else ':'
 
@@ -54,14 +53,15 @@ def build_cli_app():
             raise FileNotFoundError(f"Executable not found at: {exe_path}")
 
         print(f"\nBuilt: {exe_path}")
-        zip_result(folder_path, version)
+        system = platform.system().lower()
+        zip_result(folder_path, version, system)
     except subprocess.CalledProcessError as e:
         print(f"\nPyInstaller failed: {e}")
         sys.exit(e.returncode)
 
 
-def zip_result(folder_path: Path, version: str):
-    zip_name = f"imxCli-{version}-windows.zip"
+def zip_result(folder_path: Path, version: str, system: str):
+    zip_name = f"imxTools-{version}-{system}.zip"
     zip_path = folder_path.parent / zip_name
     print(f"Creating ZIP: {zip_path}")
 

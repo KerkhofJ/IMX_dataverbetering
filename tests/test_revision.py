@@ -1,8 +1,8 @@
 
 from pathlib import Path
 
-from imxCli.revision.process_revision import process_imx_revisions
-from imxCli.utils.helpers import clear_directory
+from imxTools.revision.process_revision import process_imx_revisions
+from imxTools.utils.helpers import clear_directory
 
 
 def test_process(issue_list: str, imx_12_xml_file: str, output_path: str):

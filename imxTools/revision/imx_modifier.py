@@ -2,7 +2,7 @@ from loguru import logger
 from lxml import etree
 from lxml.etree import QName, _Element
 
-from imxCli.settings import ADD_COMMENTS, ADD_TIMESTAMP, TIMESTAMP
+from imxTools.settings import ADD_COMMENTS, ADD_TIMESTAMP, TIMESTAMP
 
 
 def add_comment(parent: _Element, child: _Element | None, comment: str):

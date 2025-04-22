@@ -2,8 +2,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from imxCli.cliApp.cliApp import app
-from imxCli.utils.helpers import clear_directory
+from imxTools.cliApp.cliApp import app
+from imxTools.utils.helpers import clear_directory
 
 runner = CliRunner()
 

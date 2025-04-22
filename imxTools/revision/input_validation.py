@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from imxCli.utils.exceptions import ErrorList
+from imxTools.utils.exceptions import ErrorList
 
 
 def validate_process_input(
