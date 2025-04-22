@@ -40,6 +40,12 @@ dependencies = [
     "python-dotenv",
     "pyinstaller",
     "zizmor",
+    "xmlschema",
+    "pandas",
+    "typer",
+    "imxInsights",
+    "types-lxml",
+    "openpyxl",
 ]
 
 [[tool.hatch.envs.test.matrix]]
@@ -95,7 +101,6 @@ dependencies = [
     "types-lxml",
     "openpyxl",
 ]
-
 
 [project.urls]
 Documentation = "https://open-imx.github.io/imxCli/"
