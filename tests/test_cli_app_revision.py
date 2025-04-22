@@ -1,3 +1,5 @@
+import pytest
+
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -25,7 +27,6 @@ def test_revision_template_help_command():
 
 def test_revision_template(output_path: str):
     clear_directory(Path(output_path))
-    print(output_path)
 
     # valid run
     result = runner.invoke(
