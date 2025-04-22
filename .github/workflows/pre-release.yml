@@ -17,64 +17,56 @@ jobs:
 
   pre-release:
     runs-on: windows-latest
-    environment: release
     needs: test
+    environment: release
     permissions:
       contents: write
       id-token: write
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install hatch pyinstaller
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install hatch pyinstaller jq
 
-    - name: Install project dependencies
-      run: |
-        hatch env run pip install .
+      - name: Extract and compare versions
+        id: version_check
+        shell: bash
+        run: |
+          VERSION=$(grep -Eo '__version__\s*=\s*"[^"]+"' imxCli/__init__.py | cut -d'"' -f2)
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION"
 
-    - name: Extract version
-      id: extract_version
-      shell: bash
-      run: |
-        VERSION=$(grep -Eo '__version__\s*=\s*"[^"]+"' imxCli/__init__.py | cut -d'"' -f2)
-        echo "version=$VERSION" >> $GITHUB_ENV
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name | sed 's/^v//')
+          echo "latest_version=$LATEST_VERSION" >> $GITHUB_ENV
+          echo "latest_version=$LATEST_VERSION"
 
-    - name: Fetch latest release version
-      shell: bash
-      run: |
-        LATEST_VERSION=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name | sed 's/^v//')
-        echo "latest_version=$LATEST_VERSION" >> $GITHUB_ENV
+          if [ "$VERSION" != "$LATEST_VERSION" ]; then
+            echo "should_release=true" >> $GITHUB_ENV
+          else
+            echo "should_release=false" >> $GITHUB_ENV
+          fi
 
-    - name: Check version match
-      shell: bash
-      run: |
-        if [ "${{ env.version }}" = "${{ env.latest_version }}" ]; then
-          echo "match=true" >> $GITHUB_ENV
-        else
-          echo "match=false" >> $GITHUB_ENV
-        fi
+      - name: Build CLI executable
+        if: env.should_release == 'true'
+        run: hatch run python build-cli-app.py
 
-    - name: Build exe
-      run: hatch run python build-cli-app.py
-      if: env.match == 'false'
-
-    - name: Upload release
-      if: env.match == 'false'
-      uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174
-      with:
-        draft: true
-        name: 🚀 Version ${{ env.version }}
-        tag: v${{ env.version }}
-        generateReleaseNotes: true
-        artifacts: dist/imxCli-${{ env.version }}-windows.zip
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload pre-release
+        if: env.should_release == 'true'
+        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174
+        with:
+          draft: true
+          name: 🚀 Version ${{ env.version }}
+          tag: v${{ env.version }}
+          generateReleaseNotes: true
+          artifacts: dist/imxCli-${{ env.version }}-windows.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
