@@ -13,6 +13,8 @@ from imxTools.insightsTools.diff_and_population import (
 from imxTools.revision.input_validation import validate_process_input
 from imxTools.revision.process_revision import process_imx_revisions
 from imxTools.revision.revision_template import get_revision_template
+from imxTools.insightsTools.fouling_mark_copyer import copy_fooling_marks
+from insightsTools.manifest import build_manifest
 
 app = typer.Typer()
 
@@ -67,6 +69,8 @@ def diff(
 
     The generated output is timestamped and saved to the given output path.
 
+    This feature relies on imxInsights (https://pypi.org/project/imxInsights/) to handle the heavy lifting.
+
     Example:
         python app.py diff t1.zip t2.zip ./output --geojson --wgs
     """
@@ -107,6 +111,8 @@ def population(
 
     - If the input is a container, a specific IMX situation may be required.
     - The output files are saved to the specified output path with a timestamp.
+
+    This feature relies on imxInsights (https://pypi.org/project/imxInsights/) to handle the heavy lifting.
 
     Example:
         python app.py population imx.zip ./output --geojson --wgs
@@ -204,6 +210,74 @@ def revision(
     """
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)
+
+
+
+@app.command()
+def copy_foulingmarks(
+    xsd_path: Path = typer.Argument(..., help="Path to the IMSpoor XSD schema file."),
+    imx_file: Path = typer.Argument(..., help="Path to the IMX single file."),
+    situation_tag: str = typer.Argument(..., help="Tag of the situation in the IMX file."),
+    container_file: Path = typer.Argument(..., help="Path to the container IMX XML file."),
+    output_file: Path = typer.Option("modified_file.xml", help="Output file path for the modified IMX XML.")
+):
+    """Copy FoulingMarks from to a  IMX container and validate using an XSD.
+
+    **WARNING: THIS IS EXPERIMENTAL FEATURE!!!!**
+
+    This command extracts `FoulingPoint` elements from a given IMX file and reinserts
+    them as `FoulingMark` elements into a specified container IMX file, based on their
+    parent PUIC reference. It then validates the modified elements against the provided
+    IMSpoor XSD schema.
+
+    A new IMX file is written with the inserted FoulingMarks. Optionally, validation errors
+    (if any) are printed to the console.
+
+    Example:
+        python app.py insert-fouling-marks schema/IMSpoor.xsd single.imx.xml SituationA container.imx.xml --output-file modified.xml
+    """
+    typer.echo("Processing IMX file...")
+    xsd_errors = copy_fooling_marks(xsd_path, imx_file, situation_tag, container_file, output_file)
+
+    if xsd_errors:
+        typer.echo("XSD validation errors:")
+        for error in xsd_errors:
+            typer.echo(f"- {error}")
+    else:
+        typer.echo("Validation successful. No errors found.")
+        typer.echo(f"Modified file written to: {output_file}")
+
+
+
+@app.command()
+def generate_manifest(
+    input_path: str,
+    output_zip: str = "",
+    no_timestamp: bool = False,
+):
+    """
+    Add manifest to a folder or existing zip.
+
+    **WARNING: THIS IS EXPERIMENTAL FEATURE!!!!**
+
+    Examples:
+    python cli.py generate-manifest "C:\\project\\folder"
+    python cli.py generate-manifest "C:\\project\\existing.zip"
+    """
+    input_path = Path(input_path)
+    output_path = Path(output_zip) if output_zip else None
+
+    if not input_path.exists():
+        typer.echo(f"Error: Input path does not exist: {input_path}")
+        raise typer.Exit(code=1)
+
+    zip_path = build_manifest(
+        input_path=input_path,
+        output_zip=output_path,
+        include_timestamp=not no_timestamp
+    )
+
+    typer.echo(f"Manifest added and zipped at: {zip_path}")
 
 
 @app.callback()
