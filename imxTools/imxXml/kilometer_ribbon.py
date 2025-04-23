@@ -1,8 +1,7 @@
 from imxInsights import ImxContainer
-from kmService import get_km_service, KmService
+from kmService import KmService, get_km_service
 from lxml import etree
 from shapely import Point
-
 
 KM_SERVICE: KmService | None = None
 

@@ -54,7 +54,7 @@ def test_population_single_file_geojson_enabled(clean_output_path: str, imx_sing
             "population",
             imx_single_xml_file,
             clean_output_path,
-            "--t1-situation", "InitialSituation",
+            "--imx-situation", "InitialSituation",
             "--geojson",
             "--wgs",
         ],
