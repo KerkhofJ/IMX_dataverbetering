@@ -4,7 +4,7 @@ from pathlib import Path
 from imxInsights import ImxContainer, ImxMultiRepo
 from imxInsights.file.singleFileImx.imxSituationEnum import ImxSituationEnum
 
-from imxTools.utils.helpers import load_imx
+from imxTools.utils.helpers import load_imxinsights_container_or_file
 
 
 def write_diff_output_files(
@@ -16,7 +16,7 @@ def write_diff_output_files(
     geojson: bool,
     to_wgs: bool,
 ):
-    t1 = load_imx(t1_path, t1_situation)
+    t1 = load_imxinsights_container_or_file(t1_path, t1_situation)
     if not t1:
         raise ValueError(
             "IMX T1 results in None. Is the situation present in the IMX file?"
@@ -24,9 +24,9 @@ def write_diff_output_files(
 
     t2_same_file = t1_path == t2_path and not isinstance(t1, ImxContainer)
     if t2_same_file:
-        t2 = load_imx(t1_path, t2_situation)
+        t2 = load_imxinsights_container_or_file(t1_path, t2_situation)
     else:
-        t2 = load_imx(t2_path, t2_situation)
+        t2 = load_imxinsights_container_or_file(t2_path, t2_situation)
 
     if not t2:
         raise ValueError(
@@ -53,7 +53,7 @@ def write_population_output_files(
     geojson: bool,
     to_wgs: bool,
 ):
-    t1 = load_imx(imx, imx_situation)
+    t1 = load_imxinsights_container_or_file(imx, imx_situation)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     t1.to_excel(out_path / f"{timestamp}-population.xlsx")
 
