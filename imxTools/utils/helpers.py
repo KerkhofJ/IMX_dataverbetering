@@ -8,13 +8,13 @@ def clear_directory(directory: Path):
     if directory.exists() and directory.is_dir():
         for item in directory.iterdir():
             if item.is_file() and item.name != "generated.content":
-                item.unlink()  # Remove file
+                item.unlink()
             elif item.is_dir():
-                clear_directory(item)  # Recursively clear subdirectory
-                item.rmdir()  # Remove empty subdirectory
+                clear_directory(item)
+                item.rmdir()
 
 
-def load_imx(path: Path, situation: ImxSituationEnum | None):
+def load_imxinsights_container_or_file(path: Path, situation: ImxSituationEnum | None):
     if path.suffix == ".zip":
         return ImxContainer(path)
     elif path.suffix == ".xml":
