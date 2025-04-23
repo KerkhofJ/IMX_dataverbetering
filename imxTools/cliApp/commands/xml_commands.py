@@ -2,8 +2,8 @@ from pathlib import Path
 
 import typer
 
-from imxTools.imxXml.fouling_mark_copyer import copy_fooling_marks
-from imxTools.imxXml.kilometer_ribbon import add_km_to_imx_xml_file
+from imxTools.xml.fouling_mark_copyer import copy_fooling_marks
+from imxTools.xml.kilometer_ribbon import add_km_to_imx_xml_file
 
 app = typer.Typer()
 
