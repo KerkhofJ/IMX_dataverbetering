@@ -19,7 +19,7 @@ def _zip_folder(folder: Path, output_zip: Path):
 
 def build_manifest(
     input_path: Path,
-    output_zip: Path = None,
+    output_zip: Path | None = None,
     include_timestamp: bool = True,
 ) -> Path:
     """
@@ -43,6 +43,7 @@ def build_manifest(
 
             _add_manifest_to_folder(temp_path)
 
+            # TODO: we should reuse this in all output file generation
             if not output_zip:
                 output_zip = input_path.with_stem(
                     input_path.stem

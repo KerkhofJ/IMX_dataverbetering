@@ -1,5 +1,6 @@
 import typer
-from cliApp.exception_handler import handle_input_validation
+
+from imxTools.cliApp.exception_handler import handle_input_validation
 
 app = typer.Typer()
 

@@ -28,14 +28,15 @@ def add_km_to_imx_xml_file(imx_file_path: str, output_file: str):
             )
             if geo_location_node is not None:
                 parent = geo_location_node.getparent()
-                index = parent.index(geo_location_node)
-                parent.insert(index + 1, location_xml)
-                parent.insert(
-                    index + 1,
-                    etree.Comment(
-                        f"KmValue {result.display} added by kmService open-imx.nl, see docs for the accuracy disclaimer"
-                    ),
-                )
+                if parent is not None:
+                    index = parent.index(geo_location_node)
+                    parent.insert(
+                        index + 1,
+                        etree.Comment(
+                            f"KmValue {result.display} added by kmService open-imx.nl, see docs for the accuracy disclaimer"
+                        ),
+                    )
+                    parent.insert(index + 2, location_xml)
 
             ribbon_xml_ribbon = result.imx_kilometer_ribbons()
             if ribbon_xml_ribbon not in used_lints:
@@ -46,13 +47,18 @@ def add_km_to_imx_xml_file(imx_file_path: str, output_file: str):
         + "\n".join(used_lints)
         + "\n</KilometerRibbons>"
     )
-    demarcation_node = imx_container.files.signaling_design.root.find(
-        ".//{http://www.prorail.nl/IMSpoor}Demarcations"
-    )
-    parent = demarcation_node.getparent()
-    index = parent.index(demarcation_node)
-    parent.insert(index + 1, etree.fromstring(km_ribbons_string))
 
-    imx_container.files.signaling_design.root.write(
-        output_file, pretty_print=True, xml_declaration=True, encoding="UTF-8"
-    )
+    signaling_design = imx_container.files.signaling_design
+    if signaling_design and signaling_design.root is not None:
+        demarcation_node = signaling_design.root.find(
+            ".//{http://www.prorail.nl/IMSpoor}Demarcations"
+        )
+        if demarcation_node is not None:
+            parent = demarcation_node.getparent()
+            if parent is not None:
+                index = parent.index(demarcation_node)
+                parent.insert(index + 1, etree.fromstring(km_ribbons_string))
+
+        signaling_design.root.write(
+            output_file, pretty_print=True, xml_declaration=True, encoding="UTF-8"
+        )

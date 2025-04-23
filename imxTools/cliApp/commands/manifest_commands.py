@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import typer
-from cliApp.exception_handler import handle_input_validation
 
+from imxTools.cliApp.exception_handler import handle_input_validation
 from imxTools.insights.manifest import build_manifest
 
 app = typer.Typer()
