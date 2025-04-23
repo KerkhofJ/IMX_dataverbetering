@@ -170,7 +170,10 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
                     change["status"] = "processed"
 
                 case RevisionOperationValues.DeleteElement.name:
-                    delete_element_that_matches(imx_object_element, change[RevisionColumns.AtributeOrElement.name])
+                    delete_element_that_matches(
+                        imx_object_element,
+                        change[RevisionColumns.AtributeOrElement.name],
+                    )
                     set_metadata(imx_object_element, SET_METADATA_PARENTS)
                     change["status"] = "processed"
 
@@ -246,7 +249,7 @@ def process_imx_revisions(
 
     # Check if input issuelist has the expected headers from template
     expected_columns = [col.name for col in RevisionColumns]
-    complete_columns =  [True for col in expected_columns if col not in df.columns]
+    complete_columns = [True for col in expected_columns if col not in df.columns]
     if not all(complete_columns):
         raise ValueError("All columns must match the template headers")
 

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class RevisionColumns(Enum):
     ObjectPath = "Imx Object Path"
     ObjectPuic = "Puic of object for revision"
@@ -11,6 +12,7 @@ class RevisionColumns(Enum):
     ValueNew = "Revision Value"
     ProcessingStatus = "Boolean If revision need to be processed"
     RevisionReasoning = "Revision reasoning, why this value, or why not to revision?"
+
 
 class RevisionOperationValues(Enum):
     CreateAttribute = "Create a new attribute"
