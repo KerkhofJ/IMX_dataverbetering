@@ -4,35 +4,17 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
+from imxTools.revision.revision_enums import RevisionColumns, RevisionOperationValues
+
 
 def get_revision_template(out_file_path: str | Path):
     if isinstance(out_file_path, str):
         out_file_path = Path(out_file_path)
 
-    columns = [
-        "ObjectPath",
-        "ObjectPuic",
-        "IssueComment",
-        "IssueCause",
-        "AtributeOrElement",
-        "Operation",
-        "ValueOld",
-        "ValueNew",
-        "ProcessingStatus",
-        "RevisionReasoning",
-    ]
-    first_row = [
-        "Imx Object Path",
-        "Puic of object for revision",
-        "What is the issue",
-        "What is the cause of the issue",
-        "The attribute or element path",
-        "Type of revision operation",
-        "Old value that is being checked if it is still like this",
-        "Revision Value",
-        "Boolean If revision need to be processed",
-        "Revision reasoning, why this value, or why not to revision?",
-    ]
+    columns = [_.name for _ in RevisionColumns]
+
+    first_row = [_.value for _ in RevisionColumns]
+
     example_row_1 = [
         "dummy.object.path",
         "a8cfb00e-bbb3-4a83-9783-4f94e013fa9d",
@@ -102,14 +84,8 @@ def get_revision_template(out_file_path: str | Path):
         # Set the column width, adding padding for visibility
         ws.column_dimensions[column].width = max_length + 2
 
-    operation_values = [
-        "CreateAttribute",
-        "UpdateAttribute",
-        "DeleteAttribute",
-        "DeleteObject",
-        "AddElementUnder",
-        "DeleteElement",
-    ]
+    operation_values = [_.name for _ in RevisionOperationValues]
+
     dv = DataValidation(
         type="list",
         formula1=f'"{",".join(operation_values)}"',

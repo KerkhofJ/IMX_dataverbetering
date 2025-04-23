@@ -18,6 +18,7 @@ from imxTools.revision.imx_modifier import (
     set_metadata,
 )
 from imxTools.revision.input_validation import ErrorList, validate_process_input
+from imxTools.revision.revision_enums import RevisionColumns, RevisionOperationValues
 from imxTools.settings import ROOT_PATH, SET_METADATA_PARENTS
 from imxTools.utils.custom_logger import logger
 
@@ -62,12 +63,12 @@ def raise_type_error(tag):
 
 def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
     for change in change_items:
-        if not change["verbeteren"]:
+        if not change[RevisionColumns.ProcessingStatus.name]:
             continue
 
         logger.info(f"processing change {change}")
 
-        puic = change["puic"]
+        puic = change[RevisionColumns.ObjectPuic.name]
 
         if puic not in puic_dict:
             change["status"] = f"object not present: {puic}"
@@ -75,8 +76,8 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
 
         imx_object_element: _Element = puic_dict[puic]
 
-        object_type = change["objecttype"]
-        operation = change["operation"]
+        object_type = change[RevisionColumns.ObjectPath.name]
+        operation = change[RevisionColumns.Operation.name]
 
         try:
             expected_tag = (
@@ -118,58 +119,58 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
                 _raise_tag_mismatch_error(object_type, actual_localname)
 
             match operation:
-                case "CreateAttribute":
-                    if change["waarde nieuw"] == "":
+                case RevisionOperationValues.CreateAttribute.name:
+                    if change[RevisionColumns.ValueNew.name] == "":
                         change["status"] = "skipped"
                     else:
                         set_attribute_or_element_by_path(
                             imx_object_element,
-                            change["atribute"].strip(),
-                            f"{change['waarde nieuw']}",
+                            change[RevisionColumns.AtributeOrElement.name].strip(),
+                            f"{change[RevisionColumns.ValueNew.name]}",
                             None,
                         )
                         set_metadata(imx_object_element, SET_METADATA_PARENTS)
                         change["status"] = "processed"
 
-                case "UpdateAttribute":
-                    if change["waarde nieuw"] == "":
+                case RevisionOperationValues.UpdateAttribute.name:
+                    if change[RevisionColumns.ValueNew.name] == "":
                         change["status"] = "skipped"
                     else:
                         set_attribute_or_element_by_path(
                             imx_object_element,
-                            change["atribute"].strip(),
-                            f"{change['waarde nieuw']}",
-                            f"{change['waarde oud']}",
+                            change[RevisionColumns.AtributeOrElement.name].strip(),
+                            f"{change[RevisionColumns.ValueNew.name]}",
+                            f"{change[RevisionColumns.ValueOld.name]}",
                         )
                         set_metadata(imx_object_element, SET_METADATA_PARENTS)
                         change["status"] = "processed"
 
-                case "DeleteAttribute":
+                case RevisionOperationValues.DeleteAttribute.name:
                     delete_attribute_if_matching(
                         imx_object_element,
-                        change["atribute"].strip(),
-                        change["waarde oud"],
+                        change[RevisionColumns.AtributeOrElement.name].strip(),
+                        change[RevisionColumns.ValueOld.name],
                     )
                     set_metadata(imx_object_element, SET_METADATA_PARENTS)
                     change["status"] = "processed"
 
-                case "DeleteObject":
+                case RevisionOperationValues.DeleteAttribute.name:
                     delete_element(imx_object_element)
                     set_metadata(imx_object_element, SET_METADATA_PARENTS)
                     change["status"] = "processed"
                     puic_dict.pop(puic)  # Remove deleted object from the dictionary
 
-                case "AddElementUnder":
+                case RevisionOperationValues.AddElementUnder.name:
                     create_element_under(
                         imx_object_element,
-                        change["atribute"],
-                        f"{change['waarde nieuw']}",
+                        change[RevisionColumns.AtributeOrElement.name],
+                        f"{change[RevisionColumns.ValueNew.name]}",
                     )
                     set_metadata(imx_object_element, SET_METADATA_PARENTS)
                     change["status"] = "processed"
 
-                case "DeleteElement":
-                    delete_element_that_matches(imx_object_element, change["atribute"])
+                case RevisionOperationValues.DeleteElement.name:
+                    delete_element_that_matches(imx_object_element, change[RevisionColumns.AtributeOrElement.name])
                     set_metadata(imx_object_element, SET_METADATA_PARENTS)
                     change["status"] = "processed"
 
@@ -241,7 +242,13 @@ def process_imx_revisions(
     df = df.fillna("")
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
     # use map to make sure all columns are lowercase
-    df.columns = pd.Index([col.lower() for col in df.columns])
+    # df.columns = pd.Index([col.lower() for col in df.columns])
+
+    # Check if input issuelist has the expected headers from template
+    expected_columns = [col.name for col in RevisionColumns]
+    complete_columns =  [True for col in expected_columns if col not in df.columns]
+    if not all(complete_columns):
+        raise ValueError("All columns must match the template headers")
 
     change_items = df.to_dict(orient="records")
 
