@@ -41,6 +41,7 @@ dependencies = [
     "python-dotenv",
     "pyinstaller",
     "zizmor",
+    "isort",
 ]
 
 [[tool.hatch.envs.test.matrix]]

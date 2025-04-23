@@ -24,7 +24,6 @@ from imxTools.utils.custom_logger import logger
 # from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 
 
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 XSD_IMX: None | xmlschema.XMLSchema = None
