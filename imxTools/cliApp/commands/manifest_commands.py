@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from imxTools.cliApp.exception_handler import handle_input_validation
+from imxTools.cliApp.exception_handler import handle_exceptions
 from imxTools.insights.manifest import build_manifest
 
 app = typer.Typer()
@@ -40,7 +40,7 @@ def generate_manifest(
     typer.echo(f"Manifest added and zipped at: {zip_path}")
 
 
-@handle_input_validation
+@handle_exceptions
 @app.command()
 def validate_manifest():
     # TODO: validate manifest cli command

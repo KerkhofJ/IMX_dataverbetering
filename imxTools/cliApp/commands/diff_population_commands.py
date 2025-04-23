@@ -3,7 +3,7 @@ from pathlib import Path
 import typer
 from imxInsights.file.singleFileImx.imxSituationEnum import ImxSituationEnum
 
-from imxTools.cliApp.exception_handler import handle_input_validation
+from imxTools.cliApp.exception_handler import handle_exceptions
 from imxTools.insights.diff_and_population import (
     write_diff_output_files,
     write_population_output_files,
@@ -12,7 +12,7 @@ from imxTools.insights.diff_and_population import (
 app = typer.Typer()
 
 
-@handle_input_validation
+@handle_exceptions
 @app.command()
 def diff(
     t1_path: Path = typer.Argument(
@@ -66,7 +66,7 @@ def diff(
     )
 
 
-@handle_input_validation
+@handle_exceptions
 @app.command()
 def population(
     imx: Path = typer.Argument(
@@ -107,7 +107,7 @@ def population(
     write_population_output_files(imx, out_path, imx_situation, geojson, to_wgs)
 
 
-@handle_input_validation
+@handle_exceptions
 @app.command()
 def extract_comments():
     # TODO: create excel sheet / file of all comments in diff or population report

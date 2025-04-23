@@ -3,7 +3,7 @@ from typing import Annotated
 
 import typer
 
-from imxTools.cliApp.exception_handler import handle_input_validation
+from imxTools.cliApp.exception_handler import handle_exceptions
 from imxTools.revision.input_validation import validate_process_input
 from imxTools.revision.process_revision import process_imx_revisions
 from imxTools.revision.revision_template import get_revision_template
@@ -11,7 +11,7 @@ from imxTools.revision.revision_template import get_revision_template
 app = typer.Typer()
 
 
-@handle_input_validation
+@handle_exceptions
 @app.command()
 def revision_template(
     out_path: Annotated[
@@ -39,7 +39,7 @@ def revision_template(
     get_revision_template(out_path)
 
 
-@handle_input_validation
+@handle_exceptions
 @app.command()
 def revision(
     imx_input: Annotated[Path, typer.Argument(help="The input IMX file (.xml).")],
