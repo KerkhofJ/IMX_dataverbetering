@@ -9,7 +9,7 @@ console = Console()
 
 def handle_exceptions(func):
     """
-    Decorator to handle InputValidationError exceptions in a reusable way.
+    Decorator to handle InputValidationError, ValueError exceptions in a reusable way.
 
     Decorator should be placed before the cli command decorator!
     """

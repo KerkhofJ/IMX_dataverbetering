@@ -9,18 +9,20 @@ from imxTools.cliApp.commands import (
     xml_commands,
 )
 
-app = typer.Typer()
+app = typer.Typer(name="open-imx")
 
 state = {
     "verbose": False,
     "debug": False,
 }
 
-app.add_typer(diff_population_commands.app)
-app.add_typer(revision_commands.app)
-app.add_typer(xml_commands.app)
-app.add_typer(manifest_commands.app)
-app.add_typer(health_check_commands.app)
+app.add_typer(
+    diff_population_commands.app, name="repo", help="population and diff actions"
+)
+app.add_typer(revision_commands.app, name="revision", help="revision actions")
+app.add_typer(xml_commands.app, name="xml", help="xml based actions")
+app.add_typer(manifest_commands.app, name="manifest", help="manifest actions")
+app.add_typer(health_check_commands.app, name="health-check", help="health-checks")
 
 
 @app.callback()
@@ -35,7 +37,7 @@ def main(verbose: bool = False, debug: bool = False):
     - Use the `debug` flag to enable debug mode for deeper insights.
 
     Example:
-        python app.py --verbose --debug
+        python open-imx --verbose --debug
     """
     if verbose:
         print("[blue]Verbose mode enabled[/blue]")

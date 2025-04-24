@@ -10,7 +10,7 @@ runner = CliRunner()
 
 
 def test_diff_help_command():
-    result = runner.invoke(app, ["diff", "--help"])
+    result = runner.invoke(app, ["repo", "diff", "--help"])
     assert result.exit_code == 0
 
 
@@ -19,6 +19,7 @@ def test_diff_geojson_enabled(clean_output_path: str, imx_12_container: str):
     result = runner.invoke(
         app,
         [
+            "repo",
             "diff",
             imx_12_container,
             imx_12_container,
@@ -37,6 +38,7 @@ def test_diff_geojson_disabled(clean_output_path: str, imx_12_container: str):
     result = runner.invoke(
         app,
         [
+            "repo",
             "diff",
             imx_12_container,
             imx_12_container,
@@ -53,6 +55,7 @@ def test_diff_with_t2_situation(clean_output_path: str, imx_12_container: str, i
     result = runner.invoke(
         app,
         [
+            "repo",
             "diff",
             imx_12_container,
             imx_single_xml_file,
@@ -70,6 +73,7 @@ def test_diff_with_t1_situation(clean_output_path: str, imx_12_container: str, i
     result = runner.invoke(
         app,
         [
+            "repo",
             "diff",
             imx_single_xml_file,
             imx_12_container,
@@ -87,6 +91,7 @@ def test_diff_with_matching_situations(clean_output_path: str, imx_single_xml_fi
     result = runner.invoke(
         app,
         [
+            "repo",
             "diff",
             imx_single_xml_file,
             imx_single_xml_file,
@@ -105,6 +110,7 @@ def test_diff_with_mismatched_situations(clean_output_path: str, imx_single_xml_
     result = runner.invoke(
         app,
         [
+            "repo",
             "diff",
             imx_single_xml_file,
             imx_single_xml_file,

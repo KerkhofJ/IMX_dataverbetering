@@ -10,7 +10,7 @@ runner = CliRunner()
 
 
 def test_population_help_command():
-    result = runner.invoke(app, ["population", "--help"])
+    result = runner.invoke(app, ["repo", "population", "--help"])
     assert result.exit_code == 0
 
 
@@ -19,6 +19,7 @@ def test_population_geojson_enabled(clean_output_path: str, imx_12_container: st
     result = runner.invoke(
         app,
         [
+            "repo",
             "population",
             imx_12_container,
             clean_output_path,
@@ -36,6 +37,7 @@ def test_population_geojson_disabled(clean_output_path: str, imx_12_container: s
     result = runner.invoke(
         app,
         [
+            "repo",
             "population",
             imx_12_container,
             clean_output_path,
@@ -51,6 +53,7 @@ def test_population_single_file_geojson_enabled(clean_output_path: str, imx_sing
     result = runner.invoke(
         app,
         [
+            "repo",
             "population",
             imx_single_xml_file,
             clean_output_path,

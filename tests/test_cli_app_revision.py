@@ -11,17 +11,17 @@ runner = CliRunner()
 
 
 def test_general_help_command():
-    result = runner.invoke(app, ["--help"])
-    assert result.exit_code == 0
-
-
-def test_revision_help_command():
     result = runner.invoke(app, ["revision", "--help"])
     assert result.exit_code == 0
 
 
+def test_revision_help_command():
+    result = runner.invoke(app, ["revision", "apply", "--help"])
+    assert result.exit_code == 0
+
+
 def test_revision_template_help_command():
-    result = runner.invoke(app, ["revision-template", "--help"])
+    result = runner.invoke(app, ["revision", "template", "--help"])
     assert result.exit_code == 0
 
 
@@ -32,7 +32,8 @@ def test_revision_template(output_path: str):
     result = runner.invoke(
         app,
         [
-            "revision-template",
+            "revision",
+            "template",
             f"{output_path}/template.xlsx",
         ],
     )
@@ -42,7 +43,8 @@ def test_revision_template(output_path: str):
     result = runner.invoke(
         app,
         [
-            "revision-template",
+            "revision",
+            "template",
             f"{output_path}/template.xlsx",
         ],
     )
@@ -52,7 +54,8 @@ def test_revision_template(output_path: str):
     result = runner.invoke(
         app,
         [
-            "revision-template",
+            "revision",
+            "template",
             f"{output_path}/template.not_xlsx",
         ],
     )
@@ -71,6 +74,7 @@ def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str
         app,
         [
             "revision",
+            "apply",
             imx_12_xml_file,
             issue_list,
             output_path,
@@ -83,6 +87,7 @@ def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str
         app,
         [
             "revision",
+            "apply",
             imx_12_xml_file,
             issue_list,
             output_path,
@@ -95,6 +100,7 @@ def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str
         app,
         [
             "revision",
+            "apply",
             "data/123.xml",
             issue_list,
             output_path
@@ -107,6 +113,7 @@ def test_process_command(issue_list: str, imx_12_xml_file: str, output_path: str
         app,
         [
             "revision",
+            "apply",
             imx_12_xml_file,
             "data/123.xlsx",
             output_path,

@@ -13,7 +13,7 @@ app = typer.Typer()
 
 @handle_exceptions
 @app.command()
-def revision_template(
+def template(
     out_path: Annotated[
         Path,
         typer.Argument(help="Path to the revision Excel template to create (.xlsx)."),
@@ -41,7 +41,7 @@ def revision_template(
 
 @handle_exceptions
 @app.command()
-def revision(
+def apply(
     imx_input: Annotated[Path, typer.Argument(help="The input IMX file (.xml).")],
     excel_input: Annotated[
         Path, typer.Argument(help="The Excel file with revision items.")
@@ -65,3 +65,10 @@ def revision(
     """
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)
+
+
+@handle_exceptions
+@app.command()
+def extract_comments():
+    # TODO: create excel sheet / file of all comments in diff or population report
+    pass
