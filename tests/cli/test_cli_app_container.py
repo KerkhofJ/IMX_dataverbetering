@@ -1,10 +1,8 @@
-import pytest
-
 import zipfile
 from pathlib import Path
 from typer.testing import CliRunner
 
-from imxTools.cliApp.cliApp import app
+from cliApp.cliApp import app
 
 
 runner = CliRunner()

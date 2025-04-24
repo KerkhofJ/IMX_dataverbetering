@@ -3,7 +3,7 @@ from pathlib import Path
 import typer
 from imxInsights.file.singleFileImx.imxSituationEnum import ImxSituationEnum
 
-from imxTools.cliApp.exception_handler import handle_exceptions
+from cliApp.exception_handler import handle_exceptions
 from imxTools.insights.diff_and_population import (
     write_diff_output_files,
     write_population_output_files,

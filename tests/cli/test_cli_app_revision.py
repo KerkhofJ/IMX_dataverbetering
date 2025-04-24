@@ -1,8 +1,7 @@
-import pytest
 from pathlib import Path
 from typer.testing import CliRunner
 
-from imxTools.cliApp.cliApp import app
+from cliApp.cliApp import app
 from imxTools.utils.helpers import clear_directory
 
 runner = CliRunner()

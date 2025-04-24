@@ -3,7 +3,7 @@ from typing import Annotated
 
 import typer
 
-from imxTools.cliApp.exception_handler import handle_exceptions
+from cliApp.exception_handler import handle_exceptions
 from imxTools.revision.input_validation import validate_process_input
 from imxTools.revision.process_revision import process_imx_revisions
 from imxTools.revision.revision_template import get_revision_template

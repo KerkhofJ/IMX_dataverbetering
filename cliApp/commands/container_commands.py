@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from imxTools.cliApp.exception_handler import handle_exceptions
+from cliApp.exception_handler import handle_exceptions
 from imxTools.insights.container import create_container
 
 app = typer.Typer()

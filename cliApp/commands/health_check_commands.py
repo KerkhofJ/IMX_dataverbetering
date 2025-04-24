@@ -1,6 +1,6 @@
 import typer
 
-from imxTools.cliApp.exception_handler import handle_exceptions
+from cliApp.exception_handler import handle_exceptions
 
 app = typer.Typer()
 

@@ -1,9 +1,7 @@
-import pytest
-
 from typer.testing import CliRunner
 
 from helpers import assert_path_glob
-from imxTools.cliApp.cliApp import app
+from cliApp.cliApp import app
 
 
 runner = CliRunner()

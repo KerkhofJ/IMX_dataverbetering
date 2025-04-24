@@ -1,12 +1,10 @@
 import typer
 from rich import print
 
-from imxTools.cliApp.commands import (  # health_check_commands,; ,
+from cliApp.commands import (  # health_check_commands,; ,
     container_commands,
-    diff_population_commands,
-    revision_commands,
-    xml_commands,
 )
+from cliApp.commands import revision_commands, xml_commands, diff_population_commands
 
 app = typer.Typer(name="open-imx")
 
