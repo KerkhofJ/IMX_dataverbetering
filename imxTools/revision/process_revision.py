@@ -5,7 +5,6 @@ from xml.etree.ElementTree import QName
 
 import pandas as pd
 import xmlschema
-from dotenv import load_dotenv
 from lxml import etree
 from lxml.etree import _Element
 
@@ -25,8 +24,6 @@ from imxTools.utils.custom_logger import logger
 # from imxInsights import ImxContainer
 # from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
 
-
-load_dotenv()
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 

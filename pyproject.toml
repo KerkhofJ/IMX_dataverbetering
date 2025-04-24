@@ -7,7 +7,7 @@ extend-select = ["I", "TRY", "UP"]
 ignore = ["TRY003"]
 
 [tool.pytest.ini_options]
-addopts = "--cov=imxTools --cov-report=term-missing"
+# addopts = "--cov=imxTools --cov-report=term-missing"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "serial",
@@ -17,7 +17,8 @@ markers = [
 profile = "black"  # Adjust this to match your style preference
 
 [tool.mypy]
-exclude = "^imxTools/utils/calculate_from_to_measures.py$"
+exclude = "^imxTools/utils/calculate_from_to_measures.py$|^imxTools/insightsTools/kilometer_ribbon.py$|^imxTools/insightsTools/manifest.py$"
+
 
 [tool.hatch]
 
@@ -40,6 +41,7 @@ dependencies = [
     "python-dotenv",
     "pyinstaller",
     "zizmor",
+    "isort",
 ]
 
 [[tool.hatch.envs.test.matrix]]
@@ -47,7 +49,7 @@ python = ["3.10", "3.11", "3.12", "3.13"]
 
 [tool.hatch.envs.default.scripts]
 test = "pytest"
-test-cov-xml = "pytest --cov-report=xml"
+#test-cov-xml = "pytest --cov-report=xml"
 lint = [
   "isort imxTools/",
   "ruff format imxTools/",
@@ -94,6 +96,8 @@ dependencies = [
     "imxInsights",
     "types-lxml",
     "openpyxl",
+    "kmService",
+    "shellingham",
 ]
 
 [project.urls]

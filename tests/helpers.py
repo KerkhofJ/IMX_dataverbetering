@@ -24,3 +24,14 @@ def workspace_path(*parts: str) -> Path:
 
 def sample_path(*parts: str) -> str:
     return str(workspace_path("sample_data", *parts))
+
+
+def assert_path_glob(path: str, glob_pattern: str, expect_present: bool = True) -> None:
+    pattern = Path(path).glob(glob_pattern)
+    matching_files = list(pattern)
+
+    if expect_present:
+        assert matching_files, f"No file found matching the pattern '{glob_pattern}' in {path}"
+    else:
+        assert not matching_files, f"Unexpected file(s) found matching the pattern '{glob_pattern}' in {path}"
+

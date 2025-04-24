@@ -25,8 +25,14 @@ def insert_readable_metadata(file_path: Path):
         f"**Build Date**: {date.today().isoformat()}  \n"
         f"**imxInsights Version**: {imxInsights_version}  \n\n"
         f"---\n\n"
+        f"> **Disclaimer**: This software is provided \"as is\", without warranty of any kind, "
+        f"express or implied, including but not limited to the warranties of merchantability, "
+        f"fitness for a particular purpose and noninfringement. In no event shall the authors or "
+        f"copyright holders be liable for any claim, damages or other liability, whether in an "
+        f"action of contract, tort or otherwise, arising from, out of or in connection with the "
+        f"software or the use or other dealings in the software.  \n\n"
+        f"---\n\n"
     )
-
     original_content = file_path.read_text(encoding="utf-8")
     file_path.write_text(metadata + original_content, encoding="utf-8")
 
@@ -41,6 +47,8 @@ def _get_pyinstaller_command(script_path: Path, dist_path: Path, exe_name: str, 
         "--distpath", str(dist_path),
         "--name", exe_name,
         "--add-data", f"{data_path}{sep}data",
+        "--hidden-import=shellingham.nt",
+        "--hidden-import=shellingham.posix",
     ]
 
 
@@ -73,7 +81,7 @@ def build_cli_app():
     script_path = Path("imxTools/cliApp/cliApp.py")
     data_path = Path("data")
     dist_path = Path("dist")
-    exe_name = "imxTools"
+    exe_name = "open-imx"
 
     if not script_path.exists():
         raise FileNotFoundError(f"Script not found: {script_path}")
