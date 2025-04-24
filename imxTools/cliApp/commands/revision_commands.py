@@ -28,9 +28,6 @@ def template(
 
     - The file must not already exist.
     - The output path must end with `.xlsx`.
-
-    Example:
-        python app.py revision-template ./revision_template.xlsx
     """
     if out_path.suffix != ".xlsx":
         raise ValueError("Path must be an Excel file with .xlsx extension.")
@@ -59,16 +56,13 @@ def apply(
     are written to the given output folder.
 
     The Excel file must follow the format provided by the `revision-template` command.
-
-    Example:
-        python app.py revision input.imx.xml revisions.xlsx ./output
     """
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)
 
 
-@handle_exceptions
-@app.command()
-def extract_comments():
-    # TODO: create excel sheet / file of all comments in diff or population report
-    pass
+# @handle_exceptions
+# @app.command()
+# def extract_comments():
+#     # TODO: create excel sheet / file of all comments in diff or population report
+#     pass

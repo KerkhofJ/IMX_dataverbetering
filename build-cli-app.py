@@ -47,6 +47,8 @@ def _get_pyinstaller_command(script_path: Path, dist_path: Path, exe_name: str, 
         "--distpath", str(dist_path),
         "--name", exe_name,
         "--add-data", f"{data_path}{sep}data",
+        "--hidden-import=shellingham.nt",
+        "--hidden-import=shellingham.posix",
     ]
 
 

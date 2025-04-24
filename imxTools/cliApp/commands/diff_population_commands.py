@@ -56,9 +56,6 @@ def diff(
     The generated output is timestamped and saved to the given output path.
 
     This feature relies on imxInsights (https://pypi.org/project/imxInsights/) to handle the heavy lifting.
-
-    Example:
-        python open-imx diff t1.zip t2.zip ./output --geojson --wgs
     """
     write_diff_output_files(
         t1_path, t2_path, out_path, t1_situation, t2_situation, geojson, to_wgs
@@ -98,8 +95,5 @@ def population(
     - The output files are saved to the specified output path with a timestamp.
 
     This feature relies on imxInsights (https://pypi.org/project/imxInsights/) to handle the heavy lifting.
-
-    Example:
-        python imxTools population imx.zip ./output --geojson --wgs
     """
     write_population_output_files(imx, out_path, imx_situation, geojson, to_wgs)

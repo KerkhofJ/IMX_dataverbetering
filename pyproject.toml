@@ -97,6 +97,7 @@ dependencies = [
     "types-lxml",
     "openpyxl",
     "kmService",
+    "shellingham",
 ]
 
 [project.urls]
