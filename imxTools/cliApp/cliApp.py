@@ -3,10 +3,10 @@ from rich import print
 
 from imxTools.cliApp.commands import (
     diff_population_commands,
-    health_check_commands,
-    manifest_commands,
+    # health_check_commands,
+    # manifest_commands,
     revision_commands,
-    xml_commands,
+    # xml_commands,
 )
 
 app = typer.Typer(name="open-imx")
