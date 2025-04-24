@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from cliApp.exception_handler import handle_exceptions
+from apps.cli.exception_handler import handle_exceptions
 from imxTools.insights.container import create_container
 
 app = typer.Typer()
@@ -16,7 +16,7 @@ def generate(
         None, help="Path to the output location, default cwd location"
     ),
     manifest_only: bool = typer.Option(
-        False, "--manifest", is_flag=True, help="Output just a manifest."
+        False, "--manifest", help="Output just a manifest."
     ),
 ):
     """

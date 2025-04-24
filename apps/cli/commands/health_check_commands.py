@@ -1,6 +1,6 @@
 import typer
 
-from cliApp.exception_handler import handle_exceptions
+from apps.cli.exception_handler import handle_exceptions
 
 app = typer.Typer()
 

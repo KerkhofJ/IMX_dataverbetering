@@ -48,19 +48,21 @@ dependencies = [
 python = ["3.10", "3.11", "3.12", "3.13"]
 
 [tool.hatch.envs.default.scripts]
-test = "pytest"
-# test-cov-xml = "pytest --cov-report=xml"
+test =  "pytest --runslow && pytest -m slow"
+test-fast = "pytest"
+
 lint = [
-  "isort imxTools/",
-  "ruff format imxTools/",
-  "ruff format --check imxTools/",
-  "mypy imxTools/ --check-untyped-defs",
+  "isort imxTools/ apps/",
+  "ruff format imxTools/ apps/",
+  "ruff format --check imxTools/ apps/",
+  "mypy imxTools/ apps/ --check-untyped-defs",
 ]
+
 lint-check = [
-  "ruff format --check imxTools/",
-  "ruff check imxTools/",
-  "mypy imxTools/ --check-untyped-defs",
-  "zizmor .github/workflows/",
+  "ruff format --check imxTools/ apps/",
+  "ruff check imxTools/ apps/",
+  "mypy imxTools/ --check-untyped-defs apps/",
+  "zizmor .github/workflows/ apps/",
 ]
 docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"

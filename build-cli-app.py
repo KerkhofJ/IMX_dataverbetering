@@ -78,7 +78,7 @@ def zip_result(folder_path: Path, version: str, system: str):
 
 
 def build_cli_app():
-    script_path = Path("cliApp/cliApp.py")
+    script_path = Path("apps/cli/cliApp.py")
     data_path = Path("data")
     dist_path = Path("dist")
     exe_name = "open-imx"

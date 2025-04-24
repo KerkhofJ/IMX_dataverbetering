@@ -1,9 +1,9 @@
 import zipfile
 from pathlib import Path
+
 from typer.testing import CliRunner
 
-from cliApp.cliApp import app
-
+from apps.cli.cliApp import app
 
 runner = CliRunner()
 
@@ -28,7 +28,9 @@ def test_create_container_command(imx_12_container: str, clean_output_path: str)
     output_path = Path(clean_output_path)
     before = set(output_path.glob("*.zip"))
 
-    result = runner.invoke(app, ["container", "generate", imx_12_container, clean_output_path])
+    result = runner.invoke(
+        app, ["container", "generate", imx_12_container, clean_output_path]
+    )
     assert result.exit_code == 0
 
     after = set(output_path.glob("*.zip"))
@@ -36,7 +38,9 @@ def test_create_container_command(imx_12_container: str, clean_output_path: str)
     assert zipfile.is_zipfile(zip_file)
 
 
-def test_create_container_command_no_output(imx_12_container: str, tmp_path: Path, monkeypatch):
+def test_create_container_command_no_output(
+    imx_12_container: str, tmp_path: Path, monkeypatch
+):
     monkeypatch.chdir(tmp_path)
     before = set(tmp_path.glob("*.zip"))
 
@@ -53,18 +57,25 @@ def test_create_manifest_command(imx_12_container: str, clean_output_path: str):
     output_path = Path(clean_output_path)
     manifest_path = output_path / "manifest.xml"
 
-    result = runner.invoke(app, ["container", "generate", imx_12_container, clean_output_path, "--manifest"])
+    result = runner.invoke(
+        app,
+        ["container", "generate", imx_12_container, clean_output_path, "--manifest"],
+    )
     assert result.exit_code == 0
 
     assert manifest_path.exists(), "Manifest file was not created"
     assert manifest_path.read_text().strip().startswith("<")
 
 
-def test_create_manifest_command_no_output(imx_12_container: str, tmp_path: Path, monkeypatch):
+def test_create_manifest_command_no_output(
+    imx_12_container: str, tmp_path: Path, monkeypatch
+):
     monkeypatch.chdir(tmp_path)
     manifest_path = tmp_path / "manifest.xml"
 
-    result = runner.invoke(app, ["container", "generate", imx_12_container, "--manifest"])
+    result = runner.invoke(
+        app, ["container", "generate", imx_12_container, "--manifest"]
+    )
     assert result.exit_code == 0
 
     assert manifest_path.exists(), "Manifest file was not created in cwd"

@@ -1,12 +1,9 @@
 from collections.abc import Iterable
+from functools import wraps
 from pathlib import Path
 from pkgutil import ModuleInfo, walk_packages
 from types import ModuleType
-
-from pathlib import Path
-from functools import wraps
 from typing import Callable, Optional
-
 
 
 def packages_in_module(m: ModuleType) -> Iterable[ModuleInfo]:
@@ -36,9 +33,13 @@ def assert_path_glob(path: str, glob_pattern: str, expect_present: bool = True) 
     matching_files = list(pattern)
 
     if expect_present:
-        assert matching_files, f"No file found matching the pattern '{glob_pattern}' in {path}"
+        assert matching_files, (
+            f"No file found matching the pattern '{glob_pattern}' in {path}"
+        )
     else:
-        assert not matching_files, f"Unexpected file(s) found matching the pattern '{glob_pattern}' in {path}"
+        assert not matching_files, (
+            f"Unexpected file(s) found matching the pattern '{glob_pattern}' in {path}"
+        )
 
 
 def track_new_files(path_arg: str, extension: Optional[str] = None):
