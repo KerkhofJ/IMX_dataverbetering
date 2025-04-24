@@ -32,5 +32,10 @@ def imx_12_container() -> str:
 
 
 @pytest.fixture(scope="module")
+def imx_12_container_folder() -> str:
+    return sample_path("imx_12_container_folder")
+
+
+@pytest.fixture(scope="module")
 def imx_single_xml_file() -> str:
     return sample_path("imx_124_single_file.xml")

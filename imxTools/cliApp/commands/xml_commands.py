@@ -55,6 +55,20 @@ def copy_fouling_marks(
 def add_km_ribbons(imx_file_path: str, output_file: str):
     """
     Add KM ribbons to the IMX file and save the result.
+
+    **WARNING: THIS IS AN EXPERIMENTAL FEATURE!!!!**
+
+    This command adds Kilometer (KM) ribbons to the IMX XML file by using the kmService
+    to retrieve KM values for point geometries within the IMX data. The result, with these KM ribbons
+    will be saved to the specified output file.
+
+    **Important Notes**:
+    - This feature requires the kmService to fetch KM data based on geographical points.
+    - The accuracy of the KM data is subject to the kmService's provided results.
+
+    This feature relies on kmService (https://pypi.org/project/kmService/) to handle the heavy lifting.
+
+
     """
     add_km_to_imx_xml_file(imx_file_path, output_file)
     typer.echo(f"IMX file processed and saved to {output_file}")

@@ -16,6 +16,9 @@ def write_diff_output_files(
     geojson: bool,
     to_wgs: bool,
 ):
+
+    # TODO: make t2 optional, if not given we should check t1 is single file, and we have 2 situations then we can use same file.
+
     t1 = load_imxinsights_container_or_file(t1_path, t1_situation)
     if not t1:
         raise ValueError(
