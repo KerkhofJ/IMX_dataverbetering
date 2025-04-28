@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+from typer import colors
 
 from apps.cli.exception_handler import handle_exceptions
 from imxTools.revision.input_validation import validate_process_input
@@ -14,26 +15,21 @@ app = typer.Typer()
 @handle_exceptions
 @app.command()
 def template(
-    out_path: Annotated[
-        Path,
-        typer.Argument(help="Path to the revision Excel template to create (.xlsx)."),
-    ],
+    out_path: Path | None = typer.Argument(None, help="Path to the output location where the Excel template (revision-template.xlsx) will be created."),
 ):
     """
     Generate a (example filled) Excel template for performing IMX revisions.
 
-    This command creates an Excel file that can be used to define revisions
-    to an IMX file. The structure of this template must be followed when
-    preparing data for the `revision` command.
+    This command creates an Excel file that can be used to define revisions to an IMX file.
+    The structure of this template must be followed when preparing data for the `revision` command.
 
-    - The file must not already exist.
-    - The output path must end with `.xlsx`.
     """
-    if out_path.suffix != ".xlsx":
-        raise ValueError("Path must be an Excel file with .xlsx extension.")
-    if out_path.exists():
+    output_path = Path(out_path) if out_path else Path.cwd()
+    output_path = output_path / "revision-template.xlsx"
+    if output_path.exists():
         raise ValueError("File already exists!")
-    get_revision_template(out_path)
+    get_revision_template(output_path)
+    typer.echo(f"Revision template created in {output_path}", color=colors.GREEN)
 
 
 @handle_exceptions
@@ -44,8 +40,8 @@ def apply(
         Path, typer.Argument(help="The Excel file with revision items.")
     ],
     out_path: Annotated[
-        Path,
-        typer.Argument(help="The output folder for modified IMX and Excel report."),
+        Path | None,
+        typer.Argument(None, help="The output folder for modified IMX and Excel report."),
     ],
 ):
     """
@@ -57,8 +53,11 @@ def apply(
 
     The Excel file must follow the format provided by the `revision-template` command.
     """
+    out_path = Path(out_path) if out_path else Path.cwd()
+
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)
+    typer.echo(f"Revisions applied! Modified IMX file and revision report are in: {out_path}", color=colors.GREEN)
 
 
 # @handle_exceptions
