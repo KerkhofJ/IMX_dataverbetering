@@ -162,25 +162,23 @@ def add_km_to_imx_xml_file(imx_container_path: str | Path, output_path: str | Pa
             zf.extractall(tmpdir)
 
         # Copy disclaimer markdown
-        lib_root = find_library_root(["data", "markdowns", "km-kibbon-values-disclamer.md"])
+        lib_root = find_library_root(["data", "markdowns", "km-kibbon-values-disclaimer.md"])
         notes = tmpdir / "data-notes"
         notes.mkdir(exist_ok=True)
         shutil.copy(
             lib_root / "data" / "markdowns" / "xml-formating-disclaimer.md",
             notes
         )
-        # imx_spoor_files = tmpdir / "imspoor-files"
-        # notes.mkdir(exist_ok=True)
 
         # Write updated XML
         xml_out = tmpdir / sig_design.path.name
         sig_design.root.write(str(xml_out), method='c14n2')
 
         shutil.copy(
-            lib_root / "data" / "markdowns" / "km-kibbon-values-disclamer.md",
+            lib_root / "data" / "markdowns" / "container-xml-formating-disclaimer.md",
             notes
         )
-
+#
         # Validate against XSD
         xsd_path = lib_root / "data" / "xsd-12.0.0" / "IMSpoor-SignalingDesign.xsd"
         schema = xmlschema.XMLSchema(str(xsd_path))
