@@ -2,12 +2,14 @@ from pathlib import Path
 
 import typer
 
+from apps.cli.exception_handler import handle_exceptions
 from imxTools.xml.fouling_mark_copyer import copy_fooling_marks
 from imxTools.xml.kilometer_ribbon import add_km_to_imx_xml_file
 
 app = typer.Typer()
 
 
+@handle_exceptions
 @app.command()
 def copy_fouling_marks(
     xsd_path: Path = typer.Argument(..., help="Path to the IMSpoor XSD schema file."),
@@ -51,14 +53,20 @@ def copy_fouling_marks(
         typer.echo(f"Modified file written to: {output_file}")
 
 
+@handle_exceptions
 @app.command()
-def add_km_ribbons(imx_file_path: str, output_file: str):
+def add_km_ribbons(
+        input_path: Path = typer.Argument(..., help="Path to the input zip container."),
+        output_path: Path | None = typer.Argument(
+            None, help="Path to the output location, default cwd location"
+        ),
+):
     """
     Add KM ribbons to the IMX file and save the result.
 
     **WARNING: THIS IS AN EXPERIMENTAL FEATURE!!!!**
 
-    This command adds Kilometer (KM) ribbons to the IMX XML file by using the kmService
+    This command adds Kilometer (KM) ribbons to the IMX container (imx version 12 only) by using the kmService
     to retrieve KM values for point geometries within the IMX data. The result, with these KM ribbons
     will be saved to the specified output file.
 
@@ -70,5 +78,5 @@ def add_km_ribbons(imx_file_path: str, output_file: str):
 
 
     """
-    add_km_to_imx_xml_file(imx_file_path, output_file)
-    typer.echo(f"IMX file processed and saved to {output_file}")
+    add_km_to_imx_xml_file(input_path, output_path)
+    typer.echo(f"IMX file processed and saved to {output_path}")
