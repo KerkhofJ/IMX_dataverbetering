@@ -5,6 +5,7 @@ from tests.helpers import package_paths_in_module
 
 pytest_plugins = [*package_paths_in_module(tests.fixtures)]  # type: ignore
 
+
 def pytest_addoption(parser):
     parser.addoption(
         "--runslow", action="store_true", default=False, help="run slow tests"

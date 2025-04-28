@@ -1,12 +1,11 @@
 import typer
 from rich import print
 
-from imxTools.cliApp.commands import (
+from apps.cli.commands import (  # health_check_commands,; ,
+    container_commands,
     diff_population_commands,
-    # health_check_commands,
-    # manifest_commands,
     revision_commands,
-    # xml_commands,
+    xml_commands,
 )
 
 app = typer.Typer(name="open-imx")
@@ -16,12 +15,10 @@ state = {
     "debug": False,
 }
 
-app.add_typer(
-    diff_population_commands.app, name="report", help="geneal reports from imx data"
-)
-app.add_typer(revision_commands.app, name="revision", help="revision actions")
-# app.add_typer(xml_commands.app, name="xml", help="xml based actions")
-# app.add_typer(manifest_commands.app, name="manifest", help="manifest actions")
+app.add_typer(diff_population_commands.app, name="report", help="geneal report actions")
+app.add_typer(revision_commands.app, name="revision", help="imx revision actions")
+app.add_typer(xml_commands.app, name="xml", help="xml based actions")
+app.add_typer(container_commands.app, name="container", help="imx container actions")
 # app.add_typer(health_check_commands.app, name="health-check", help="health-checks")
 
 

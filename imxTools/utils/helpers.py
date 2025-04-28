@@ -1,10 +1,12 @@
+import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 from imxInsights import ImxContainer, ImxSingleFile
 from imxInsights.file.singleFileImx.imxSituationEnum import ImxSituationEnum
 
 
-def clear_directory(directory: Path):
+def clear_directory(directory: Path) -> None:
     if directory.exists() and directory.is_dir():
         for item in directory.iterdir():
             if item.is_file() and item.name != "generated.content":
@@ -28,3 +30,13 @@ def load_imxinsights_container_or_file(path: Path, situation: ImxSituationEnum |
         }.get(situation)
     else:
         raise ValueError(f"Unsupported file type: {path.suffix}")
+
+
+def zip_folder(folder: Path, output_zip: Path) -> None:
+    with zipfile.ZipFile(output_zip, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for file_path in folder.rglob("*"):
+            zipf.write(file_path, file_path.relative_to(folder))
+
+
+def create_timestamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")

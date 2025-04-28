@@ -1,7 +1,9 @@
 from collections.abc import Iterable
+from functools import wraps
 from pathlib import Path
 from pkgutil import ModuleInfo, walk_packages
 from types import ModuleType
+from typing import Callable, Optional
 
 
 def packages_in_module(m: ModuleType) -> Iterable[ModuleInfo]:
@@ -31,7 +33,43 @@ def assert_path_glob(path: str, glob_pattern: str, expect_present: bool = True) 
     matching_files = list(pattern)
 
     if expect_present:
-        assert matching_files, f"No file found matching the pattern '{glob_pattern}' in {path}"
+        assert matching_files, (
+            f"No file found matching the pattern '{glob_pattern}' in {path}"
+        )
     else:
-        assert not matching_files, f"Unexpected file(s) found matching the pattern '{glob_pattern}' in {path}"
+        assert not matching_files, (
+            f"Unexpected file(s) found matching the pattern '{glob_pattern}' in {path}"
+        )
 
+
+def track_new_files(path_arg: str, extension: Optional[str] = None):
+    """
+    Decorator to track new files created in a directory during test execution.
+
+    Args:
+        path_arg: The name of the argument (or fixture) that contains the output path.
+        extension: File extension filter (e.g. "zip"). If None, tracks all new files.
+    """
+
+    def decorator(func: Callable):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            path: Path = kwargs[path_arg]
+            pattern = f"*.{extension.strip('.')}" if extension else "*"
+            before = set(path.glob(pattern))
+
+            result = func(*args, **kwargs)
+
+            after = set(path.glob(pattern))
+            new_files = after - before
+
+            # Optionally attach new_files to the result, or assert inside the test
+            if isinstance(result, dict):
+                result["new_files"] = new_files
+                return result
+
+            return new_files
+
+        return wrapper
+
+    return decorator
