@@ -15,12 +15,12 @@ def _find_new_zip_file(before: set[Path], after: set[Path]) -> Path:
 
 
 def test_container_help_command():
-    result = runner.invoke(app, ["container", "--help"])
+    result = runner.invoke(app, ["experimental", "container", "--help"])
     assert result.exit_code == 0
 
 
 def test_create_container_help_command():
-    result = runner.invoke(app, ["container", "generate", "--help"])
+    result = runner.invoke(app, ["experimental", "container", "generate", "--help"])
     assert result.exit_code == 0
 
 
@@ -29,7 +29,7 @@ def test_create_container_command(imx_12_container: str, clean_output_path: str)
     before = set(output_path.glob("*.zip"))
 
     result = runner.invoke(
-        app, ["container", "generate", imx_12_container, clean_output_path]
+        app, ["experimental", "container", "generate", imx_12_container, "--out-path", clean_output_path]
     )
     assert result.exit_code == 0
 
@@ -44,7 +44,7 @@ def test_create_container_command_no_output(
     monkeypatch.chdir(tmp_path)
     before = set(tmp_path.glob("*.zip"))
 
-    result = runner.invoke(app, ["container", "generate", imx_12_container])
+    result = runner.invoke(app, ["experimental", "container", "generate", imx_12_container])
     assert result.exit_code == 0
 
     after = set(tmp_path.glob("*.zip"))
@@ -59,7 +59,7 @@ def test_create_manifest_command(imx_12_container: str, clean_output_path: str):
 
     result = runner.invoke(
         app,
-        ["container", "generate", imx_12_container, clean_output_path, "--manifest"],
+        ["experimental", "container", "generate", imx_12_container, "--out-path", clean_output_path, "--manifest"],
     )
     assert result.exit_code == 0
 
@@ -74,7 +74,7 @@ def test_create_manifest_command_no_output(
     manifest_path = tmp_path / "manifest.xml"
 
     result = runner.invoke(
-        app, ["container", "generate", imx_12_container, "--manifest"]
+        app, ["experimental", "container", "generate", imx_12_container, "--manifest"]
     )
     assert result.exit_code == 0
 

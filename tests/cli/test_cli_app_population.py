@@ -20,9 +20,9 @@ def test_population_geojson_enabled(clean_output_path: str, imx_12_container: st
             "report",
             "population",
             imx_12_container,
-            clean_output_path,
+            "--out-path", clean_output_path,
             "--geojson",
-            "--wgs",
+            "--wgs84",
         ],
     )
     assert result.exit_code == 0
@@ -38,7 +38,7 @@ def test_population_geojson_disabled(clean_output_path: str, imx_12_container: s
             "report",
             "population",
             imx_12_container,
-            clean_output_path,
+            "--out-path", clean_output_path,
         ],
     )
     assert result.exit_code == 0
@@ -56,11 +56,11 @@ def test_population_single_file_geojson_enabled(
             "report",
             "population",
             imx_single_xml_file,
-            clean_output_path,
+            "--out-path", clean_output_path,
             "--imx-situation",
             "InitialSituation",
             "--geojson",
-            "--wgs",
+            "--wgs84",
         ],
     )
     assert result.exit_code == 0

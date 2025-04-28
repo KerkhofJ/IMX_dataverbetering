@@ -11,12 +11,19 @@ app = typer.Typer()
 @handle_exceptions
 @app.command()
 def generate(
-    input_path: Path = typer.Argument(..., help="Path to the input zip or folder."),
-    output_path: Path | None = typer.Argument(
-        None, help="Path to the output location, default cwd location"
+    input_path: Path = typer.Argument(
+        ..., help="Path to the input container zip or as folder."
+    ),
+    output_path: Path | None = typer.Option(
+        None,
+        "--out-path",
+        "-o",
+        exists=False,
+        writable=True,
+        help="Path to the output location (defaults to cwd)",
     ),
     manifest_only: bool = typer.Option(
-        False, "--manifest", help="Output just a manifest."
+        False, "--manifest", "-m", help="Output just a manifest."
     ),
 ):
     """
