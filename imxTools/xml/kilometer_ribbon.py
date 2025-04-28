@@ -166,7 +166,7 @@ def add_km_to_imx_xml_file(imx_container_path: str | Path, output_path: str | Pa
         notes = tmpdir / "data-notes"
         notes.mkdir(exist_ok=True)
         shutil.copy(
-            lib_root / "data" / "markdowns" / "xml-formating-disclaimer.md",
+            lib_root / "data" / "markdowns" / "km-kibbon-values-disclaimer.md",
             notes
         )
 
@@ -178,7 +178,7 @@ def add_km_to_imx_xml_file(imx_container_path: str | Path, output_path: str | Pa
             lib_root / "data" / "markdowns" / "container-xml-formating-disclaimer.md",
             notes
         )
-#
+
         # Validate against XSD
         xsd_path = lib_root / "data" / "xsd-12.0.0" / "IMSpoor-SignalingDesign.xsd"
         schema = xmlschema.XMLSchema(str(xsd_path))
@@ -192,6 +192,9 @@ def add_km_to_imx_xml_file(imx_container_path: str | Path, output_path: str | Pa
             md.write("# Validation Errors\n\n| Path | Reason |\n|------|--------|\n")
             for err in errors:
                 md.write(f"| `{err.path}` | {err.reason} |\n")
+
+
+
 
         # Recreate container and rename
         new_container = create_container(str(tmpdir), out_path)

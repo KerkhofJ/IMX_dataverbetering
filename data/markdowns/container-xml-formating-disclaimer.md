@@ -1,21 +1,20 @@
-# XML Formatting & Canonicalization Disclaimer
+# IMX Container Content Policy
 
-The XML content of the Signaling Design is produced and verified using the W3C Canonical XML Version 2.0 (C14N2) method—specifically via the Python **lxml** library’s built-in C14N2 support. 
+- **ImSpoor files** must be placed directly in the root directory.
+- **Media files** should be organized into appropriate subfolders. All files must remain inside the container to maintain a clear structure, ensure traceability, and support full transparency.
+- We currently distinguish two types of notes:
+  - **Data Notes** — Document disclaimers about data (e.g., modifications, known issues) and report health check or validation results.
+  - **Design Notes** — Provide explanations and supporting information related to design documentation.
 
-Adopting this approach ensures:
+# XML Formatting and Canonicalization Policy
 
-- **Deterministic Output**  
-  Attribute order, namespace declarations, whitespace normalization, and character encoding are applied consistently, eliminating platform- or parser-dependent variations.
+All XML files must be generated according to **W3C Canonical XML Version 2.0 (C14N2) https://www.w3.org/TR/xml-c14n2/**.  
+This standard ensures consistent attribute ordering, namespace declaration placement, whitespace normalization, and character encoding — eliminating platform- and parser-specific inconsistencies.
 
-- **Robust Signature Verification**  
-  Any changes to element order, namespace prefixes, or whitespace outside the canonicalization rules will invalidate digital signatures or lead to parsing discrepancies.
+To maximize interoperability, **C14N2 canonicalization** should be implemented by both XML producers and consumers.
 
-- **Standards-Compliant Handling of Comments & Processing Instructions**  
-  Comments and processing instructions are included or omitted strictly per the C14N2 specification.
-
----
-
-## Recommendation
-
-To achieve the highest level of interoperability and security, we strongly encourage all XML producers and consumers to adopt the **C14N2 canonicalization workflow**. 
-This practice minimizes integration issues and maximizes fidelity in signed or exchanged XML documents.
+> **Note:**  
+> Although C14N2 guarantees consistent attribute and namespace ordering, it does *not* alter the sequence of child elements.  
+> Therefore, the original order of elements within containers (such as lists or collections) is preserved exactly as authored.
+> for more info: https://www.w3.org/2008/xmlsec/Drafts/c14n-20/#sec-pseudocode-canonicalize
+> 

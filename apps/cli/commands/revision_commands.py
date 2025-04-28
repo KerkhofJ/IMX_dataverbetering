@@ -40,8 +40,8 @@ def apply(
         Path, typer.Argument(help="The Excel file with revision items.")
     ],
     out_path: Annotated[
-        Path | None,
-        typer.Argument(None, help="The output folder for modified IMX and Excel report."),
+        Path,
+        typer.Argument(help="The output folder for modified IMX and Excel report."),
     ],
 ):
     """
