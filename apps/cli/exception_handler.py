@@ -7,6 +7,9 @@ from imxTools.utils.exceptions import ErrorList
 console = Console()
 
 
+# TODO: Create methode instead of decorator (more clean less issues)
+
+
 def handle_exceptions(func):
     """
     Decorator to handle InputValidationError, ValueError exceptions in a reusable way.
