@@ -27,38 +27,49 @@ def diff(
         readable=True,
         help="Path to the IMX T2 xml file or zip container",
     ),
-    out_path: Path = typer.Argument(
-        ...,
+    output_path: Path | None = typer.Option(
+        None,
+        "--out-path",
+        "-o",
         exists=False,
         writable=True,
-        help="Path where the output files will be generated (should not exists)",
+        help="Directory where the output files will be generated (defaults to cwd)",
     ),
     t1_situation: ImxSituationEnum | None = typer.Option(
-        None, help="Situation type for IMX T1 (only needed for single imx files)"
+        None,
+        "--t1-situation",
+        "-s1",
+        help="Situation type for IMX T1 (only needed for single imx files)",
     ),
     t2_situation: ImxSituationEnum | None = typer.Option(
-        None, help="Situation type for IMX T2 (only needed for single imx files)"
+        None,
+        "--t2-situation",
+        "-s2",
+        help="Situation type for IMX T2 (only needed for single imx files)",
     ),
     geojson: bool = typer.Option(
-        False, "--geojson", "--g", help="Export GeoJSON to output directory"
+        False, "--geojson", "-g", help="Include generating a GeoJSON diff folder"
     ),
-    to_wgs: bool = typer.Option(False, "--wgs", help="Geojson in wgs"),
+    to_wgs: bool = typer.Option(
+        False, "--wgs84", "-wgs", help="Geojson CRS WGS84 (else RD + NAP EPSG:7415)"
+    ),
 ):
     """
-    Compare two IMX datasets (T1 and T2) and generate a diff report.
+    Compare two IMX containers and generate a diff report.
 
-    This command compares two IMX XML files or containers and generates an
+    This command compares two single IMX XML files or zip containers and generates an
     Excel report with the differences. Optionally, it can also export changes as GeoJSON files.
-
-    - For a single imx file you must include a valid IMX situation.
-    - If both inputs are the same file, you must specify different situations.
-
+    \n\n
+    - For a single imx file you must include a valid IMX situation.\n
+    - If both inputs are the same file, you must specify both input files and different situations.\n
+    - Different IMX version are acceptable; however, they may lead to difficult-to-track changes.\n
+    \n
     The generated output is timestamped and saved to the given output path.
-
+    \n\n
     This feature relies on imxInsights (https://pypi.org/project/imxInsights/) to handle the heavy lifting.
     """
     write_diff_output_files(
-        t1_path, t2_path, out_path, t1_situation, t2_situation, geojson, to_wgs
+        t1_path, t2_path, output_path, t1_situation, t2_situation, geojson, to_wgs
     )
 
 
@@ -71,29 +82,39 @@ def population(
         readable=True,
         help="Path to the IMX xml file or zip container",
     ),
-    out_path: Path = typer.Argument(
-        ...,
+    output_path: Path | None = typer.Option(
+        None,
+        "--out-path",
+        "-o",
         exists=False,
         writable=True,
-        help="Path where the output files will be generated (should not exists)",
+        help="Directory where the output files will be generated (defaults to cwd)",
     ),
     imx_situation: ImxSituationEnum | None = typer.Option(
-        None, help="Situation type for IMX (only needed for single imx files)"
+        None, "imx-situation", "-s", help="Situation type for IMX (only needed for single imx files)"
     ),
     geojson: bool = typer.Option(
-        False, "--geojson", help="Export GeoJSON to output directory"
+        False, "--geojson", "-g", help="Include generating a GeoJSON diff folder"
     ),
-    to_wgs: bool = typer.Option(False, "--wgs", help="Geojson in wgs"),
+    to_wgs: bool = typer.Option(
+        False, "--wgs84", "-wgs", help="Geojson CRS WGS84 (else RD + NAP EPSG:7415)"
+    ),
 ):
     """
-    Export population data from a single IMX dataset.
-
+    Generate a population report from a IMX container.
+    \n\n
     This command reads a single IMX XML file or zip container, and generates a population report in Excel format.
     Optionally, it can also export GeoJSON files representing the dataset.
-
-    - For a single imx file you must include a valid IMX situation.
+    \n\n
+    - For a single imx file you must include a valid IMX situation.\n
     - The output files are saved to the specified output path with a timestamp.
-
-    This feature relies on imxInsights (https://pypi.org/project/imxInsights/) to handle the heavy lifting.
+    \n\n
+    This  feature relies on imxInsights (https://pypi.org/project/imxInsights/) to handle the heavy lifting.
     """
-    write_population_output_files(imx, out_path, imx_situation, geojson, to_wgs)
+    write_population_output_files(imx, output_path, imx_situation, geojson, to_wgs)
+
+
+# @handle_exceptions
+# @app.command()
+# def compare_chain():
+#     pass

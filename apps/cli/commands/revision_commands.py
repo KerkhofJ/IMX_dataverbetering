@@ -14,9 +14,13 @@ app = typer.Typer()
 @handle_exceptions
 @app.command()
 def template(
-    out_path: Path | None = typer.Argument(
+    output_path: Path | None = typer.Option(
         None,
-        help="Path to the output location where the Excel template (revision-template.xlsx) will be created.",
+        "--out-path",
+        "-o",
+        exists=False,
+        writable=True,
+        help="Path to the output location where the Excel template (revision-template.xlsx) will be created. (defaults to cwd)",
     ),
 ):
     """
@@ -26,7 +30,7 @@ def template(
     The structure of this template must be followed when preparing data for the `revision` command.
 
     """
-    output_path = Path(out_path) if out_path else Path.cwd()
+    output_path = Path(output_path) if output_path else Path.cwd()
     output_path = output_path / "revision-template.xlsx"
     if output_path.exists():
         raise ValueError("File already exists!")
@@ -41,10 +45,14 @@ def apply(
     excel_input: Annotated[
         Path, typer.Argument(help="The Excel file with revision items.")
     ],
-    out_path: Annotated[
-        Path,
-        typer.Argument(help="The output folder for modified IMX and Excel report."),
-    ],
+    output_path: Path | None = typer.Option(
+        None,
+        "--out-path",
+        "-o",
+        exists=False,
+        writable=True,
+        help="The output folder for modified IMX and Excel report. (defaults to cwd)",
+    ),
 ):
     """
     Apply revisions to an IMX file using a structured Excel file.
@@ -55,7 +63,7 @@ def apply(
 
     The Excel file must follow the format provided by the `revision-template` command.
     """
-    out_path = Path(out_path) if out_path else Path.cwd()
+    out_path = Path(output_path) if output_path else Path.cwd()
 
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)

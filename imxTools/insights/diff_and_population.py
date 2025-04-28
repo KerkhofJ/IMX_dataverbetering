@@ -10,13 +10,13 @@ from imxTools.utils.helpers import load_imxinsights_container_or_file
 def write_diff_output_files(
     t1_path: Path,
     t2_path: Path,
-    out_path: Path,
+    out_path: Path | None,
     t1_situation: ImxSituationEnum | None,
     t2_situation: ImxSituationEnum | None,
     geojson: bool,
     to_wgs: bool,
 ):
-    # TODO: make t2 optional, if not given we should check t1 is single file, and we have 2 situations then we can use same file.
+    out_path = Path(out_path) if out_path else Path.cwd()
 
     t1 = load_imxinsights_container_or_file(t1_path, t1_situation)
     if not t1:
@@ -50,11 +50,13 @@ def write_diff_output_files(
 
 def write_population_output_files(
     imx: Path,
-    out_path: Path,
+    out_path: Path | None,
     imx_situation: ImxSituationEnum | None,
     geojson: bool,
     to_wgs: bool,
 ):
+    out_path = Path(out_path) if out_path else Path.cwd()
+
     t1 = load_imxinsights_container_or_file(imx, imx_situation)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     t1.to_excel(out_path / f"{timestamp}-population.xlsx")

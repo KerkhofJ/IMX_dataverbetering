@@ -25,16 +25,28 @@ def insert_readable_metadata(file_path: Path):
         f"**Build Date**: {date.today().isoformat()}  \n"
         f"**imxInsights Version**: {imxInsights_version}  \n\n"
         f"---\n\n"
-        f"> **Disclaimer**: This software is provided \"as is\", without warranty of any kind, "
-        f"express or implied, including but not limited to the warranties of merchantability, "
-        f"fitness for a particular purpose and noninfringement. In no event shall the authors or "
-        f"copyright holders be liable for any claim, damages or other liability, whether in an "
-        f"action of contract, tort or otherwise, arising from, out of or in connection with the "
-        f"software or the use or other dealings in the software.  \n\n"
+        f"## MIT License\n\n"
+        "Copyright (c) 2023–present Open-IMX. All rights reserved.\n\n"
+        f"Permission is hereby granted, free of charge, to any person obtaining a copy "
+        f"of this software and associated documentation files (the \"Software\"), to deal "
+        f"in the Software without restriction, including without limitation the rights "
+        f"to use, copy, modify, merge, publish, distribute, sublicense, and/or sell "
+        f"copies of the Software, and to permit persons to whom the Software is "
+        f"furnished to do so, subject to the following conditions:  \n\n"
+        f"The above copyright notice and this permission notice shall be included "
+        f"in all copies or substantial portions of the Software.  \n\n"
+        f"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR "
+        f"IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, "
+        f"FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE "
+        f"AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER "
+        f"LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, "
+        f"OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE "
+        f"SOFTWARE.  \n\n"
         f"---\n\n"
     )
     original_content = file_path.read_text(encoding="utf-8")
     file_path.write_text(metadata + original_content, encoding="utf-8")
+
 
 
 def _get_pyinstaller_command(script_path: Path, dist_path: Path, exe_name: str, data_path: Path) -> list[str]:
