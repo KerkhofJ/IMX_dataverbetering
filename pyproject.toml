@@ -49,6 +49,7 @@ python = ["3.10", "3.11", "3.12", "3.13"]
 
 [tool.hatch.envs.default.scripts]
 test =  "pytest --runslow && pytest -m slow"
+
 test-fast = "pytest"
 
 lint = [
@@ -61,7 +62,8 @@ lint = [
 lint-check = [
   "ruff format --check imxTools/ apps/",
   "ruff check imxTools/ apps/",
-  "mypy imxTools/ --check-untyped-defs apps/",
+  "mypy imxTools/ --check-untyped-defs",
+  "mypy  apps/ --check-untyped-defs",
   "zizmor .github/workflows/ apps/",
 ]
 docs-serve = "mkdocs serve"

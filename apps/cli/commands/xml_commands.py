@@ -56,10 +56,10 @@ def copy_fouling_marks(
 @handle_exceptions
 @app.command()
 def add_km_ribbons(
-        input_path: Path = typer.Argument(..., help="Path to the input zip container."),
-        output_path: Path | None = typer.Argument(
-            None, help="Path to the output location, default cwd location"
-        ),
+    input_path: Path = typer.Argument(..., help="Path to the input zip container."),
+    output_path: Path | None = typer.Argument(
+        None, help="Path to the output location, default cwd location"
+    ),
 ):
     """
     Add KM ribbons to the IMX file and save the result.

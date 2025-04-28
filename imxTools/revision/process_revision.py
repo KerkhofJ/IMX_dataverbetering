@@ -238,7 +238,9 @@ def process_imx_revisions(
 
     # TODO: loop true every sheet, this includes a process report excel!
     # Always use the third sheet, this is a workaround for the excel file that is not always the same
-    df = pd.read_excel(input_excel, sheet_name='revisions', na_values="", keep_default_na=False)
+    df = pd.read_excel(
+        input_excel, sheet_name="revisions", na_values="", keep_default_na=False
+    )
     df = df.fillna("")
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
     # use map to make sure all columns are lowercase

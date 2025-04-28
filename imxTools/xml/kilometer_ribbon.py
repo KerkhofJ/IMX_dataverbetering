@@ -1,16 +1,17 @@
 import shutil
 import tempfile
 import zipfile
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Union, Iterable, List
 
 import xmlschema
 from imxInsights import ImxContainer
 from kmService import KmService, get_km_service
 from lxml import etree
+from lxml.etree import _Element, _ElementTree
 from shapely.geometry import Point
 
-from insights.container import create_container
+from imxTools.insights.container import create_container
 
 # Namespaces
 IMSPOOR_NS = "http://www.prorail.nl/IMSpoor"
@@ -18,6 +19,7 @@ GML_NS = "http://www.opengis.net/gml"
 
 # Singleton for KM service
 _KM_SERVICE: KmService | None = None
+
 
 def _get_km_service() -> KmService:
     """Lazily initialize and return the KM service singleton."""
@@ -27,7 +29,9 @@ def _get_km_service() -> KmService:
     return _KM_SERVICE
 
 
-def write_compact_xml(xml_input: Union[etree._Element, etree._ElementTree], path: Path) -> None:
+def write_compact_xml(
+    xml_input: etree._Element | etree._ElementTree, path: Path
+) -> None:
     """
     Serialize an XML element or tree without extra whitespace.
     """
@@ -48,11 +52,13 @@ def write_compact_xml(xml_input: Union[etree._Element, etree._ElementTree], path
         encoding="utf-8",
         xml_declaration=True,
         pretty_print=False,
-        method="xml"
+        method="xml",
     )
 
 
-def find_library_root(target_paths: Iterable[Union[str, Path]], start: Path | None = None) -> Path:
+def find_library_root(
+    target_paths: Iterable[str | Path], start: Path | None = None
+) -> Path:
     """
     Walk upward from 'start' (or this file's directory) until one contains any of target_paths.
     """
@@ -65,12 +71,14 @@ def find_library_root(target_paths: Iterable[Union[str, Path]], start: Path | No
     raise RuntimeError(f"Could not locate library root containing any of: {names}")
 
 
-def _insert_km_for_object(imx_object, km_service: KmService, ribbons: List[str]) -> None:
+def _insert_km_for_object(
+    imx_object, km_service: KmService, ribbons: list[str]
+) -> None:
     """
     Given an IMX object, insert KM comment and location element if it has a Point geometry.
     Collect its kilometer ribbon XML for later insertion.
     """
-    geom = getattr(imx_object, 'geometry', None)
+    geom = getattr(imx_object, "geometry", None)
     if not isinstance(geom, Point):
         return
 
@@ -95,18 +103,18 @@ def _insert_km_for_object(imx_object, km_service: KmService, ribbons: List[str])
         ribbons.append(ribbon_xml)
 
 
-def _collect_km_ribbons(container: ImxContainer, km_service: KmService) -> List[str]:
+def _collect_km_ribbons(container: ImxContainer, km_service: KmService) -> list[str]:
     """
     Traverse all features in the IMX container and insert KM info where applicable.
     Return the unique kilometer ribbons collected.
     """
-    ribbons: List[str] = []
+    ribbons: list[str] = []
     for obj in container.get_all():
         _insert_km_for_object(obj, km_service, ribbons)
     return ribbons
 
 
-def _build_ribbons_element(ribbons: list[str]) -> etree._Element:
+def _build_ribbons_element(ribbons: list[str]) -> _Element:
     """
     Wrap ribbon fragments into a single <KilometerRibbons xmlns:gml="...">…</KilometerRibbons>
     so that the gml: prefix is declared for all children.
@@ -119,7 +127,7 @@ def _build_ribbons_element(ribbons: list[str]) -> etree._Element:
     return etree.fromstring(xml)
 
 
-def _update_signaling_design(root: etree._Element, ribbons_elem: etree._Element) -> None:
+def _update_signaling_design(root: _ElementTree, ribbons_elem: _Element) -> None:
     """
     Insert the KilometerRibbons element immediately after the Demarcations node.
     """
@@ -127,21 +135,24 @@ def _update_signaling_design(root: etree._Element, ribbons_elem: etree._Element)
     if dem is None:
         return
     parent = dem.getparent()
-    idx = parent.index(dem)
-    parent.insert(idx + 1, ribbons_elem)
+    if parent:
+        idx = parent.index(dem)
+        parent.insert(idx + 1, ribbons_elem)
 
 
-def add_km_to_imx_xml_file(imx_container_path: str | Path, output_path: str | Path | None) -> None:
+def add_km_to_imx_xml_file(
+    imx_container_path: str | Path, output_path: str | Path | None
+) -> None:
     """
     Main entry point: add kilometer markers to an IMX file, validate, and repackage.
     """
     if isinstance(imx_container_path, str):
-        imx_path = Path(imx_container_path)
+        imx_container_path = Path(imx_container_path)
     out_path = Path(output_path) if output_path else Path.cwd()
 
     # Prepare services and container
     km_service = _get_km_service()
-    container = ImxContainer(str(imx_path))
+    container = ImxContainer(str(imx_container_path))
 
     # Collect and insert KM data
     ribbons = _collect_km_ribbons(container, km_service)
@@ -158,25 +169,26 @@ def add_km_to_imx_xml_file(imx_container_path: str | Path, output_path: str | Pa
     # Extract, modify, and repackage
     with tempfile.TemporaryDirectory() as tmpdir_str:
         tmpdir = Path(tmpdir_str)
-        with zipfile.ZipFile(imx_path, 'r') as zf:
+        with zipfile.ZipFile(imx_container_path, "r") as zf:
             zf.extractall(tmpdir)
 
         # Copy disclaimer markdown
-        lib_root = find_library_root(["data", "markdowns", "km-kibbon-values-disclaimer.md"])
+        lib_root = find_library_root(
+            ["data", "markdowns", "km-kibbon-values-disclaimer.md"]
+        )
         notes = tmpdir / "data-notes"
         notes.mkdir(exist_ok=True)
         shutil.copy(
-            lib_root / "data" / "markdowns" / "km-kibbon-values-disclaimer.md",
-            notes
+            lib_root / "data" / "markdowns" / "km-kibbon-values-disclaimer.md", notes
         )
 
         # Write updated XML
         xml_out = tmpdir / sig_design.path.name
-        sig_design.root.write(str(xml_out), method='c14n2')
+        sig_design.root.write(str(xml_out), method="c14n2")
 
         shutil.copy(
             lib_root / "data" / "markdowns" / "container-xml-formating-disclaimer.md",
-            notes
+            notes,
         )
 
         # Validate against XSD
@@ -186,18 +198,17 @@ def add_km_to_imx_xml_file(imx_container_path: str | Path, output_path: str | Pa
 
         # Write validation report
         report = notes / "xsd-validation-report.md"
-        with report.open('w') as md:
+        with report.open("w") as md:
             md.write("# Schema Details\n\n")
             md.write(f"```text\nSchema: {schema}\n```\n\n")
             md.write("# Validation Errors\n\n| Path | Reason |\n|------|--------|\n")
             for err in errors:
                 md.write(f"| `{err.path}` | {err.reason} |\n")
 
-
-
-
         # Recreate container and rename
         new_container = create_container(str(tmpdir), out_path)
-        final_name = f"{imx_path.stem}-add-km{''.join(imx_path.suffixes)}"
+        final_name = (
+            f"{imx_container_path.stem}-add-km{''.join(imx_container_path.suffixes)}"
+        )
         final_path = Path(new_container).parent / final_name
         Path(new_container).rename(final_path)

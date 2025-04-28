@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from typer import colors
 
 from apps.cli.exception_handler import handle_exceptions
 from imxTools.revision.input_validation import validate_process_input
@@ -15,7 +14,10 @@ app = typer.Typer()
 @handle_exceptions
 @app.command()
 def template(
-    out_path: Path | None = typer.Argument(None, help="Path to the output location where the Excel template (revision-template.xlsx) will be created."),
+    out_path: Path | None = typer.Argument(
+        None,
+        help="Path to the output location where the Excel template (revision-template.xlsx) will be created.",
+    ),
 ):
     """
     Generate a (example filled) Excel template for performing IMX revisions.
@@ -29,7 +31,7 @@ def template(
     if output_path.exists():
         raise ValueError("File already exists!")
     get_revision_template(output_path)
-    typer.echo(f"Revision template created in {output_path}", color=colors.GREEN)
+    typer.echo(f"Revision template created in {output_path}")
 
 
 @handle_exceptions
@@ -57,7 +59,9 @@ def apply(
 
     validate_process_input(imx_input, excel_input, out_path)
     process_imx_revisions(imx_input, excel_input, out_path)
-    typer.echo(f"Revisions applied! Modified IMX file and revision report are in: {out_path}", color=colors.GREEN)
+    typer.echo(
+        f"Revisions applied! Modified IMX file and revision report are in: {out_path}"
+    )
 
 
 # @handle_exceptions
