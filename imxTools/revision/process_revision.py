@@ -27,21 +27,17 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 XSD_IMX: None | xmlschema.XMLSchema = None
 
 
-def load_xsd(imx_version):
+def load_xsd(imx_version: str) -> xmlschema.XMLSchema:
     global XSD_IMX
     match imx_version:
         case "1.2.4":
-            XSD_IMX = xmlschema.XMLSchema(
-                ROOT_PATH / "data/xsd-1.2.4/IMSpoor-1.2.4-Communication.xsd"
-            )
-            logger.success("xsd 1.2.4 loading finished")
+            path = ROOT_PATH / "data/xsd-1.2.4/IMSpoor-1.2.4-Communication.xsd"
         case "12.0.0":
-            XSD_IMX = xmlschema.XMLSchema(
-                ROOT_PATH / "data/xsd-12.0.0/IMSpoor-SignalingDesign.xsd"
-            )
-            logger.success("xsd 12.0.0 loading finished")
+            path = ROOT_PATH / "data/xsd-12.0.0/IMSpoor-SignalingDesign.xsd"
         case _:
             raise NotImplementedError(f"IMX version {imx_version} not supported")
+    XSD_IMX = xmlschema.XMLSchema(path)
+    logger.success(f"xsd {imx_version} loading finished")
     return XSD_IMX
 
 
