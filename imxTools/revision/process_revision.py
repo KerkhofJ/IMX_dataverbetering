@@ -16,7 +16,7 @@ from imxTools.revision.imx_modifier import (
     set_attribute_or_element_by_path,
     set_metadata,
 )
-from imxTools.revision.input_validation import ErrorList, validate_process_input
+from imxTools.revision.input_validation import ErrorList, validate_process_input, validate_input_excel_content
 from imxTools.revision.revision_enums import RevisionColumns, RevisionOperationValues
 from imxTools.settings import ROOT_PATH, SET_METADATA_PARENTS
 from imxTools.utils.custom_logger import logger
@@ -244,9 +244,7 @@ def process_imx_revisions(
     df = df.fillna("")
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
 
-    # todo: check input for
-    #  gml:LineString.gml:coordinates
-    #  gml:Point.gml:coordinates
+    validate_input_excel_content(df)
 
 
     # use map to make sure all columns are lowercase
