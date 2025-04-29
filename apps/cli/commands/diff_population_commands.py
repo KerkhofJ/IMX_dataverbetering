@@ -91,7 +91,10 @@ def population(
         help="Directory where the output files will be generated (defaults to cwd)",
     ),
     imx_situation: ImxSituationEnum | None = typer.Option(
-        None, "imx-situation", "-s", help="Situation type for IMX (only needed for single imx files)"
+        None,
+        "--imx-situation",
+        "-s",
+        help="Situation type for IMX (only needed for single imx files)",
     ),
     geojson: bool = typer.Option(
         False, "--geojson", "-g", help="Include generating a GeoJSON diff folder"
