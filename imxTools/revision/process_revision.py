@@ -21,9 +21,6 @@ from imxTools.revision.revision_enums import RevisionColumns, RevisionOperationV
 from imxTools.settings import ROOT_PATH, SET_METADATA_PARENTS
 from imxTools.utils.custom_logger import logger
 
-# from imxInsights import ImxContainer
-# from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
-
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -236,8 +233,6 @@ def process_imx_revisions(
     puic_objects = tree.findall(".//*[@puic]")
     puic_dict = {value.get("puic"): value for value in puic_objects}
 
-    # TODO: loop true every sheet, this includes a process report excel!
-    # Always use the third sheet, this is a workaround for the excel file that is not always the same
     df = pd.read_excel(
         input_excel, sheet_name="revisions", na_values="", keep_default_na=False
     )
@@ -246,11 +241,6 @@ def process_imx_revisions(
 
     validate_input_excel_content(df)
 
-
-    # use map to make sure all columns are lowercase
-    # df.columns = pd.Index([col.lower() for col in df.columns])
-
-    # Check if input issuelist has the expected headers from template
     expected_columns = [col.name for col in RevisionColumns]
     complete_columns = [True for col in expected_columns if col not in df.columns]
     if not all(complete_columns):
@@ -279,14 +269,3 @@ def process_imx_revisions(
         worksheet.autofilter(0, 0, 0, len(df.columns) - 1)
 
     return df
-
-    # TODO: Create a manifest as cli function (allso for a pre imx v12.x.x ? (more then very low prio!!))
-    # manifest = ManifestBuilder(out_path)
-    # manifest.create_manifest()
-    # manifest.to_zip(out_path / "imx_container.zip")
-    # logger.success("finished creating manifest and zip container")
-
-    # TODO: create a diff as cli function, reuse here to diff input and output imx version independent
-    # multi_repo = ImxMultiRepo([input_imx, imx], version_safe=False)
-    # compare = multi_repo.compare(input_imx.container_id, imx.container_id)
-    # compare.to_excel(ROOT_PATH/ "output/diff.xlsx")
