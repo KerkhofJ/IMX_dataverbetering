@@ -243,6 +243,12 @@ def process_imx_revisions(
     )
     df = df.fillna("")
     df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+
+    # todo: check input for
+    #  gml:LineString.gml:coordinates
+    #  gml:Point.gml:coordinates
+
+
     # use map to make sure all columns are lowercase
     # df.columns = pd.Index([col.lower() for col in df.columns])
 
