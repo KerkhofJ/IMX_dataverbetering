@@ -91,26 +91,22 @@ def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
             else:
                 raise_type_error(actual_tag)
 
-            expected_tag = (
-                f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
-            )
-
             if actual_tag != expected_tag:
                 # Ensure actual_tag is a string before using .split()
                 if isinstance(actual_tag, str):
-                    actual_localname = (
+                    actual_local_name = (
                         actual_tag.split("}")[-1] if "}" in actual_tag else actual_tag
                     )
                 elif isinstance(actual_tag, QName):
-                    actual_localname = (
+                    actual_local_name = (
                         str(actual_tag).split("}")[-1]
                         if "}" in str(actual_tag)
                         else str(actual_tag)
                     )
                 else:
-                    actual_localname = str(actual_tag)
+                    actual_local_name = str(actual_tag)
 
-                _raise_tag_mismatch_error(object_type, actual_localname)
+                _raise_tag_mismatch_error(object_type, actual_local_name)
 
             match operation:
                 case RevisionOperationValues.CreateAttribute.name:
