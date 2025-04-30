@@ -50,7 +50,7 @@ def _load_xsd(version: str) -> xmlschema.XMLSchema:
 def normalize_tag(tag: str | bytes | etree.QName) -> str:
     if hasattr(tag, "text"):
         tag = str(tag)
-    if isinstance(tag, (bytes, bytearray)):
+    if isinstance(tag, bytes | bytearray):
         tag = tag.decode()
     return tag.split("}")[-1]
 
@@ -237,8 +237,7 @@ def _prepare_dataframe(excel_path: Path) -> pd.DataFrame:
 
     missing = {col.name for col in RevisionColumns} - set(df.columns)
     if missing:
-        missing = sorted(missing)
-        raise ValueError(f"Missing template headers: {', '.join(missing)}")
+        raise ValueError(f"Missing template headers: {', '.join(sorted(missing))}")
     return df
 
 
