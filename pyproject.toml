@@ -1,27 +1,46 @@
-[tool.ruff]
-target-version = "py310"
-exclude = ["qgis_tools"]
+[build-system]
+requires = ["hatchling", "hatch-regex-commit", "isort"]
+build-backend = "hatchling.build"
 
-[tool.ruff.lint]
-extend-select = ["I", "TRY", "UP"]
-ignore = ["TRY003"]
-
-[tool.pytest.ini_options]
-# addopts = "--cov=imxTools --cov-report=term-missing"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "serial",
+[project]
+name = "imxTools"
+description = "python imx cli app from imx files"
+readme = "README.md"
+requires-python = ">=3.10"
+dynamic = ["version"]
+authors = [
+    { name = "Hzd", email = "Hazedd@users.noreply.github.com" },
+    { name = "KerkhofJ", email = "KerkhofJ@users.noreply.github.com" },
+    { name = "Open-Imx", email = "open-imx@organisation.noreply.github.com" },
+]
+dependencies = [
+    "xmlschema",
+    "pandas",
+    "typer",
+    "imxInsights",
+    "types-lxml",
+    "openpyxl",
+    "kmService",
+    "shellingham",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
 ]
 
-[tool.isort]
-profile = "black"  # Adjust this to match your style preference
+[project.scripts]
+open-imx = "apps.cli.cliApp:app"
 
-[tool.mypy]
-exclude = "^imxTools/utils/calculate_from_to_measures.py$|^imxTools/insightsTools/kilometer_ribbon.py$|^imxTools/insightsTools/manifest.py$"
-
+[project.urls]
+Documentation = "https://open-imx.github.io/imxTools/"
+Source = "https://github.com/open-imx/imxTools"
 
 [tool.hatch]
-
 [tool.hatch.metadata]
 allow-direct-references = true
 
@@ -44,66 +63,46 @@ dependencies = [
     "isort",
 ]
 
+[tool.hatch.envs.default.scripts]
+test = "pytest --runslow && pytest -m slow"
+test-fast = "pytest"
+lint = [
+    "isort imxTools/ apps/ tests/",
+    "ruff format imxTools/ apps/ tests/",
+    "ruff format --check imxTools/ apps/ tests/",
+    "mypy imxTools/ apps/ --check-untyped-defs",
+]
+lint-check = [
+    "ruff format --check imxTools/ apps/ tests/",
+    "ruff check imxTools/ apps/ tests/",
+    "mypy imxTools/ --check-untyped-defs",
+    "mypy apps/ --check-untyped-defs",
+    "zizmor .github/workflows/ apps/",
+]
+
 [[tool.hatch.envs.test.matrix]]
 python = ["3.10", "3.11", "3.12", "3.13"]
 
-[tool.hatch.envs.default.scripts]
-test =  "pytest --runslow && pytest -m slow"
+[tool.hatch.build]
+packages = ["imxTools", "apps"]
 
-test-fast = "pytest"
+[tool.ruff]
+target-version = "py310"
+exclude = ["qgis_tools"]
 
-lint = [
-  "isort imxTools/ apps/",
-  "ruff format imxTools/ apps/",
-  "ruff format --check imxTools/ apps/",
-  "mypy imxTools/ apps/ --check-untyped-defs",
+[tool.ruff.lint]
+extend-select = ["I", "TRY", "UP"]
+ignore = ["TRY003"]
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+exclude = "^imxTools/utils/calculate_from_to_measures.py$|^imxTools/insightsTools/kilometer_ribbon.py$|^imxTools/insightsTools/manifest.py$"
+
+[tool.pytest.ini_options]
+# addopts = "--cov=imxTools --cov-report=term-missing"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "serial",
 ]
-
-lint-check = [
-  "ruff format --check imxTools/ apps/",
-  "ruff check imxTools/ apps/",
-  "mypy imxTools/ --check-untyped-defs",
-  "mypy  apps/ --check-untyped-defs",
-  "zizmor .github/workflows/ apps/",
-]
-docs-serve = "mkdocs serve"
-docs-build = "mkdocs build"
-
-[build-system]
-requires = ["hatchling", "hatch-regex-commit", "isort"]
-build-backend = "hatchling.build"
-
-[project]
-name = "imxTools"
-authors = [
-    { name = "Hzd", email = "Hazedd@users.noreply.github.com" },
-    { name = "KerkhofJ", email = "KerkhofJ@users.noreply.github.com" },
-    { name = "Open-Imx", email = "open-imx@organisation.noreply.github.com" },
-]
-description = "python imx cli app from imx files"
-readme = "README.md"
-dynamic = ["version"]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "License :: OSI Approved :: MIT License",
-]
-requires-python = ">=3.10"
-dependencies = [
-    "xmlschema",
-    "pandas",
-    "typer",
-    "imxInsights",
-    "types-lxml",
-    "openpyxl",
-    "kmService",
-    "shellingham",
-]
-
-[project.urls]
-Documentation = "https://open-imx.github.io/imxTools/"
-Source = "https://github.com/open-imx/imxTools"

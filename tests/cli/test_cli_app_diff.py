@@ -1,8 +1,8 @@
 import pytest
-from helpers import assert_path_glob
 from typer.testing import CliRunner
 
 from apps.cli.cliApp import app
+from tests.helpers import assert_path_glob
 
 runner = CliRunner()
 
@@ -21,7 +21,8 @@ def test_diff_geojson_enabled(clean_output_path: str, imx_12_container: str):
             "diff",
             imx_12_container,
             imx_12_container,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
             "--geojson",
             "--wgs84",
         ],
@@ -40,7 +41,8 @@ def test_diff_geojson_disabled(clean_output_path: str, imx_12_container: str):
             "diff",
             imx_12_container,
             imx_12_container,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
         ],
     )
     assert result.exit_code == 0
@@ -59,7 +61,8 @@ def test_diff_with_t2_situation(
             "diff",
             imx_12_container,
             imx_single_xml_file,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
             "--t2-situation",
             "InitialSituation",
         ],
@@ -80,7 +83,8 @@ def test_diff_with_t1_situation(
             "diff",
             imx_single_xml_file,
             imx_12_container,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
             "--t1-situation",
             "InitialSituation",
         ],
@@ -101,7 +105,8 @@ def test_diff_with_matching_situations(
             "diff",
             imx_single_xml_file,
             imx_single_xml_file,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
             "--t1-situation",
             "InitialSituation",
             "--t2-situation",
@@ -124,7 +129,8 @@ def test_diff_with_mismatched_situations(
             "diff",
             imx_single_xml_file,
             imx_single_xml_file,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
             "--t1-situation",
             "InitialSituation",
             "--t2-situation",

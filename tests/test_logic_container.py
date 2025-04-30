@@ -1,9 +1,7 @@
 from pathlib import Path
 
-import pytest
-from helpers import assert_path_glob
-
 from imxTools.insights.container import create_container
+from tests.helpers import assert_path_glob
 
 
 def _zip_present(clean_output_path: str):

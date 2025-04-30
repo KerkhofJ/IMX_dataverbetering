@@ -1,8 +1,8 @@
 import pytest
-from helpers import assert_path_glob
 from typer.testing import CliRunner
 
 from apps.cli.cliApp import app
+from tests.helpers import assert_path_glob
 
 runner = CliRunner()
 
@@ -20,7 +20,8 @@ def test_population_geojson_enabled(clean_output_path: str, imx_12_container: st
             "report",
             "population",
             imx_12_container,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
             "--geojson",
             "--wgs84",
         ],
@@ -38,7 +39,8 @@ def test_population_geojson_disabled(clean_output_path: str, imx_12_container: s
             "report",
             "population",
             imx_12_container,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
         ],
     )
     assert result.exit_code == 0
@@ -56,7 +58,8 @@ def test_population_single_file_geojson_enabled(
             "report",
             "population",
             imx_single_xml_file,
-            "--out-path", clean_output_path,
+            "--out-path",
+            clean_output_path,
             "--imx-situation",
             "InitialSituation",
             "--geojson",
