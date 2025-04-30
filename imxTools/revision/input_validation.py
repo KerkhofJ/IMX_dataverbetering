@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from imxTools.revision.revision_enums import RevisionColumns
 from imxTools.utils.exceptions import ErrorList
 
 
@@ -43,10 +44,10 @@ def validate_gml_coordinates(coord_str: str) -> bool:
 
     dims = None
     for point in points:
-        parts = point.split(',')
+        parts = point.split(",")
 
         # Each part must be a number
-        if not all(re.fullmatch(r'-?\d+(\.\d+)?', p) for p in parts):
+        if not all(re.fullmatch(r"-?\d+(\.\d+)?", p) for p in parts):
             return False
 
         # Dimension check
@@ -75,26 +76,25 @@ def validate_ref_list(refs_str: str) -> bool:
     return True
 
 
-
 def validate_input_excel_content(df: pd.DataFrame):
     errors: list[str] = []
 
-    mask_coords = df['AtributeOrElement'].str.endswith(
-        ('gml:LineString.gml:coordinates', 'gml:Point.gml:coordinates')
+    mask_coords = df[RevisionColumns.AtributeOrElement.name].str.endswith(
+        ("gml:LineString.gml:coordinates", "gml:Point.gml:coordinates")
     )
     for idx, row in df[mask_coords].iterrows():
-        coord_str = row['ValueNew']
+        coord_str = row[RevisionColumns.ValueNew.name]
         if not validate_gml_coordinates(f"{coord_str}"):
             errors.append(
-                f"Row {idx}: Invalid GML coordinates for '{row['AtributeOrElement']}': “{coord_str}”"
+                f"Row {idx}: Invalid GML coordinates for '{row[RevisionColumns.AtributeOrElement.name]}': “{coord_str}”"
             )
 
-    mask_refs = df['AtributeOrElement'].str.endswith('Refs')
+    mask_refs = df[RevisionColumns.AtributeOrElement.name].str.endswith("Refs")
     for idx, row in df[mask_refs].iterrows():
-        refs_str = row['ValueNew']
+        refs_str = row[RevisionColumns.ValueNew.name]
         if not validate_ref_list(f"{refs_str}"):
             errors.append(
-                f"Row {idx}: Invalid UUID refs for '{row['AtributeOrElement']}': “{refs_str}”"
+                f"Row {idx}: Invalid UUID refs for '{row[RevisionColumns.AtributeOrElement.name]}': “{refs_str}”"
             )
 
     if errors:
