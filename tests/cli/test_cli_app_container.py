@@ -29,7 +29,15 @@ def test_create_container_command(imx_12_container: str, clean_output_path: str)
     before = set(output_path.glob("*.zip"))
 
     result = runner.invoke(
-        app, ["experimental", "container", "generate", imx_12_container, "--out-path", clean_output_path]
+        app,
+        [
+            "experimental",
+            "container",
+            "generate",
+            imx_12_container,
+            "--out-path",
+            clean_output_path,
+        ],
     )
     assert result.exit_code == 0
 
@@ -44,7 +52,9 @@ def test_create_container_command_no_output(
     monkeypatch.chdir(tmp_path)
     before = set(tmp_path.glob("*.zip"))
 
-    result = runner.invoke(app, ["experimental", "container", "generate", imx_12_container])
+    result = runner.invoke(
+        app, ["experimental", "container", "generate", imx_12_container]
+    )
     assert result.exit_code == 0
 
     after = set(tmp_path.glob("*.zip"))
@@ -59,7 +69,15 @@ def test_create_manifest_command(imx_12_container: str, clean_output_path: str):
 
     result = runner.invoke(
         app,
-        ["experimental", "container", "generate", imx_12_container, "--out-path", clean_output_path, "--manifest"],
+        [
+            "experimental",
+            "container",
+            "generate",
+            imx_12_container,
+            "--out-path",
+            clean_output_path,
+            "--manifest",
+        ],
     )
     assert result.exit_code == 0
 

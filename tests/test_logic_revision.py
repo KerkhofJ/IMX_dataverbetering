@@ -1,5 +1,3 @@
-import pytest
-
 from imxTools.revision.process_revision import process_imx_revisions
 from imxTools.revision.revision_enums import RevisionColumns
 

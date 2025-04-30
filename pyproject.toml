@@ -67,14 +67,14 @@ dependencies = [
 test = "pytest --runslow && pytest -m slow"
 test-fast = "pytest"
 lint = [
-    "isort imxTools/ apps/",
-    "ruff format imxTools/ apps/",
-    "ruff format --check imxTools/ apps/",
+    "isort imxTools/ apps/ tests/",
+    "ruff format imxTools/ apps/ tests/",
+    "ruff format --check imxTools/ apps/ tests/",
     "mypy imxTools/ apps/ --check-untyped-defs",
 ]
 lint-check = [
-    "ruff format --check imxTools/ apps/",
-    "ruff check imxTools/ apps/",
+    "ruff format --check imxTools/ apps/ tests/",
+    "ruff check imxTools/ apps/ tests/",
     "mypy imxTools/ --check-untyped-defs",
     "mypy apps/ --check-untyped-defs",
     "zizmor .github/workflows/ apps/",
