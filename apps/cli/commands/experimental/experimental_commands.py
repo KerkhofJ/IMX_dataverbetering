@@ -2,8 +2,8 @@ import typer
 
 from apps.cli.commands.experimental import (  # health_check_commands,
     container_commands,
+    health_check_commands,
     xml_commands,
-    health_check_commands
 )
 
 app = typer.Typer(name="experimental")

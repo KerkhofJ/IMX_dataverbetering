@@ -2,11 +2,10 @@ from dataclasses import dataclass
 from enum import Enum
 
 import numpy as np
-from numpy.typing import NDArray
-from shapely import LineString, Point
-
 from imxInsights import ImxContainer
 from imxInsights.utils.shapely.shapely_geojson import ShapelyGeoJsonFeature
+from numpy.typing import NDArray
+from shapely import LineString, Point
 
 
 class ProjectionPointPosition(Enum):
@@ -187,7 +186,9 @@ class MeasureLine:
         )
 
     @staticmethod
-    def _validate_and_process_point(point):
+    def _validate_and_process_point(
+        point: Point | list[float] | np.ndarray,
+    ) -> np.ndarray:
         if isinstance(point, Point):
             # If the point has only 2 coordinates, add z=0 to convert it to 3D
             point = np.array([point.x, point.y, point.z if point.has_z else 0.0])
@@ -202,7 +203,7 @@ class MeasureLine:
             raise ValueError("Input point must have 2 or 3 coordinates (x, y, [z]).")
         return point
 
-    def _shapely_projection(self, point: np.array) -> tuple[Point, float, Point]:
+    def _shapely_projection(self, point: np.ndarray) -> tuple[Point, float, Point]:
         input_point_shapely_2d = Point(float(point[0]), float(point[1]))
         proj_measure_shapely = self.shapely_line.project(input_point_shapely_2d)
         proj_point_shapely = self.shapely_line.interpolate(proj_measure_shapely)
@@ -240,7 +241,8 @@ class MeasureLine:
             # Calculate 3D distance along the segment
             d_segment = np.linalg.norm(proj_point_3d - prev_point_3d)
             # Total 3D distance
-            measure_3d = self._cum_lengths_3d[seg_index] + d_segment
+            if self._cum_lengths_3d is not None:
+                measure_3d = self._cum_lengths_3d[seg_index] + d_segment
         return measure_3d
 
     @staticmethod
@@ -308,7 +310,7 @@ class MeasureLine:
 
 def calculate_measurements(imx: ImxContainer, create_geojson_debug: bool = False):
     out_list = []
-    measure_line_dict = {}
+    measure_line_dict: dict[str, MeasureLine] = {}
 
     for imx_object in imx.get_all():
         geometry = imx_object.geometry
@@ -339,11 +341,19 @@ def calculate_measurements(imx: ImxContainer, create_geojson_debug: bool = False
             out_list.append(
                 [
                     imx_object.puic,
+                    imx_object.tag + ": " + imx_object.name,
                     ref_field,
                     puic,
+                    rail_con.name,
                     float(at_measure) if at_measure else None,
                     projection_result.measure_3d,
+                    abs(float(at_measure) - projection_result.measure_3d)
+                    if at_measure and projection_result.measure_3d
+                    else None,
                     rail_con.geometry.project(geometry),
+                    abs(float(at_measure) - rail_con.geometry.project(geometry))
+                    if at_measure
+                    else None,
                 ]
             )
 
