@@ -8,6 +8,8 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
+from settings import ISSUE_LIST_SHEET_NAME
+
 
 def get_cell_background_color(cell: Cell | MergedCell) -> str | None:
     if cell.fill and cell.fill.fgColor and cell.fill.fgColor.type == "rgb":
@@ -136,14 +138,14 @@ def write_comments_sheet(
 ) -> None:
     if "Comments" in wb.sheetnames:
         if overwrite:
-            del wb["Comments"]
+            del wb[ISSUE_LIST_SHEET_NAME]
         else:
             raise ValueError(
-                "Sheet 'Comments' already exists. Set overwrite=True to overwrite."
+                f"Sheet '{ISSUE_LIST_SHEET_NAME}' already exists. Set overwrite=True to overwrite."
             )
 
     # Create the new sheet
-    ws_comments = wb.create_sheet("Comments")
+    ws_comments = wb.create_sheet(ISSUE_LIST_SHEET_NAME)
 
     # Reorder the sheet to be after 'info' or first if 'info' not present
     info_index = next(
@@ -170,6 +172,7 @@ def write_comments_sheet(
             "CommentColumn",
         ]
     )
+    ws_comments.auto_filter.ref = f"A1:{get_column_letter(ws_comments.max_column)}1"
 
     color_to_status = {v: k for k, v in REVIEW_STYLES.items()}
 
@@ -295,5 +298,5 @@ def extract_comments_to_new_sheet(
         output_path = output_path or file_path.replace(".xlsx", "_comments.xlsx")
         wb_new.save(output_path)
         print(
-            f"Comments extracted successfully to '{output_path}' in sheet 'Comments'."
+            f"Comments extracted successfully to '{output_path}' in sheet '{ISSUE_LIST_SHEET_NAME}'."
         )
