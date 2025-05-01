@@ -25,7 +25,7 @@ def output_path() -> str:
 def clean_output_path(output_path: str):
     # This fixture yields the output path and ensures cleanup afterward
     yield output_path
-    # clear_directory(Path(output_path))
+    clear_directory(Path(output_path))
 
 
 @pytest.fixture(scope="module")

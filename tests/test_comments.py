@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from imxTools.revision.comments_extractor import extract_comments_to_new_sheet
-from revision.comments_replacer import apply_comments_from_issue_list
+from imxTools.comments.comments_extractor import extract_comments_to_new_sheet
+from imxTools.comments.comments_replacer import apply_comments_from_issue_list
 
 
 def test_extract_comments_to_new_sheet(diff_report, clean_output_path):
