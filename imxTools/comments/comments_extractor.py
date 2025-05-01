@@ -136,7 +136,7 @@ def write_comments_sheet(
     comments: list[dict[str, str | int | None]],
     overwrite: bool = False,
 ) -> None:
-    if "Comments" in wb.sheetnames:
+    if ISSUE_LIST_SHEET_NAME in wb.sheetnames:
         if overwrite:
             del wb[ISSUE_LIST_SHEET_NAME]
         else:
