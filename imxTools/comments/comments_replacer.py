@@ -3,6 +3,7 @@ from typing import Any
 
 from openpyxl import load_workbook
 from openpyxl.comments import Comment
+from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from imxTools.settings import ISSUE_LIST_SHEET_NAME
@@ -181,6 +182,20 @@ def apply_comment_to_cell(
 
 
 
+def auto_resize_columns(ws: Worksheet):
+    for col in ws.columns:
+        max_length = 0
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+        adjusted_width = max_length + 2  # Add padding
+        ws.column_dimensions[col_letter].width = adjusted_width
+
+
 def apply_comments_from_issue_list(
     issue_list_path: str, new_diff_path: str, output_path: str, header_row: int = 1
 ):
@@ -265,8 +280,11 @@ def apply_comments_from_issue_list(
             not_found.append(fallback)
 
     summary_ws = create_summary_sheet(diff_wb, processed, skipped, not_found)
-    issue_list_ws = diff_wb.create_sheet("IssueList")
+    issue_list_ws = diff_wb.create_sheet(ISSUE_LIST_SHEET_NAME)
     copy_full_sheet(issue_ws, issue_list_ws)
+
+    diff_wb._sheets.remove(issue_list_ws)
+    diff_wb._sheets.insert(2, issue_list_ws)
 
     # Reorder sheets
     sheet_order = []
@@ -277,6 +295,18 @@ def apply_comments_from_issue_list(
         if sheet not in sheet_order:
             sheet_order.append(sheet)
     diff_wb._sheets = sheet_order
+
+
+    # Get the 'info' worksheet by name
+    info_sheet = diff_wb["info"]
+
+    # Set it as the active sheet using its index
+    diff_wb.active = diff_wb.sheetnames.index("info")
+
+    # Mark only this sheet as selected
+    for sheet in diff_wb.worksheets:
+        sheet.sheet_view.tabSelected = False
+    info_sheet.sheet_view.tabSelected = True
 
     diff_wb.save(output_path)
     print(f"✅ Comments copied and saved to '{output_path}'")

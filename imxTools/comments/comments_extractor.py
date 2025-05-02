@@ -54,6 +54,7 @@ def build_comment_dict(
     header: str,
     sheet_name: str,
     comment_text: str,
+    comment_row: int | None = None,
 ) -> dict[str, str | int | None]:
     return {
         "Sheet": sheet_name,
@@ -67,9 +68,10 @@ def build_comment_dict(
         "ChangeStatus": context["ChangeStatus"],
         "GeometryStatus": context["GeometryStatus"],
         "CommentSheetName": sheet_name,
-        "CommentRow": cell.row,
+        "CommentRow": comment_row if comment_row is not None else cell.row,  # Fixed here
         "CommentColumn": cell.column,
     }
+
 
 
 def handle_header_comment(
@@ -104,6 +106,7 @@ def handle_header_comment(
                         header_value,
                         sheet_name,
                         cell.comment.text,
+                        comment_row=header_row,  # <-- use header row here
                     )
                 )
                 inherited_cells.append(target_cell.coordinate)
@@ -280,6 +283,7 @@ def extract_comments_to_new_sheet(
                 f"File '{file_path}' already exists. Set overwrite=True."
             )
         write_comments_sheet(wb, all_comments, overwrite)
+
         wb.save(target_path)
         print(
             f"Comments sheet written to '{target_path}' (in-place={target_path == file_path})."
