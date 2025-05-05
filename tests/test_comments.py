@@ -21,14 +21,12 @@ def test_extract_comments_to_new_sheet_with_add_to_wb(diff_report, clean_output_
 
 
 def test_extract_comments_to_new_sheet_without_overwrite(diff_report):
-    extract_comments_to_new_sheet(
-        diff_report, add_to_wb=True, overwrite=True
-    )
+    extract_comments_to_new_sheet(diff_report, add_to_wb=True, overwrite=True)
 
 
-def test_extract_comments_to_new_sheet_with_existing_file(diff_report_edit, comment_list, clean_output_path):
+def test_apply_comments_to_new_file(diff_report_edit, comment_list, clean_output_path):
     apply_comments_from_issue_list(
         issue_list_path=comment_list,
         new_diff_path=diff_report_edit,
-        output_path= f"{Path(clean_output_path) / 'updated_diff_with_comments.xlsx'}",
+        output_path=f"{Path(clean_output_path) / 'updated_diff_with_comments.xlsx'}",
     )

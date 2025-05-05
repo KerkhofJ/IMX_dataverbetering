@@ -1,5 +1,6 @@
 import os
 import shutil
+from pathlib import Path
 
 from imxInsights.utils.report_helpers import REVIEW_STYLES
 from openpyxl import Workbook, load_workbook
@@ -7,7 +8,6 @@ from openpyxl.cell import Cell, MergedCell
 from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
-
 from settings import ISSUE_LIST_SHEET_NAME
 
 
@@ -68,10 +68,11 @@ def build_comment_dict(
         "ChangeStatus": context["ChangeStatus"],
         "GeometryStatus": context["GeometryStatus"],
         "CommentSheetName": sheet_name,
-        "CommentRow": comment_row if comment_row is not None else cell.row,  # Fixed here
+        "CommentRow": comment_row
+        if comment_row is not None
+        else cell.row,  # Fixed here
         "CommentColumn": cell.column,
     }
-
 
 
 def handle_header_comment(
@@ -214,12 +215,14 @@ def write_comments_sheet(
 
 
 def extract_comments_to_new_sheet(
-    file_path: str,
+    file_path: str | Path,
     output_path: str | None = None,
     header_row: int = 1,
     add_to_wb: bool = False,
     overwrite: bool = False,
 ) -> None:
+    # TODO: support path objects
+
     if not output_path and not add_to_wb:
         raise ValueError("When adding to an existing workbook, provide an output path.")
 
