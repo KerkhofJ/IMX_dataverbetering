@@ -8,7 +8,8 @@ from openpyxl.cell import Cell, MergedCell
 from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
-from settings import ISSUE_LIST_SHEET_NAME
+
+from imxTools.settings import ISSUE_LIST_SHEET_NAME
 
 
 def get_cell_background_color(cell: Cell | MergedCell) -> str | None:
@@ -301,9 +302,23 @@ def extract_comments_to_new_sheet(
         if isinstance(active_sheet, Worksheet):
             wb_new.remove(active_sheet)
 
+        # Ensure output_path is a string, and avoid Path.replace misuse
+        output_path = output_path or str(file_path).replace(".xlsx", "_comments.xlsx")
+        output_path = str(output_path)  # Ensure it's a string
+
+        # Create a new workbook and remove the default sheet
+        wb_new = Workbook()
+        active_sheet = wb_new.active
+        if isinstance(active_sheet, Worksheet):
+            wb_new.remove(active_sheet)
+
+        # Write comments to the new sheet
         write_comments_sheet(wb_new, all_comments, overwrite)
-        output_path = output_path or file_path.replace(".xlsx", "_comments.xlsx")
+
+        # Ensure output_path is not None (mypy-safe) and save the workbook
+        assert output_path is not None
         wb_new.save(output_path)
+
         print(
             f"Comments extracted successfully to '{output_path}' in sheet '{ISSUE_LIST_SHEET_NAME}'."
         )
