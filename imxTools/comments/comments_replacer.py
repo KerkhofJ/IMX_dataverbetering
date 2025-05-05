@@ -1,22 +1,25 @@
 from copy import copy
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
 from openpyxl.comments import Comment
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from imxTools.settings import ISSUE_LIST_SHEET_NAME
-from utils.helpers import ensure_paths
+from imxTools.utils.helpers import ensure_paths
 
 
-def copy_full_sheet(source_ws: Worksheet, target_ws: Worksheet):
+def copy_full_sheet(source_ws: Worksheet, target_ws: Worksheet) -> None:
     for row in source_ws.iter_rows():
         for cell in row:
+            if cell.row is None or cell.column is None:
+                continue
+
             target_cell = target_ws.cell(row=cell.row, column=cell.column)
 
-            if cell.data_type == "f":  # Cell has a formula
+            if cell.data_type == "f":
                 target_cell.value = f"={cell.value}"
             else:
                 target_cell.value = cell.value
@@ -25,88 +28,79 @@ def copy_full_sheet(source_ws: Worksheet, target_ws: Worksheet):
                 target_cell.hyperlink = copy(cell.hyperlink)
 
             if cell.has_style:
-                target_cell.font = copy(cell.font)
-                target_cell.fill = copy(cell.fill)
-                target_cell.border = copy(cell.border)
-                target_cell.alignment = copy(cell.alignment)
-                target_cell.number_format = copy(cell.number_format)
-                target_cell.protection = copy(cell.protection)
+                target_cell.font = cast(Any, copy(cell.font))
+                target_cell.fill = cast(Any, copy(cell.fill))
+                target_cell.border = cast(Any, copy(cell.border))
+                target_cell.alignment = cast(Any, copy(cell.alignment))
+                target_cell.number_format = cell.number_format
+                target_cell.protection = cast(Any, copy(cell.protection))
 
-    for col_letter, dim in source_ws.column_dimensions.items():
-        target_ws.column_dimensions[col_letter].width = dim.width
+    for col_letter, col_dim in source_ws.column_dimensions.items():
+        if col_dim.width is not None:
+            target_ws.column_dimensions[col_letter].width = col_dim.width
 
-    for row_idx, dim in source_ws.row_dimensions.items():
-        target_ws.row_dimensions[row_idx].height = dim.height
+    for row_idx, row_dim in source_ws.row_dimensions.items():
+        if row_dim.height is not None:
+            target_ws.row_dimensions[row_idx].height = row_dim.height
 
     for merged_range in source_ws.merged_cells.ranges:
         target_ws.merge_cells(str(merged_range))
 
 
-def get_sheet_headers(ws, header_row: int = 1) -> dict:
+def get_sheet_headers(ws: Worksheet, header_row: int = 1) -> dict[str, int]:
     return {
-        cell.value: idx
+        str(cell.value): idx
         for idx, cell in enumerate(
             next(ws.iter_rows(min_row=header_row, max_row=header_row)), start=1
         )
+        if cell.value is not None
     }
 
 
-def find_column_by_value(ws, target: str, header_row: int) -> int | None:
+def find_column_by_value(ws: Worksheet, target: str, header_row: int) -> int | None:
     for col in range(1, ws.max_column + 1):
         if ws.cell(row=header_row, column=col).value == target:
             return col
     return None
 
 
-def find_row_by_value(ws, col: int, value: Any, start_row: int) -> int | None:
+def find_row_by_value(
+    ws: Worksheet, col: int, value: Any, start_row: int
+) -> int | None:
     for row in range(start_row, ws.max_row + 1):
         if str(ws.cell(row=row, column=col).value) == str(value):
             return row
     return None
 
 
-def create_summary_sheet(wb, processed, skipped, not_found):
+def create_summary_sheet(
+    wb: Workbook,
+    processed: list[dict[str, Any]],
+    skipped: list[dict[str, Any]],
+    not_found: list[dict[str, Any]],
+) -> Worksheet:
     summary_ws = wb.create_sheet("CommentPlacementSummary")
     summary_ws.append(
         ["Status", "Sheet", "ImxPath", "Puic", "Value", "Comment", "Reason"]
     )
 
-    for row in processed:
-        summary_ws.append(
-            [
-                "Placed",
-                row.get("CommentSheetName", ""),
-                row.get("ImxPath", ""),
-                row.get("Puic", ""),
-                row.get("Value", ""),
-                row.get("Comment", ""),
-                "",
-            ]
-        )
-    for row in skipped:
-        summary_ws.append(
-            [
-                "Skipped",
-                row.get("CommentSheetName", ""),
-                row.get("ImxPath", ""),
-                row.get("Puic", ""),
-                row.get("Value", ""),
-                row.get("Comment", ""),
-                row.get("Reason", ""),
-            ]
-        )
-    for row in not_found:
-        summary_ws.append(
-            [
-                "Failed",
-                row.get("CommentSheetName", ""),
-                row.get("ImxPath", ""),
-                row.get("Puic", ""),
-                row.get("Value", ""),
-                row.get("Comment", ""),
-                row.get("Reason", ""),
-            ]
-        )
+    for status, rows in [
+        ("Placed", processed),
+        ("Skipped", skipped),
+        ("Failed", not_found),
+    ]:
+        for row in rows:
+            summary_ws.append(
+                [
+                    status,
+                    row.get("CommentSheetName", ""),
+                    row.get("ImxPath", ""),
+                    row.get("Puic", ""),
+                    row.get("Value", ""),
+                    row.get("Comment", ""),
+                    row.get("Reason", ""),
+                ]
+            )
     return summary_ws
 
 
@@ -118,26 +112,27 @@ def extract_display_text(formula: str) -> str:
 
 
 def apply_comment_to_cell(
-    ws,
-    header_col,
-    puic_col,
-    header_row,
-    puic,
-    comment_text,
-    data,
-    processed,
-    skipped,
-    not_found,
-):
+    ws: Worksheet,
+    header_col: int,
+    puic_col: int,
+    header_row: int,
+    puic: Any,
+    comment_text: str,
+    data: dict[str, Any],
+    processed: list[dict[str, Any]],
+    skipped: list[dict[str, Any]],
+    not_found: list[dict[str, Any]],
+) -> None:
     target_row = find_row_by_value(ws, puic_col, puic, header_row + 1)
-    if not target_row:
+    if target_row is None:
         not_found.append({**data, "Reason": f"Puic '{puic}' not found"})
         return
 
     cell = ws.cell(row=target_row, column=header_col)
 
-    style_name = extract_display_text(data.get("Link"))
-    if style_name in [s for s in ws.parent.named_styles]:
+    style_name = extract_display_text(str(data.get("Link", "")))
+    parent_wb = ws.parent if isinstance(ws.parent, Workbook) else None
+    if parent_wb and style_name in parent_wb.named_styles:
         cell.style = style_name
     else:
         print(f"Style '{style_name}' not found.")
@@ -150,17 +145,14 @@ def apply_comment_to_cell(
             existing_comment.text.strip() if existing_comment else ""
         )
 
-        if comment_text == existing_comment_text:
-            pass
-
-        if comment_text:
+        if comment_text and comment_text != existing_comment_text:
             header_cell.comment = Comment(comment_text, "IMX Tool")
 
         header_cell.style = style_name
 
     header_comment = ws.cell(row=header_row, column=header_col).comment
     header_comment_text = header_comment.text.strip() if header_comment else ""
-    # Only append once
+
     if not is_header_comment:
         if comment_text == header_comment_text:
             processed.append(
@@ -176,7 +168,6 @@ def apply_comment_to_cell(
         else:
             skipped.append({**data, "Value": cell.value, "Reason": "Empty comment"})
     else:
-        # Only append for header comments if non-empty
         if comment_text:
             processed.append({**data, "Value": cell.value})
         else:
@@ -185,23 +176,25 @@ def apply_comment_to_cell(
             )
 
 
-def auto_resize_columns(ws: Worksheet):
+def auto_resize_columns(ws: Worksheet) -> None:
     for col in ws.columns:
         max_length = 0
-        col_letter = get_column_letter(col[0].column)
+        col_letter = get_column_letter(col[0].column if col and col[0].column else 1)
         for cell in col:
             try:
                 if cell.value:
                     max_length = max(max_length, len(str(cell.value)))
-            except:
+            except Exception:
                 pass
-        adjusted_width = max_length + 2  # Add padding
-        ws.column_dimensions[col_letter].width = adjusted_width
+        ws.column_dimensions[col_letter].width = max_length + 2
 
 
 def apply_comments_from_issue_list(
-    issue_list_path: str | Path, new_diff_path: str | Path, output_path: str | Path, header_row: int = 1
-):
+    issue_list_path: str | Path,
+    new_diff_path: str | Path,
+    output_path: str | Path,
+    header_row: int = 1,
+) -> None:
     issue_list_path, new_diff_path, output_path = ensure_paths(
         issue_list_path, new_diff_path, output_path
     )
@@ -217,33 +210,33 @@ def apply_comments_from_issue_list(
     issue_ws = issue_wb[ISSUE_LIST_SHEET_NAME]
     headers = get_sheet_headers(issue_ws, header_row)
 
-    processed, skipped, not_found = [], [], []
+    processed: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
+    not_found: list[dict[str, Any]] = []
 
-    # Extract all data rows into dictionaries
-    all_rows = []
+    all_rows: list[dict[str, Any]] = []
     for row in issue_ws.iter_rows(min_row=header_row + 1, values_only=True):
         data = {
-            key: row[idx - 1] if idx - 1 < len(row) else None
+            str(key): row[idx - 1] if idx - 1 < len(row) else None
             for key, idx in headers.items()
         }
         all_rows.append(data)
 
-    # Sort by CommentRow (as int, if present)
-    all_rows.sort(
-        key=lambda d: (
-            int(d.get("CommentRow"))
-            if d.get("CommentRow") is not None
-            else float("inf")
-        )
-    )
+    def safe_int(val: Any) -> int:
+        try:
+            return int(val)
+        except Exception:
+            return 1_000_000_000
 
-    # Process each row after sorting
+    all_rows.sort(key=lambda d: safe_int(d.get("CommentRow")))
+
     for data in all_rows:
         try:
-            sheetname = data.get("CommentSheetName")
-            imx_path = data.get("ImxPath")
+            sheetname = str(data.get("CommentSheetName"))
+            imx_path = str(data.get("ImxPath"))
             puic = data.get("Puic")
-            comment_text = (data.get("Comment") or "").strip()
+            comment_val = data.get("Comment")
+            comment_text = str(comment_val).strip() if comment_val else ""
 
             if not all([sheetname, imx_path, puic]):
                 not_found.append(
@@ -258,15 +251,16 @@ def apply_comments_from_issue_list(
                 continue
 
             ws = diff_wb[sheetname]
+
             header_col = find_column_by_value(ws, imx_path, header_row)
-            if not header_col:
+            if header_col is None:
                 not_found.append(
                     {**data, "Reason": f"ImxPath '{imx_path}' not found in header"}
                 )
                 continue
 
             puic_col = find_column_by_value(ws, "@puic", header_row)
-            if not puic_col:
+            if puic_col is None:
                 not_found.append({**data, "Reason": "@puic column not found"})
                 continue
 
@@ -284,37 +278,24 @@ def apply_comments_from_issue_list(
             )
 
         except Exception as e:
-            fallback = {"Reason": f"Unexpected error: {str(e)}"}
-            fallback.update(data)
-            not_found.append(fallback)
+            not_found.append({**data, "Reason": f"Unexpected error: {str(e)}"})
 
-    summary_ws = create_summary_sheet(diff_wb, processed, skipped, not_found)
     issue_list_ws = diff_wb.create_sheet(ISSUE_LIST_SHEET_NAME)
     copy_full_sheet(issue_ws, issue_list_ws)
 
-    diff_wb._sheets.remove(issue_list_ws)
-    diff_wb._sheets.insert(2, issue_list_ws)
-
-    # Reorder sheets
-    sheet_order = []
-    if "info" in diff_wb.sheetnames:
-        sheet_order.append(diff_wb["info"])
-    sheet_order.extend([issue_list_ws, summary_ws])
+    ordered_titles = ["info", ISSUE_LIST_SHEET_NAME, "CommentPlacementSummary"]
+    ordered_sheets = []
+    for title in ordered_titles:
+        if title in diff_wb.sheetnames:
+            ordered_sheets.append(diff_wb[title])  # type: ignore[arg-type]
     for sheet in diff_wb.worksheets:
-        if sheet not in sheet_order:
-            sheet_order.append(sheet)
-    diff_wb._sheets = sheet_order
+        if sheet not in ordered_sheets:
+            ordered_sheets.append(sheet)  # type: ignore[arg-type]
+    diff_wb._sheets = ordered_sheets  # type: ignore[attr-defined]
 
-    # Get the 'info' worksheet by name
-    info_sheet = diff_wb["info"]
-
-    # Set it as the active sheet using its index
-    diff_wb.active = diff_wb.sheetnames.index("info")
-
-    # Mark only this sheet as selected
+    diff_wb.active = diff_wb.sheetnames.index("info")  # type: ignore[assignment]
     for sheet in diff_wb.worksheets:
-        sheet.sheet_view.tabSelected = False
-    info_sheet.sheet_view.tabSelected = True
+        sheet.sheet_view.tabSelected = sheet.title == "info"
 
     diff_wb.save(output_path)
     print(f"✅ Comments copied and saved to '{output_path}'")
