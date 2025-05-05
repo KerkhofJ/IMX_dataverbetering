@@ -42,6 +42,7 @@ def imx_12_container_folder() -> str:
 def imx_single_xml_file() -> str:
     return sample_path("imx_124_single_file.xml")
 
+
 @pytest.fixture(scope="module")
 def diff_report() -> str:
     return sample_path("20250430_202130-diff.xlsx")

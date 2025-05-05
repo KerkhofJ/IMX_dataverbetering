@@ -1,4 +1,5 @@
 from copy import copy
+from pathlib import Path
 from typing import Any
 
 from openpyxl import load_workbook
@@ -7,6 +8,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from imxTools.settings import ISSUE_LIST_SHEET_NAME
+from utils.helpers import ensure_paths
 
 
 def copy_full_sheet(source_ws: Worksheet, target_ws: Worksheet):
@@ -178,8 +180,9 @@ def apply_comment_to_cell(
         if comment_text:
             processed.append({**data, "Value": cell.value})
         else:
-            skipped.append({**data, "Value": cell.value, "Reason": "Empty header comment"})
-
+            skipped.append(
+                {**data, "Value": cell.value, "Reason": "Empty header comment"}
+            )
 
 
 def auto_resize_columns(ws: Worksheet):
@@ -197,13 +200,19 @@ def auto_resize_columns(ws: Worksheet):
 
 
 def apply_comments_from_issue_list(
-    issue_list_path: str, new_diff_path: str, output_path: str, header_row: int = 1
+    issue_list_path: str | Path, new_diff_path: str | Path, output_path: str | Path, header_row: int = 1
 ):
+    issue_list_path, new_diff_path, output_path = ensure_paths(
+        issue_list_path, new_diff_path, output_path
+    )
+
     issue_wb = load_workbook(issue_list_path, data_only=False)
     diff_wb = load_workbook(new_diff_path)
 
     if ISSUE_LIST_SHEET_NAME not in issue_wb.sheetnames:
-        raise ValueError(f"No '{ISSUE_LIST_SHEET_NAME}' sheet found in the issue list workbook.")
+        raise ValueError(
+            f"No '{ISSUE_LIST_SHEET_NAME}' sheet found in the issue list workbook."
+        )
 
     issue_ws = issue_wb[ISSUE_LIST_SHEET_NAME]
     headers = get_sheet_headers(issue_ws, header_row)
@@ -295,7 +304,6 @@ def apply_comments_from_issue_list(
         if sheet not in sheet_order:
             sheet_order.append(sheet)
     diff_wb._sheets = sheet_order
-
 
     # Get the 'info' worksheet by name
     info_sheet = diff_wb["info"]
