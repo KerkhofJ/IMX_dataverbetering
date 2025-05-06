@@ -214,7 +214,7 @@ class MeasureLine:
             np.searchsorted(self._cum_lengths_2d, proj_measure_shapely, side="right")
             - 1
         )
-        seg_index = min(max(seg_index, 0), len(self._cum_lengths_2d) - 2)
+        seg_index = min(max(seg_index, 0), len(self._cum_lengths_2d) - 2)  # type: ignore
         prev_point_3d = self._line_array[seg_index]
         next_point_3d = self._line_array[seg_index + 1]
         return seg_index, prev_point_3d, next_point_3d

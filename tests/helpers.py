@@ -1,9 +1,8 @@
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from functools import wraps
 from pathlib import Path
 from pkgutil import ModuleInfo, walk_packages
 from types import ModuleType
-from typing import Callable, Optional
 
 
 def packages_in_module(m: ModuleType) -> Iterable[ModuleInfo]:
@@ -42,7 +41,7 @@ def assert_path_glob(path: str, glob_pattern: str, expect_present: bool = True) 
         )
 
 
-def track_new_files(path_arg: str, extension: Optional[str] = None):
+def track_new_files(path_arg: str, extension: str | None):
     """
     Decorator to track new files created in a directory during test execution.
 

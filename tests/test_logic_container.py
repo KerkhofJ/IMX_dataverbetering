@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import pytest
 from helpers import assert_path_glob
 
 from imxTools.insights.container import create_container
