@@ -75,7 +75,8 @@ lint = [
 lint-check = [
     "ruff format --check imxTools/ apps/ tests/",
     "ruff check imxTools/ apps/ tests/",
-    "mypy imxTools/ apps/ --check-untyped-defs",
+    "mypy imxTools/ --check-untyped-defs",
+    "mypy apps/ --check-untyped-defs",
     "zizmor .github/workflows/ apps/",
 ]
 
