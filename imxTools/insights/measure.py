@@ -3,6 +3,7 @@ from enum import Enum
 
 import numpy as np
 from imxInsights import ImxContainer
+from imxInsights.repo.imxRepo import ImxRepo
 from imxInsights.utils.shapely.shapely_geojson import ShapelyGeoJsonFeature
 from numpy.typing import NDArray
 from shapely import LineString, Point
@@ -308,7 +309,7 @@ class MeasureLine:
         return abs(dot_product) < tol
 
 
-def calculate_measurements(imx: ImxContainer, create_geojson_debug: bool = False):
+def calculate_measurements(imx: ImxRepo, create_geojson_debug: bool = False):
     out_list = []
     measure_line_dict: dict[str, MeasureLine] = {}
 
