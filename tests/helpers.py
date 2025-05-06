@@ -41,7 +41,7 @@ def assert_path_glob(path: str, glob_pattern: str, expect_present: bool = True) 
         )
 
 
-def track_new_files(path_arg: str, extension: str | None):
+def track_new_files(path_arg: str, extension: str | None = None):
     """
     Decorator to track new files created in a directory during test execution.
 

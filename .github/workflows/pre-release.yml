@@ -56,6 +56,10 @@ jobs:
             echo "should_release=false" >> $GITHUB_ENV
           fi
 
+      - name: Build wheel
+        if: env.should_release == 'true'
+        run: hatch build
+
       - name: Build CLI executable
         if: env.should_release == 'true'
         run: hatch run python build-cli-app.py
@@ -68,5 +72,7 @@ jobs:
           name: 🚀 Version ${{ env.version }}
           tag: v${{ env.version }}
           generateReleaseNotes: true
-          artifacts: dist/imxTools-${{ env.version }}-windows.zip
+          artifacts: |
+            dist/imxTools-${{ env.version }}-windows.zip
+            dist/imxtools-${{ env.version }}-py3-none-any.whl
           token: ${{ secrets.GITHUB_TOKEN }}
