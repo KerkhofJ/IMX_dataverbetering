@@ -135,7 +135,7 @@ def _update_signaling_design(root: _ElementTree, ribbons_elem: _Element) -> None
     if dem is None:
         return
     parent = dem.getparent()
-    if parent:
+    if parent is not None:
         idx = parent.index(dem)
         parent.insert(idx + 1, ribbons_elem)
 
