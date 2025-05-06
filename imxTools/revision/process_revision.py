@@ -1,8 +1,7 @@
 import os
 import sys
-from collections.abc import Hashable
 from pathlib import Path
-from typing import Any
+from xml.etree.ElementTree import QName
 
 import pandas as pd
 import xmlschema
@@ -17,167 +16,187 @@ from imxTools.revision.imx_modifier import (
     set_attribute_or_element_by_path,
     set_metadata,
 )
-from imxTools.revision.input_validation import (
-    ErrorList,
-    validate_input_excel_content,
-    validate_process_input,
-)
+from imxTools.revision.input_validation import ErrorList, validate_process_input
 from imxTools.revision.revision_enums import RevisionColumns, RevisionOperationValues
 from imxTools.settings import ROOT_PATH, SET_METADATA_PARENTS
 from imxTools.utils.custom_logger import logger
 
+# from imxInsights import ImxContainer
+# from imxInsights.utils.imx.manifestBuilder import ManifestBuilder
+
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-IMX_XSD_PATHS = {
-    "1.2.4": "data/xsd-1.2.4/IMSpoor-1.2.4-Communication.xsd",
-    "12.0.0": "data/xsd-12.0.0/IMSpoor-SignalingDesign.xsd",
-}
-XML_NS = "{http://www.prorail.nl/IMSpoor}"
-PuicIndex = dict[str | None, _Element]
+XSD_IMX: None | xmlschema.XMLSchema = None
 
 
-def _load_xsd(version: str) -> xmlschema.XMLSchema:
-    try:
-        xsd_file = ROOT_PATH / IMX_XSD_PATHS[version]
-    except KeyError:
-        raise NotImplementedError(f"IMX version {version} not supported")
-
-    schema = xmlschema.XMLSchema(xsd_file)
-    logger.success(f"Loaded XSD for IMX {version}")
-    return schema
-
-
-def normalize_tag(tag: str | bytes | etree.QName) -> str:
-    if hasattr(tag, "text"):
-        tag = str(tag)
-    if isinstance(tag, bytes | bytearray):
-        tag = tag.decode()
-    return tag.split("}")[-1]
-
-
-def validate_tag(expected_type: str, element: _Element) -> None:
-    expected = XML_NS + expected_type.split(".")[-1]
-    actual = normalize_tag(element.tag)
-    if actual != expected.split("}")[-1]:
-        raise ValueError(f"Tag mismatch: expected {expected}, got {actual}")
+def load_xsd(imx_version):
+    global XSD_IMX
+    match imx_version:
+        case "1.2.4":
+            XSD_IMX = xmlschema.XMLSchema(
+                ROOT_PATH / "data/xsd-1.2.4/IMSpoor-1.2.4-Communication.xsd"
+            )
+            logger.success("xsd 1.2.4 loading finished")
+        case "12.0.0":
+            XSD_IMX = xmlschema.XMLSchema(
+                ROOT_PATH / "data/xsd-12.0.0/IMSpoor-SignalingDesign.xsd"
+            )
+            logger.success("xsd 12.0.0 loading finished")
+        case _:
+            raise NotImplementedError(f"IMX version {imx_version} not supported")
+    return XSD_IMX
 
 
-def xsd_validate(schema: xmlschema.XMLSchema, element: _Element, change: dict) -> None:
-    xml = etree.tostring(element)
-    errors = list(schema.iter_errors(xml))
-    if errors:
-        change["status"] = change.get("status", "processed") + " – XSD invalid"
-        change["xsd_errors"] = "; ".join(err.reason or "" for err in errors)
-        logger.error(change["xsd_errors"])
-
-
-def apply_change(
-    change: dict[Hashable, Any], element: _Element, puic_index: PuicIndex
-) -> None:
-    operation = change[RevisionColumns.Operation.name]
-    handlers = {
-        RevisionOperationValues.CreateAttribute.name: _handle_create_or_update_attr,
-        RevisionOperationValues.UpdateAttribute.name: _handle_create_or_update_attr,
-        RevisionOperationValues.DeleteAttribute.name: _handle_delete_attr,
-        RevisionOperationValues.DeleteObject.name: _handle_delete_object,
-        RevisionOperationValues.AddElementUnder.name: _handle_add_element,
-        RevisionOperationValues.DeleteElement.name: _handle_delete_element,
-    }
-    handler = handlers.get(operation)
-    if handler:
-        handler(change, element, puic_index)
-    else:
-        change["status"] = f"NOT processed: {operation} is not valid"
-
-
-def _finalize(change: dict[str, str], element: _Element) -> None:
-    set_metadata(element, SET_METADATA_PARENTS)
-    change["status"] = change.get("status", "processed")
-
-
-def _handle_create_or_update_attr(
-    change: dict, element: _Element, _: PuicIndex
-) -> None:
-    new_val = change.get(RevisionColumns.ValueNew.name)
-    if not new_val:
-        change["status"] = "skipped"
-        return
-
-    attr_path = change[RevisionColumns.AtributeOrElement.name].strip()
-    old_val = change.get(RevisionColumns.ValueOld.name)
-    is_update = (
-        change[RevisionColumns.Operation.name]
-        == RevisionOperationValues.UpdateAttribute.name
+def _raise_tag_mismatch_error(expected_tag: str, actual_tag: str) -> None:
+    raise ValueError(
+        f"Object tag {expected_tag} does not match tag of found object {actual_tag}"
     )
 
-    set_attribute_or_element_by_path(
-        element,
-        attr_path,
-        str(new_val),
-        None if not is_update else str(old_val),
-    )
-    _finalize(change, element)
+
+def raise_type_error(tag):
+    raise TypeError(f"Unsupported tag type: {type(tag)}")
 
 
-def _handle_delete_attr(change: dict, element: _Element, _: PuicIndex) -> None:
-    delete_attribute_if_matching(
-        element,
-        change[RevisionColumns.AtributeOrElement.name].strip(),
-        str(change.get(RevisionColumns.ValueOld.name, "")),
-    )
-    _finalize(change, element)
-
-
-def _handle_delete_object(
-    change: dict, element: _Element, puic_index: PuicIndex
-) -> None:
-    delete_element(element)
-    puic_index.pop(change[RevisionColumns.ObjectPuic.name], None)
-    _finalize(change, element)
-
-
-def _handle_add_element(change: dict, element: _Element, _: PuicIndex) -> None:
-    create_element_under(
-        element,
-        change[RevisionColumns.AtributeOrElement.name],
-        str(change.get(RevisionColumns.ValueNew.name, "")),
-    )
-    _finalize(change, element)
-
-
-def _handle_delete_element(change: dict, element: _Element, _: PuicIndex) -> None:
-    delete_element_that_matches(
-        element,
-        change[RevisionColumns.AtributeOrElement.name],
-    )
-    _finalize(change, element)
-
-
-def _process_changes(
-    changes: list[dict[Hashable, Any]],
-    puic_index: PuicIndex,
-    schema: xmlschema.XMLSchema,
-) -> None:
-    for change in changes:
-        if not change.get(RevisionColumns.ProcessingStatus.name):
+def process_changes(change_items: list[dict], puic_dict: dict[str, _Element]):
+    for change in change_items:
+        if not change[RevisionColumns.ProcessingStatus.name]:
             continue
 
+        logger.info(f"processing change {change}")
+
         puic = change[RevisionColumns.ObjectPuic.name]
-        element = puic_index.get(puic)
-        if element is None:
+
+        if puic not in puic_dict:
             change["status"] = f"object not present: {puic}"
             continue
 
+        imx_object_element: _Element = puic_dict[puic]
+
+        object_type = change[RevisionColumns.ObjectPath.name]
+        operation = change[RevisionColumns.Operation.name]
+
         try:
-            validate_tag(change[RevisionColumns.ObjectPath.name], element)
-            apply_change(change, element, puic_index)
+            expected_tag = (
+                f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
+            )
+            actual_tag = imx_object_element.tag
+
+            if isinstance(actual_tag, QName):
+                actual_tag = str(actual_tag).split("}")[-1]
+            elif isinstance(actual_tag, str | bytes | bytearray):
+                tag_str = (
+                    actual_tag.decode()
+                    if isinstance(actual_tag, bytes | bytearray)
+                    else actual_tag
+                )
+                actual_tag = tag_str
+            else:
+                raise_type_error(actual_tag)
+
+            expected_tag = (
+                f"{{http://www.prorail.nl/IMSpoor}}{object_type.split('.')[-1]}"
+            )
+
+            if actual_tag != expected_tag:
+                # Ensure actual_tag is a string before using .split()
+                if isinstance(actual_tag, str):
+                    actual_localname = (
+                        actual_tag.split("}")[-1] if "}" in actual_tag else actual_tag
+                    )
+                elif isinstance(actual_tag, QName):
+                    actual_localname = (
+                        str(actual_tag).split("}")[-1]
+                        if "}" in str(actual_tag)
+                        else str(actual_tag)
+                    )
+                else:
+                    actual_localname = str(actual_tag)
+
+                _raise_tag_mismatch_error(object_type, actual_localname)
+
+            match operation:
+                case RevisionOperationValues.CreateAttribute.name:
+                    if change[RevisionColumns.ValueNew.name] == "":
+                        change["status"] = "skipped"
+                    else:
+                        set_attribute_or_element_by_path(
+                            imx_object_element,
+                            change[RevisionColumns.AtributeOrElement.name].strip(),
+                            f"{change[RevisionColumns.ValueNew.name]}",
+                            None,
+                        )
+                        set_metadata(imx_object_element, SET_METADATA_PARENTS)
+                        change["status"] = "processed"
+
+                case RevisionOperationValues.UpdateAttribute.name:
+                    if change[RevisionColumns.ValueNew.name] == "":
+                        change["status"] = "skipped"
+                    else:
+                        set_attribute_or_element_by_path(
+                            imx_object_element,
+                            change[RevisionColumns.AtributeOrElement.name].strip(),
+                            f"{change[RevisionColumns.ValueNew.name]}",
+                            f"{change[RevisionColumns.ValueOld.name]}",
+                        )
+                        set_metadata(imx_object_element, SET_METADATA_PARENTS)
+                        change["status"] = "processed"
+
+                case RevisionOperationValues.DeleteAttribute.name:
+                    delete_attribute_if_matching(
+                        imx_object_element,
+                        change[RevisionColumns.AtributeOrElement.name].strip(),
+                        change[RevisionColumns.ValueOld.name],
+                    )
+                    set_metadata(imx_object_element, SET_METADATA_PARENTS)
+                    change["status"] = "processed"
+
+                case RevisionOperationValues.DeleteAttribute.name:
+                    delete_element(imx_object_element)
+                    set_metadata(imx_object_element, SET_METADATA_PARENTS)
+                    change["status"] = "processed"
+                    puic_dict.pop(puic)  # Remove deleted object from the dictionary
+
+                case RevisionOperationValues.AddElementUnder.name:
+                    create_element_under(
+                        imx_object_element,
+                        change[RevisionColumns.AtributeOrElement.name],
+                        f"{change[RevisionColumns.ValueNew.name]}",
+                    )
+                    set_metadata(imx_object_element, SET_METADATA_PARENTS)
+                    change["status"] = "processed"
+
+                case RevisionOperationValues.DeleteElement.name:
+                    delete_element_that_matches(
+                        imx_object_element,
+                        change[RevisionColumns.AtributeOrElement.name],
+                    )
+                    set_metadata(imx_object_element, SET_METADATA_PARENTS)
+                    change["status"] = "processed"
+
+                case _:
+                    change["status"] = (
+                        f"NOT processed: {operation} is not a valid operation"
+                    )
+
         except Exception as e:
             logger.error(e)
             change["status"] = f"Error: {e}"
-        finally:
-            xsd_validate(schema, element, change)
 
-        logger.success(f"Processed change for PUIC {puic}")
+        finally:
+            assert XSD_IMX is not None
+            xml_bytes = etree.tostring(imx_object_element)
+            errors = list(XSD_IMX.iter_errors(xml_bytes))
+            if errors:
+                change["status"] = f"{change['status']} - XSD invalid!"
+                change["xsd_errors"] = "".join(
+                    reason
+                    for error in errors
+                    if error is not None and (reason := error.reason) is not None
+                )
+                logger.error(change["xsd_errors"])
+
+        logger.success(f"processing change {change} done")
 
 
 def process_imx_revisions(
@@ -186,67 +205,90 @@ def process_imx_revisions(
     out_path: str | Path,
     verbose: bool = True,
 ) -> pd.DataFrame:
-    input_imx, input_excel, out_path = _prepare_paths(input_imx, input_excel, out_path)
+    if not isinstance(input_imx, Path):
+        # TODO: We could have a imx v12.x.x then we need to implement design petals (very low prio)
+        input_imx = Path(input_imx)
+    if not isinstance(input_excel, Path):
+        input_excel = Path(input_excel)
+    if not isinstance(out_path, Path):
+        out_path = Path(out_path)
 
     try:
-        imx_file, log_file = validate_process_input(input_imx, input_excel, out_path)
+        imx_output, excel_output = validate_process_input(
+            input_imx, input_excel, out_path
+        )
     except ErrorList as e:
         raise ValueError("Invalid input:\n" + "\n".join(e.errors))
 
-    out_path.mkdir(parents=True, exist_ok=True)
-    if verbose:
-        print(f"✔ Created output dir: {out_path}")
+    if not out_path.exists():
+        out_path.mkdir(parents=True, exist_ok=True)
+        if verbose:
+            print(f"✔ Created output directory: {out_path}")
 
+    logger.info("loading xml")
     parser = etree.XMLParser(remove_blank_text=True)
-    tree = etree.parse(input_imx, parser)
+    tree = etree.parse(input_imx, parser=parser)
+    logger.success("loading xml finished")
+
     root = tree.getroot()
+    load_xsd(root.attrib.get("imxVersion"))
 
-    schema = _load_xsd(root.attrib.get("imxVersion", ""))
-    puic_index = {
-        el.get("puic"): el for el in tree.findall(".//*[@puic]") if el.get("puic")
-    }
+    puic_objects = tree.findall(".//*[@puic]")
+    puic_dict = {value.get("puic"): value for value in puic_objects}
 
-    df = _prepare_dataframe(input_excel)
-    changes = df.to_dict(orient="records")
-
-    _process_changes(changes, puic_index, schema)
-
-    tree.write(imx_file, encoding="UTF-8", pretty_print=True)
-
-    out_df = pd.DataFrame(changes)
-    _save_results(out_df, log_file)
-    return out_df
-
-
-def _prepare_paths(
-    in_imx: str | Path, in_excel: str | Path, out_dir: str | Path
-) -> tuple[Path, Path, Path]:
-    return Path(in_imx), Path(in_excel), Path(out_dir)
-
-
-def _prepare_dataframe(excel_path: Path) -> pd.DataFrame:
-    df = (
-        pd.read_excel(
-            excel_path, sheet_name="revisions", na_values="", keep_default_na=False
-        )
-        .fillna("")
-        .apply(lambda col: col.map(lambda v: v.strip() if isinstance(v, str) else v))
+    # TODO: loop true every sheet, this includes a process report excel!
+    # Always use the third sheet, this is a workaround for the excel file that is not always the same
+    df = pd.read_excel(
+        input_excel, sheet_name="revisions", na_values="", keep_default_na=False
     )
+    df = df.fillna("")
+    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
 
-    validate_input_excel_content(df)
+    # todo: check input for
+    #  gml:LineString.gml:coordinates
+    #  gml:Point.gml:coordinates
 
-    missing = {col.name for col in RevisionColumns} - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing template headers: {', '.join(sorted(missing))}")
+
+    # use map to make sure all columns are lowercase
+    # df.columns = pd.Index([col.lower() for col in df.columns])
+
+    # Check if input issuelist has the expected headers from template
+    expected_columns = [col.name for col in RevisionColumns]
+    complete_columns = [True for col in expected_columns if col not in df.columns]
+    if not all(complete_columns):
+        raise ValueError("All columns must match the template headers")
+
+    change_items = df.to_dict(orient="records")
+
+    logger.info("processing xml")
+    puic_dict_ = {k: v for k, v in puic_dict.items() if k is not None}
+    process_changes(change_items, puic_dict_)
+    logger.success("processing xml finshed")
+
+    tree.write(imx_output, encoding="UTF-8", pretty_print=True)
+
+    df = pd.DataFrame(change_items)
+
+    with pd.ExcelWriter(excel_output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False, sheet_name="process-log")
+        worksheet = writer.sheets["process-log"]
+        for col_num, value in enumerate(df.columns):
+            max_len = (
+                max(df[value].astype(str).map(len).max(), len(value)) + 2
+            )  # Add some padding
+            worksheet.set_column(col_num, col_num, max_len)
+        worksheet.freeze_panes(1, 0)
+        worksheet.autofilter(0, 0, 0, len(df.columns) - 1)
+
     return df
 
+    # TODO: Create a manifest as cli function (allso for a pre imx v12.x.x ? (more then very low prio!!))
+    # manifest = ManifestBuilder(out_path)
+    # manifest.create_manifest()
+    # manifest.to_zip(out_path / "imx_container.zip")
+    # logger.success("finished creating manifest and zip container")
 
-def _save_results(df: pd.DataFrame, output: Path) -> None:
-    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, index=False, sheet_name="process-log")
-        ws = writer.sheets["process-log"]
-        for idx, col in enumerate(df.columns):
-            width = max(df[col].astype(str).map(len).max(), len(col)) + 2
-            ws.set_column(idx, idx, width)
-        ws.freeze_panes(1, 0)
-        ws.autofilter(0, 0, 0, len(df.columns) - 1)
+    # TODO: create a diff as cli function, reuse here to diff input and output imx version independent
+    # multi_repo = ImxMultiRepo([input_imx, imx], version_safe=False)
+    # compare = multi_repo.compare(input_imx.container_id, imx.container_id)
+    # compare.to_excel(ROOT_PATH/ "output/diff.xlsx")
