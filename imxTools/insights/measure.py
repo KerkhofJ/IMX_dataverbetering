@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from enum import Enum
 
 import numpy as np
-from imxInsights import ImxContainer
 from imxInsights.repo.imxRepo import ImxRepo
 from imxInsights.utils.shapely.shapely_geojson import ShapelyGeoJsonFeature
 from numpy.typing import NDArray

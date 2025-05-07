@@ -84,7 +84,7 @@ lint-check = [
 python = ["3.10", "3.11", "3.12", "3.13"]
 
 [tool.hatch.build]
-packages = ["imxTools", "apps"]
+packages = ["imxTools", "apps", "data"]
 
 [tool.ruff]
 target-version = "py310"

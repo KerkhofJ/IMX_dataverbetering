@@ -40,3 +40,7 @@ def zip_folder(folder: Path, output_zip: Path) -> None:
 
 def create_timestamp() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def ensure_paths(*args):
+    return [Path(a) if isinstance(a, str) else a for a in args]
