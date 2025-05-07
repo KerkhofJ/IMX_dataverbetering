@@ -87,7 +87,8 @@ def calculate_measurements(imx: ImxRepo) -> list:
     return results
 
 
-def generate_measurement_dfs(results: list) -> tuple[pd.DataFrame, pd.DataFrame]:
+def generate_measurement_dfs(imx: ImxRepo) -> tuple[pd.DataFrame, pd.DataFrame]:
+    results = calculate_measurements(imx)
     df = pd.DataFrame(
         results,
         columns=[

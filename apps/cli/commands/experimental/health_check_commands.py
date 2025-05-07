@@ -30,8 +30,7 @@ def measure_check(
     Current version only works for IMX 1.2 zip files.
     """
     imx = ImxContainer(imx_12_zip)
-    out_list = calculate_measurements(imx)
-    df, df_issue_list = generate_measurement_dfs(out_list)
+    df, df_issue_list = generate_measurement_dfs(imx)
 
     output_file = output_path / "measure_check.xlsx"
     with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
