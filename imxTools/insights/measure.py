@@ -326,6 +326,7 @@ def calculate_measurements(imx: ImxRepo, create_geojson_debug: bool = False):
             rail_con = ref.imx_object
             puic = rail_con.puic
 
+
             measure_line = measure_line_dict.get(puic)
             if measure_line is None:
                 measure_line = MeasureLine(rail_con.geometry)
@@ -341,8 +342,9 @@ def calculate_measurements(imx: ImxRepo, create_geojson_debug: bool = False):
 
             out_list.append(
                 [
+                    imx_object.path,
                     imx_object.puic,
-                    imx_object.tag + ": " + imx_object.name,
+                    imx_object.name,
                     ref_field,
                     puic,
                     rail_con.name,
