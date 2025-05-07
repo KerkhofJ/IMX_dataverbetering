@@ -7,8 +7,9 @@ import zipfile
 from datetime import date
 from pathlib import Path
 
-from imxTools import __version__ as imxTools_version
 from imxInsights import __version__ as imxInsights_version
+
+from imxTools import __version__ as imxTools_version
 
 
 def extract_version(init_file: Path = Path("imxTools/__init__.py")) -> str:
