@@ -7,6 +7,9 @@ from numpy._typing import NDArray
 from shapely import Point, LineString
 
 
+# TODO: this should be part of imxInsights
+
+
 class ProjectionPointPosition(Enum):
     LEFT = "left"
     RIGHT = "right"
