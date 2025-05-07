@@ -3,8 +3,9 @@ from pathlib import Path
 import pandas as pd
 import typer
 from imxInsights import ImxContainer
-from imxTools.insights.measure import calculate_measurements, generate_measurement_dfs
+
 from apps.cli.exception_handler import handle_exceptions
+from imxTools.insights.measure import generate_measurement_dfs
 
 app = typer.Typer()
 
@@ -27,11 +28,14 @@ def measure_check(
 
     **!! WARNING: THIS IS AN EXPERIMENTAL FEATURE!**
 
-    Current version only works for IMX 1.2 zip files.
+    Current version only works for IMX container (zip files).
     """
+    # TODO: make sure we support imx 1.2.4 files include option to give a situation type. encapsulate the to util helper.
     imx = ImxContainer(imx_12_zip)
     df, df_issue_list = generate_measurement_dfs(imx)
 
+    # TODO: we should have a output parameter in the command
+    # TODO: this could be a methode in measure methode.
     output_file = output_path / "measure_check.xlsx"
     with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
         df.to_excel(writer, index=False, sheet_name="measure_check")

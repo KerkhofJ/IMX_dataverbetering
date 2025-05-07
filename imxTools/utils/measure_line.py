@@ -4,8 +4,7 @@ from enum import Enum
 import numpy as np
 from imxInsights.utils.shapely.shapely_geojson import ShapelyGeoJsonFeature
 from numpy._typing import NDArray
-from shapely import Point, LineString
-
+from shapely import LineString, Point
 
 # TODO: this should be part of imxInsights
 

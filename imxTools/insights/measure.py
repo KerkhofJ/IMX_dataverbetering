@@ -1,10 +1,10 @@
 import pandas as pd
-from shapely import Point
 from imxInsights.repo.imxRepo import ImxRepo
-from utils.measure_line import MeasureLine
+from shapely import Point
 
+from imxTools.utils.measure_line import MeasureLine
 
-# TODO: we should support line objects as well maybe we should add it to utils
+# TODO: we should support line objects as well maybe we should add it to utils measure line
 
 
 def _is_valid_point_geometry(geometry) -> bool:
@@ -21,18 +21,23 @@ def _get_at_measure_key(ref_field: str) -> str:
     return ref_field.replace("@railConnectionRef", "@atMeasure")
 
 
-def _get_or_create_measure_line(puic: str, rail_con, cache: dict[str, MeasureLine]) -> MeasureLine:
+def _get_or_create_measure_line(
+    puic: str, rail_con, cache: dict[str, MeasureLine]
+) -> MeasureLine:
     if puic not in cache:
         cache[puic] = MeasureLine(rail_con.geometry)
     return cache[puic]
 
 
-def _extract_at_measure(ref_field: str) -> float | None:
-    at_measure = _get_at_measure_key(ref_field)
+def _extract_at_measure(ref_field: str, properties: dict) -> float | None:
+    at_measure_field = _get_at_measure_key(ref_field)
+    at_measure = properties.get(at_measure_field, None)
     return float(at_measure) if at_measure else None
 
 
-def _calculate_row(imx_object, ref_field, rail_con, at_measure, projection_result) -> list:
+def _calculate_row(
+    imx_object, ref_field, rail_con, at_measure, projection_result
+) -> list:
     puic = rail_con.puic
     projected_2d = rail_con.geometry.project(imx_object.geometry)
 
@@ -42,11 +47,7 @@ def _calculate_row(imx_object, ref_field, rail_con, at_measure, projection_resul
         else None
     )
 
-    diff_2d = (
-        abs(at_measure - projected_2d)
-        if at_measure is not None
-        else None
-    )
+    diff_2d = abs(at_measure - projected_2d) if at_measure is not None else None
 
     return [
         imx_object.path,
@@ -76,8 +77,12 @@ def calculate_measurements(imx: ImxRepo) -> list:
                 continue
 
             rail_con = ref.imx_object
-            measure_line = _get_or_create_measure_line(rail_con.puic, rail_con, measure_lines)
-            at_measure = _extract_at_measure(ref.field)
+            measure_line = _get_or_create_measure_line(
+                rail_con.puic, rail_con, measure_lines
+            )
+            at_measure = _extract_at_measure(ref.field, obj.properties)
+
+            assert isinstance(obj.geometry, Point)
             projection_result = measure_line.project(obj.geometry)
 
             results.append(
@@ -119,13 +124,26 @@ def generate_measurement_dfs(imx: ImxRepo) -> tuple[pd.DataFrame, pd.DataFrame]:
         "RevisionReasoning",
     ]
 
-    df_subset = df[["object_path", "object_puic", "imx_measure", "calculated_3d_measure"]].copy()
-    df_subset.columns = ["ObjectPath", "ObjectPuic", "ValueOld", "ValueNew"]
+    df_subset = df[
+        ["object_path", "object_puic", "imx_measure", "calculated_3d_measure"]
+    ].copy()
+    df_subset = df_subset.rename(
+        columns={
+            "object_path": "ObjectPath",
+            "object_puic": "ObjectPuic",
+            "imx_measure": "ValueOld",
+            "calculated_3d_measure": "ValueNew",
+        }
+    )
 
     df_subset["Operation"] = "UpdateAttribute"
     df_subset["AtributeOrElement"] = df["ref_field"].apply(
-        lambda val: val.replace("@railConnectionRef", "@atMeasure") if isinstance(val, str) else val
+        lambda val: val.replace("@railConnectionRef", "@atMeasure")
+        if isinstance(val, str)
+        else val
     )
+
+    # TODO: make sure issue list is only set to processing if measure difference is above threshold
 
     for col in revision_columns:
         if col not in df_subset.columns:
