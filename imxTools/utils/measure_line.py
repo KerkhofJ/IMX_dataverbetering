@@ -25,7 +25,7 @@ class ProjectionsStatus(Enum):
 
 
 @dataclass
-class LineMeasureResult:
+class PointMeasureResult:
     point_to_project: Point
     projection_line: LineString
     projected_point: Point
@@ -64,6 +64,62 @@ class LineMeasureResult:
                 {"type": "perpendicular_line"},
             ),
         ]
+        return features
+
+
+@dataclass
+class LineMeasureResult:
+    from_result: PointMeasureResult
+    to_result: PointMeasureResult
+
+    @property
+    def from_measure_2d(self) -> float:
+        return self.from_result.measure_2d
+
+    @property
+    def to_measure_2d(self) -> float:
+        return self.to_result.measure_2d
+
+    @property
+    def from_measure_3d(self) -> float | None:
+        return self.from_result.measure_3d
+
+    @property
+    def to_measure_3d(self) -> float | None:
+        return self.to_result.measure_3d
+
+    def __repr__(self) -> str:
+        return (
+            f"LineMeasureResult("
+            f"from_measure=2D:{self.from_measure_2d:.3f}, 3D:{self.from_measure_3d}, "
+            f"from_point={self.from_result.projected_point},"
+            f"to_measure=2D:{self.to_measure_2d:.3f}, 3D:{self.to_measure_3d}, "
+            f"to_point={self.to_result.projected_point},"
+            f"status_from={self.from_result.overshoot_undershoot.value}, "
+            f"status_to={self.to_result.overshoot_undershoot.value})"
+        )
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def as_geojson_features(self):
+        features = (
+            self.from_result.as_geojson_features()
+            + self.to_result.as_geojson_features()
+        )
+        features.append(
+            ShapelyGeoJsonFeature(
+                [
+                    LineString(
+                        [
+                            self.from_result.projected_point,
+                            self.to_result.projected_point,
+                        ]
+                    )
+                ],
+                {"type": "projected_segment"},
+            )
+        )
         return features
 
 
@@ -135,7 +191,7 @@ class MeasureLine:
 
     def project(
         self, point: list[float] | NDArray[np.float64] | Point
-    ) -> LineMeasureResult:
+    ) -> PointMeasureResult:
         point = self._validate_and_process_point(point)
 
         # Use shapely project as it haz tested perpendicular projection and interpolated z
@@ -176,7 +232,7 @@ class MeasureLine:
         shapely_projection = Point(proj_point_3d)
 
         # todo: add distance to line in 2d and 3d
-        return LineMeasureResult(
+        return PointMeasureResult(
             point_to_project=Point(point),
             projection_line=self.shapely_line,
             projected_point=shapely_projection,
@@ -307,3 +363,25 @@ class MeasureLine:
         # Check for orthogonality using the dot product.
         dot_product = np.dot(seg_unit, pt_vec)
         return abs(dot_product) < tol
+
+    def project_line(self, input_line: LineString) -> LineMeasureResult:
+        """
+        Projects each vertex of a LineString onto the MeasureLine and returns a
+        LineMeasureResult based on the points with the minimum and maximum 2D measure.
+        """
+
+        # TODO: we should handle all so list or npArray of coordinates
+
+        if not isinstance(input_line, LineString):
+            raise TypeError("Expected a shapely LineString as input.")
+
+        if len(input_line.coords) < 2:
+            raise ValueError("Input LineString must have at least 2 coordinates.")
+
+        projected_results = [self.project(Point(coord)) for coord in input_line.coords]
+
+        # Find min and max measure_2d
+        from_result = min(projected_results, key=lambda r: r.measure_2d)
+        to_result = max(projected_results, key=lambda r: r.measure_2d)
+
+        return LineMeasureResult(from_result=from_result, to_result=to_result)

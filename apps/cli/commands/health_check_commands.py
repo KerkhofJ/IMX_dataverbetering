@@ -4,7 +4,7 @@ import typer
 from imxInsights.file.singleFileImx.imxSituationEnum import ImxSituationEnum
 
 from apps.cli.exception_handler import handle_exceptions
-from imxTools.insights.measure import generate_measure_excel
+from imxTools.insights.measure_analyse import generate_measure_excel
 from imxTools.utils.helpers import load_imxinsights_container_or_file
 
 app = typer.Typer()
