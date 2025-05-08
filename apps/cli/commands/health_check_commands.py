@@ -12,7 +12,7 @@ app = typer.Typer()
 
 @handle_exceptions
 @app.command()
-def measure_check(
+def measure(
     imx_container: Path = typer.Argument(
         ...,
         exists=True,

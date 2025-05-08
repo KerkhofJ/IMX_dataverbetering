@@ -151,6 +151,9 @@ def generate_measurement_dfs(
     df_issue_list = df_issue_list[
         (df_issue_list["ValueOld"] - df_issue_list["ValueNew"]).abs() > threshold
     ]
+    df_issue_list["IssueComment"] = (
+        f"Absolute difference between calculated and IMX measures exceeds the threshold of {threshold}m."
+    )
 
     for col in revision_columns:
         if col not in df_issue_list.columns:
