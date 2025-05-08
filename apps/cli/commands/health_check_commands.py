@@ -1,12 +1,11 @@
 from pathlib import Path
 
 import typer
-
 from imxInsights.file.singleFileImx.imxSituationEnum import ImxSituationEnum
-from imxTools.utils.helpers import load_imxinsights_container_or_file
 
 from apps.cli.exception_handler import handle_exceptions
 from imxTools.insights.measure import generate_measure_excel
+from imxTools.utils.helpers import load_imxinsights_container_or_file
 
 app = typer.Typer()
 
@@ -39,5 +38,6 @@ def measure_check(
     Calculate measurements for IMX files and store them in an Excel file.
     """
     imx = load_imxinsights_container_or_file(imx_container, t1_situation)
+    output_path = Path(output_path) if output_path else Path.cwd()
     generate_measure_excel(imx, output_path)
     typer.echo(f"✔ Measurement check Excel written to: {output_path}")

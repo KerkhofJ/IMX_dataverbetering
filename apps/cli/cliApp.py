@@ -4,8 +4,8 @@ from typer import Context, Exit
 
 from apps.cli.commands import (
     diff_population_commands,
-    revision_commands,
     health_check_commands,
+    revision_commands,
 )
 from apps.cli.commands.experimental import experimental_commands
 

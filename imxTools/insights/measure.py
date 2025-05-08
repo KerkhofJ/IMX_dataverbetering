@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pandas as pd
 from imxInsights.repo.imxRepo import ImxRepo
-from imxTools.utils.helpers import create_timestamp
 from shapely import Point
 
+from imxTools.utils.helpers import create_timestamp
 from imxTools.utils.measure_line import MeasureLine
 
 # TODO: we should support line objects as well maybe we should add it to utils measure line
@@ -95,7 +95,9 @@ def calculate_measurements(imx: ImxRepo) -> list:
     return results
 
 
-def generate_measurement_dfs(imx: ImxRepo, threshold:float=0.015) -> tuple[pd.DataFrame, pd.DataFrame]:
+def generate_measurement_dfs(
+    imx: ImxRepo, threshold: float = 0.015
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     results = calculate_measurements(imx)
     df_analyse = pd.DataFrame(
         results,
@@ -146,7 +148,9 @@ def generate_measurement_dfs(imx: ImxRepo, threshold:float=0.015) -> tuple[pd.Da
         if isinstance(val, str)
         else val
     )
-    df_issue_list = df_issue_list[(df_issue_list['ValueOld'] - df_issue_list['ValueNew']).abs() > threshold]
+    df_issue_list = df_issue_list[
+        (df_issue_list["ValueOld"] - df_issue_list["ValueNew"]).abs() > threshold
+    ]
 
     for col in revision_columns:
         if col not in df_issue_list.columns:
