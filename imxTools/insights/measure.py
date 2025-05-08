@@ -1,5 +1,8 @@
+from pathlib import Path
+
 import pandas as pd
 from imxInsights.repo.imxRepo import ImxRepo
+from imxTools.utils.helpers import create_timestamp
 from shapely import Point
 
 from imxTools.utils.measure_line import MeasureLine
@@ -152,3 +155,15 @@ def generate_measurement_dfs(imx: ImxRepo, threshold:float=0.015) -> tuple[pd.Da
     df_issue_list = df_issue_list[revision_columns]
 
     return df_analyse, df_issue_list
+
+
+def generate_measure_excel(imx: ImxRepo, output_path: str | Path):
+    if isinstance(output_path, str):
+        output_path = Path(output_path)
+    if output_path.is_dir():
+        output_path = output_path / f"measure_check-{create_timestamp()}.xlsx"
+
+    df_analyse, df_issue_list = generate_measurement_dfs(imx)
+    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+        df_analyse.to_excel(writer, index=False, sheet_name="measure_check")
+        df_issue_list.to_excel(writer, index=False, sheet_name="issue_list")

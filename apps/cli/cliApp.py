@@ -5,6 +5,7 @@ from typer import Context, Exit
 from apps.cli.commands import (
     diff_population_commands,
     revision_commands,
+    health_check_commands,
 )
 from apps.cli.commands.experimental import experimental_commands
 
@@ -25,6 +26,7 @@ app.add_typer(
     name="experimental",
     help="experimental actions",
 )
+app.add_typer(health_check_commands.app, name="health-check", help="health-checks")
 
 
 @app.callback(invoke_without_command=True)
