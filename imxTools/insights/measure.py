@@ -57,7 +57,7 @@ def _calculate_row(
         puic,
         rail_con.name,
         at_measure,
-        projection_result.measure_3d,
+        round(projection_result.measure_3d, 3),
         diff_3d,
         projected_2d,
         diff_2d,
@@ -92,9 +92,9 @@ def calculate_measurements(imx: ImxRepo) -> list:
     return results
 
 
-def generate_measurement_dfs(imx: ImxRepo) -> tuple[pd.DataFrame, pd.DataFrame]:
+def generate_measurement_dfs(imx: ImxRepo, threshold:float=0.015) -> tuple[pd.DataFrame, pd.DataFrame]:
     results = calculate_measurements(imx)
-    df = pd.DataFrame(
+    df_analyse = pd.DataFrame(
         results,
         columns=[
             "object_path",
@@ -124,10 +124,11 @@ def generate_measurement_dfs(imx: ImxRepo) -> tuple[pd.DataFrame, pd.DataFrame]:
         "RevisionReasoning",
     ]
 
-    df_subset = df[
+    df_issue_list = df_analyse[
         ["object_path", "object_puic", "imx_measure", "calculated_3d_measure"]
     ].copy()
-    df_subset = df_subset.rename(
+
+    df_issue_list = df_issue_list.rename(
         columns={
             "object_path": "ObjectPath",
             "object_puic": "ObjectPuic",
@@ -136,19 +137,18 @@ def generate_measurement_dfs(imx: ImxRepo) -> tuple[pd.DataFrame, pd.DataFrame]:
         }
     )
 
-    df_subset["Operation"] = "UpdateAttribute"
-    df_subset["AtributeOrElement"] = df["ref_field"].apply(
+    df_issue_list["Operation"] = "UpdateAttribute"
+    df_issue_list["AtributeOrElement"] = df_analyse["ref_field"].apply(
         lambda val: val.replace("@railConnectionRef", "@atMeasure")
         if isinstance(val, str)
         else val
     )
-
-    # TODO: make sure issue list is only set to processing if measure difference is above threshold
+    df_issue_list = df_issue_list[(df_issue_list['ValueOld'] - df_issue_list['ValueNew']).abs() > threshold]
 
     for col in revision_columns:
-        if col not in df_subset.columns:
-            df_subset[col] = None
+        if col not in df_issue_list.columns:
+            df_issue_list[col] = None
 
-    df_subset = df_subset[revision_columns]
+    df_issue_list = df_issue_list[revision_columns]
 
-    return df, df_subset
+    return df_analyse, df_issue_list
