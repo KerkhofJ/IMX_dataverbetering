@@ -7,7 +7,10 @@ from shapely import LineString, Point
 from imxTools.insights.mesaure_analyse_enums import MeasureAnalyseColumns
 from imxTools.revision.revision_enums import RevisionColumns, RevisionOperationValues
 from imxTools.utils.helpers import create_timestamp
-from imxTools.utils.measure_line import MeasureLine, PointMeasureResult
+from imxTools.utils.measure_line import (
+    MeasureLine,
+    PointMeasureResult,
+)
 
 
 def _is_valid_geometry(geometry) -> bool:
@@ -15,7 +18,6 @@ def _is_valid_geometry(geometry) -> bool:
 
 
 def _is_rail_connection_ref(ref_field: str) -> bool:
-    # todo: check if all imx version still the same?
     return ref_field.endswith("@railConnectionRef")
 
 
@@ -52,7 +54,9 @@ def _calculate_row(
     )
 
     diff_2d = (
-        abs(measure - projection_result.measure_2d) if measure is not None else None
+        abs(measure - projection_result.measure_2d)
+        if measure is not None and projection_result.measure_2d is not None
+        else None
     )
 
     return {
@@ -66,7 +70,9 @@ def _calculate_row(
         MeasureAnalyseColumns.imx_measure.name: measure,
         MeasureAnalyseColumns.calculated_measure_3d.name: round(
             projection_result.measure_3d, 3
-        ),
+        )
+        if projection_result.measure_3d is not None
+        else None,
         MeasureAnalyseColumns.abs_imx_vs_3d.name: diff_3d,
         MeasureAnalyseColumns.calculated_measure_2d.name: projection_result.measure_2d,
         MeasureAnalyseColumns.abs_imx_vs_2d.name: diff_2d,
@@ -89,6 +95,7 @@ def calculate_measurements(imx: ImxRepo) -> list:
             measure_line = _get_or_create_measure_line(
                 rail_con.puic, rail_con, measure_lines
             )
+
             if isinstance(obj.geometry, Point):
                 projection_result = measure_line.project(obj.geometry)
                 imx_measure = _extract_measure(ref.field, "@atMeasure", obj.properties)
@@ -103,7 +110,7 @@ def calculate_measurements(imx: ImxRepo) -> list:
                     )
                 )
             elif isinstance(obj.geometry, LineString):
-                projection_result = measure_line.project_line(obj.geometry)
+                projection__line_result = measure_line.project_line(obj.geometry)
 
                 # FromMeasure
                 imx_measure = _extract_measure(
@@ -116,7 +123,7 @@ def calculate_measurements(imx: ImxRepo) -> list:
                         rail_con,
                         "fromMeasure",
                         imx_measure,
-                        projection_result.from_result,
+                        projection__line_result.from_result,
                     )
                 )
 
@@ -129,7 +136,7 @@ def calculate_measurements(imx: ImxRepo) -> list:
                         rail_con,
                         "toMeasure",
                         imx_measure,
-                        projection_result.to_result,
+                        projection__line_result.to_result,
                     )
                 )
 
@@ -179,6 +186,7 @@ def convert_analyse_to_issue_list(
     df_issue_list[RevisionColumns.operation.name] = (
         RevisionOperationValues.UpdateAttribute.name
     )
+
     df_issue_list[RevisionColumns.attribute_or_element.name] = df_analyse.apply(
         lambda row: row[MeasureAnalyseColumns.ref_field.name].replace(
             "@railConnectionRef", f"@{row[MeasureAnalyseColumns.measure_type.name]}"
@@ -187,6 +195,7 @@ def convert_analyse_to_issue_list(
         else row[MeasureAnalyseColumns.ref_field.name],
         axis=1,
     )
+
     df_issue_list = df_issue_list[
         (
             df_issue_list[RevisionColumns.value_old.name]
@@ -194,6 +203,7 @@ def convert_analyse_to_issue_list(
         ).abs()
         > threshold
     ]
+
     df_issue_list[RevisionColumns.issue_comment.name] = (
         f"Absolute delta between calculated and IMX measures exceeds the threshold of {threshold}m."
     )

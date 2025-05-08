@@ -20,7 +20,7 @@ def test_measure_imx_container(imx_12_container: str, clean_output_path: str):
     df_issue_list.to_excel(output, index=False, sheet_name="issue_list")
     assert output.exists(), f"File not found: {output}"
 
-    # todo: we should check if all columns are present
+    # TODO: we should check if all columns are present
 
 
 def test_measure_imx_single_file(imx_single_xml_file: str, clean_output_path: str):
@@ -39,4 +39,4 @@ def test_measure_imx_single_file(imx_single_xml_file: str, clean_output_path: st
     df_issue_list.to_excel(output, index=False, sheet_name="issue_list")
     assert output.exists(), f"File not found: {output}"
 
-    # todo: we should check if all columns are present
+    # TODO: we should check if all columns are present

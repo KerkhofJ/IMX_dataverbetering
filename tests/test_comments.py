@@ -11,7 +11,7 @@ def test_extract_comments_to_new_sheet(diff_report, clean_output_path):
 
 
 def test_extract_comments_to_new_sheet_with_add_to_wb(diff_report, clean_output_path):
-    # todo: comment sheet seems not to be on the second sheet
+    # TODO: comment sheet seems not to be on the second sheet
     extract_comments_to_new_sheet(
         diff_report,
         f"{Path(clean_output_path) / 'copied-with-comments.xlsx'}",

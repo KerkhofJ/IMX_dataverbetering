@@ -44,3 +44,7 @@ def create_timestamp() -> str:
 
 def ensure_paths(*args):
     return [Path(a) if isinstance(a, str) else a for a in args]
+
+
+def snake_to_camel(snake_str: str) -> str:
+    return ''.join(word.capitalize() for word in snake_str.split('_'))

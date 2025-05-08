@@ -223,7 +223,7 @@ class MeasureLine:
             projection_angle = ProjectionsStatus.OVERSHOOT
         else:
             # we cant reverse point by projecting on measure and offset!
-            # todo: calculate angle so we can use it to recreate input point
+            # TODO: calculate angle so we can use it to recreate input point
             side_of_line = self._determine_side(
                 Point(point), Point(prev_point_3d[:2]), Point(next_point_3d[:2])
             )
@@ -231,7 +231,7 @@ class MeasureLine:
 
         shapely_projection = Point(proj_point_3d)
 
-        # todo: add distance to line in 2d and 3d
+        # TODO: add distance to line in 2d and 3d
         return PointMeasureResult(
             point_to_project=Point(point),
             projection_line=self.shapely_line,

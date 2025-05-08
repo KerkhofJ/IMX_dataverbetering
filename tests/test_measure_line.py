@@ -30,11 +30,11 @@ def test_project_line_on_measure_line():
     assert isinstance(result.to_result, PointMeasureResult)
 
     # Check that the projected measures are within expected range
-    assert 0 <= result.from_measure <= measure_line.shapely_line.length
-    assert 0 <= result.to_measure <= measure_line.shapely_line.length
+    assert 0 <= result.from_measure_3d <= measure_line.shapely_line.length
+    assert 0 <= result.to_measure_3d <= measure_line.shapely_line.length
 
     # Ensure from_measure is not greater than to_measure
-    assert result.from_measure <= result.to_measure
+    assert result.from_measure_3d <= result.to_measure_3d
 
     # check projected points lie on the measure line
     assert measure_line.shapely_line.distance(result.from_result.projected_point) < 1e-6
