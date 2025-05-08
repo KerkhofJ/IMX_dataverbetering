@@ -93,7 +93,7 @@ def get_revision_template(out_file_path: str | Path):
         showDropDown=False,  # counterintuitive, false to show dropdown :/
     )
     ws.add_data_validation(dv)
-    operation_col_letter = get_column_letter(columns.index("Operation") + 1)
+    operation_col_letter = get_column_letter(columns.index(RevisionColumns.operation.name) + 1)
     dv_range = f"{operation_col_letter}2:{operation_col_letter}1048576"
     dv.add(dv_range)
 
@@ -105,7 +105,7 @@ def get_revision_template(out_file_path: str | Path):
         showDropDown=False,  # counterintuitive, false to show dropdown :/
     )
     ws.add_data_validation(dv)
-    operation_col_letter = get_column_letter(columns.index("ProcessingStatus") + 1)
+    operation_col_letter = get_column_letter(columns.index(RevisionColumns.processing_status.name) + 1)
     dv_range = f"{operation_col_letter}2:{operation_col_letter}1048576"
     dv.add(dv_range)
 
