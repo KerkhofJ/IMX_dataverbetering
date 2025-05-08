@@ -37,7 +37,6 @@ def _calculate_row(
     imx_object, ref_field, rail_con, measure_type, measure: float | None, projection_result: PointMeasureResult
 ) -> dict:
     puic = rail_con.puic
-    projected_2d = rail_con.geometry.project(imx_object.geometry)
 
     diff_3d = (
         abs(measure - projection_result.measure_3d)
@@ -48,18 +47,18 @@ def _calculate_row(
     diff_2d = abs(measure - projection_result.measure_2d) if measure is not None else None
 
     return {
-        MeasureAnalyseColumns.ObjectPath.name: imx_object.path,
-        MeasureAnalyseColumns.ObjectPuic.name: imx_object.puic,
-        MeasureAnalyseColumns.ObjectName.name: imx_object.name,
-        MeasureAnalyseColumns.RefField.name: ref_field,
-        MeasureAnalyseColumns.RefFieldValue.name: puic,
-        MeasureAnalyseColumns.RefFieldName.name: rail_con.name,
-        MeasureAnalyseColumns.MeasureType.name: measure_type,
-        MeasureAnalyseColumns.ImxMeasure.name: measure,
-        MeasureAnalyseColumns.Calculated3DMeasure.name: round(projection_result.measure_3d, 3),
-        MeasureAnalyseColumns.DiffDistance3D.name: diff_3d,
-        MeasureAnalyseColumns.Calculated2DMeasure.name: projected_2d,
-        MeasureAnalyseColumns.DiffDistance2D.name: diff_2d,
+        MeasureAnalyseColumns.object_path.name: imx_object.path,
+        MeasureAnalyseColumns.object_puic.name: imx_object.puic,
+        MeasureAnalyseColumns.object_name.name: imx_object.name,
+        MeasureAnalyseColumns.ref_field.name: ref_field,
+        MeasureAnalyseColumns.ref_field_value.name: puic,
+        MeasureAnalyseColumns.ref_field_name.name: rail_con.name,
+        MeasureAnalyseColumns.measure_type.name: measure_type,
+        MeasureAnalyseColumns.imx_measure.name: measure,
+        MeasureAnalyseColumns.calculated_measure_3d.name: round(projection_result.measure_3d, 3),
+        MeasureAnalyseColumns.abs_imx_vs_3d.name: diff_3d,
+        MeasureAnalyseColumns.calculated_measure_2d.name: projection_result.measure_2d,
+        MeasureAnalyseColumns.abs_imx_vs_2d.name: diff_2d,
     }
 
 
@@ -136,55 +135,55 @@ def convert_analyse_to_issue_list(
     df_analyse: pd.DataFrame, threshold: float = 0.015
 ) -> pd.DataFrame:
     revision_columns = [
-        RevisionColumns.ObjectPath.name,
-        RevisionColumns.ObjectPuic.name,
-        RevisionColumns.IssueComment.name,
-        RevisionColumns.IssueCause.name,
-        RevisionColumns.AtributeOrElement.name,
-        RevisionColumns.Operation.name,
-        RevisionColumns.ValueOld.name,
-        RevisionColumns.ValueNew.name,
-        RevisionColumns.ProcessingStatus.name,
-        RevisionColumns.RevisionReasoning.name,
+        RevisionColumns.object_path.name,
+        RevisionColumns.object_puic.name,
+        RevisionColumns.issue_comment.name,
+        RevisionColumns.issue_cause.name,
+        RevisionColumns.attribute_or_element.name,
+        RevisionColumns.operation.name,
+        RevisionColumns.value_old.name,
+        RevisionColumns.value_new.name,
+        RevisionColumns.processing_status.name,
+        RevisionColumns.revision_reasoning.name,
     ]
 
     df_issue_list = df_analyse[
         [
-            MeasureAnalyseColumns.ObjectPath.name,
-            MeasureAnalyseColumns.ObjectPuic.name,
-            MeasureAnalyseColumns.ImxMeasure.name,
-            MeasureAnalyseColumns.Calculated3DMeasure.name,
+            MeasureAnalyseColumns.object_path.name,
+            MeasureAnalyseColumns.object_puic.name,
+            MeasureAnalyseColumns.imx_measure.name,
+            MeasureAnalyseColumns.calculated_measure_3d.name,
         ]
     ].copy()
 
     df_issue_list = df_issue_list.rename(
         columns={
-            MeasureAnalyseColumns.ObjectPath.name: RevisionColumns.ObjectPath.name,
-            MeasureAnalyseColumns.ObjectPuic.name: RevisionColumns.ObjectPuic.name,
-            MeasureAnalyseColumns.ImxMeasure.name: RevisionColumns.ValueOld.name,
-            MeasureAnalyseColumns.Calculated3DMeasure.name: RevisionColumns.ValueNew.name,
+            MeasureAnalyseColumns.object_path.name: RevisionColumns.object_path.name,
+            MeasureAnalyseColumns.object_puic.name: RevisionColumns.object_puic.name,
+            MeasureAnalyseColumns.imx_measure.name: RevisionColumns.value_old.name,
+            MeasureAnalyseColumns.calculated_measure_3d.name: RevisionColumns.value_new.name,
         }
     )
 
-    df_issue_list[RevisionColumns.Operation.name] = (
+    df_issue_list[RevisionColumns.operation.name] = (
         RevisionOperationValues.UpdateAttribute.name
     )
-    df_issue_list[RevisionColumns.AtributeOrElement.name] = df_analyse.apply(
-        lambda row: row[MeasureAnalyseColumns.RefField.name].replace(
-            "@railConnectionRef", f"@{row[MeasureAnalyseColumns.MeasureType.name]}"
+    df_issue_list[RevisionColumns.attribute_or_element.name] = df_analyse.apply(
+        lambda row: row[MeasureAnalyseColumns.ref_field.name].replace(
+            "@railConnectionRef", f"@{row[MeasureAnalyseColumns.measure_type.name]}"
         )
-        if isinstance(row[MeasureAnalyseColumns.RefField.name], str)
-        else row[MeasureAnalyseColumns.RefField.name],
+        if isinstance(row[MeasureAnalyseColumns.ref_field.name], str)
+        else row[MeasureAnalyseColumns.ref_field.name],
         axis=1,
     )
     df_issue_list = df_issue_list[
         (
-            df_issue_list[RevisionColumns.ValueOld.name]
-            - df_issue_list[RevisionColumns.ValueNew.name]
+            df_issue_list[RevisionColumns.value_old.name]
+            - df_issue_list[RevisionColumns.value_new.name]
         ).abs()
         > threshold
     ]
-    df_issue_list[RevisionColumns.IssueComment.name] = (
+    df_issue_list[RevisionColumns.issue_comment.name] = (
         f"Absolute delta between calculated and IMX measures exceeds the threshold of {threshold}m."
     )
 
