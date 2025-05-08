@@ -2,7 +2,10 @@ from pathlib import Path
 
 from imxInsights import ImxContainer, ImxSingleFile
 
-from imxTools.insights.measure_analyse import convert_analyse_to_issue_list, generate_analyse_df
+from imxTools.insights.measure_analyse import (
+    convert_analyse_to_issue_list,
+    generate_analyse_df,
+)
 
 
 def test_measure_imx_container(imx_12_container: str, clean_output_path: str):

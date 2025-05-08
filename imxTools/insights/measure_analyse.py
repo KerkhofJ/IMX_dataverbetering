@@ -27,14 +27,21 @@ def _get_or_create_measure_line(
     return cache[puic]
 
 
-def _extract_measure(ref_field: str, measure_type: str, properties: dict) -> float | None:
+def _extract_measure(
+    ref_field: str, measure_type: str, properties: dict
+) -> float | None:
     measure_field = ref_field.replace("@railConnectionRef", measure_type)
     measure = properties.get(measure_field, None)
     return float(measure) if measure else None
 
 
 def _calculate_row(
-    imx_object, ref_field, rail_con, measure_type, measure: float | None, projection_result: PointMeasureResult
+    imx_object,
+    ref_field,
+    rail_con,
+    measure_type,
+    measure: float | None,
+    projection_result: PointMeasureResult,
 ) -> dict:
     puic = rail_con.puic
 
@@ -44,7 +51,9 @@ def _calculate_row(
         else None
     )
 
-    diff_2d = abs(measure - projection_result.measure_2d) if measure is not None else None
+    diff_2d = (
+        abs(measure - projection_result.measure_2d) if measure is not None else None
+    )
 
     return {
         MeasureAnalyseColumns.object_path.name: imx_object.path,
@@ -55,7 +64,9 @@ def _calculate_row(
         MeasureAnalyseColumns.ref_field_name.name: rail_con.name,
         MeasureAnalyseColumns.measure_type.name: measure_type,
         MeasureAnalyseColumns.imx_measure.name: measure,
-        MeasureAnalyseColumns.calculated_measure_3d.name: round(projection_result.measure_3d, 3),
+        MeasureAnalyseColumns.calculated_measure_3d.name: round(
+            projection_result.measure_3d, 3
+        ),
         MeasureAnalyseColumns.abs_imx_vs_3d.name: diff_3d,
         MeasureAnalyseColumns.calculated_measure_2d.name: projection_result.measure_2d,
         MeasureAnalyseColumns.abs_imx_vs_2d.name: diff_2d,
@@ -95,7 +106,9 @@ def calculate_measurements(imx: ImxRepo) -> list:
                 projection_result = measure_line.project_line(obj.geometry)
 
                 # FromMeasure
-                imx_measure = _extract_measure(ref.field, "@fromMeasure", obj.properties)
+                imx_measure = _extract_measure(
+                    ref.field, "@fromMeasure", obj.properties
+                )
                 results.append(
                     _calculate_row(
                         obj,
@@ -125,9 +138,7 @@ def calculate_measurements(imx: ImxRepo) -> list:
 
 def generate_analyse_df(imx: ImxRepo) -> pd.DataFrame:
     results = calculate_measurements(imx)
-    df_analyse = pd.DataFrame(
-        results
-    )
+    df_analyse = pd.DataFrame(results)
     return df_analyse
 
 
