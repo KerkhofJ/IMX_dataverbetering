@@ -1,360 +1,176 @@
-from dataclasses import dataclass
-from enum import Enum
+from pathlib import Path
 
-import numpy as np
+import pandas as pd
 from imxInsights.repo.imxRepo import ImxRepo
-from imxInsights.utils.shapely.shapely_geojson import ShapelyGeoJsonFeature
-from numpy.typing import NDArray
-from shapely import LineString, Point
+from shapely import Point
+
+from imxTools.utils.helpers import create_timestamp
+from imxTools.utils.measure_line import MeasureLine
+
+# TODO: we should support line objects as well maybe we should add it to utils measure line
 
 
-class ProjectionPointPosition(Enum):
-    LEFT = "left"
-    RIGHT = "right"
-    ON_LINE = "on_line"
-    UNDEFINED = "undefined"
+def _is_valid_point_geometry(geometry) -> bool:
+    return isinstance(geometry, Point)
 
 
-class ProjectionsStatus(Enum):
-    PERPENDICULAR = "perpendicular"
-    ANGLE = "on_a_angle"
-    OVERSHOOT = "overshoot"
-    UNDERSHOOT = "undershoot"
-    UNDEFINED = "undefined"
+def _is_rail_connection_ref(ref_field: str) -> bool:
+    # todo: check if all imx version still the same?
+    return ref_field.endswith("@railConnectionRef")
 
 
-@dataclass
-class LineMeasureResult:
-    point_to_project: Point
-    projection_line: LineString
-    projected_point: Point
-    measure_2d: float
-    measure_3d: float | None
-    side: ProjectionPointPosition
-    overshoot_undershoot: ProjectionsStatus
-
-    def __repr__(self) -> str:
-        return (
-            f"LineMeasureResult(point_to_project={self.point_to_project}, "
-            f"projected_point={self.projected_point}, side={self.side}"
-            f"measure_2d={self.measure_2d:.3f}, measure_3d={self.measure_3d}, "
-            f"overshoot_undershoot={self.overshoot_undershoot.value})"
-        )
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-    def as_geojson_features(self):
-        features = [
-            ShapelyGeoJsonFeature([self.point_to_project], {"type": "input_point"}),
-            ShapelyGeoJsonFeature([self.projection_line], {"type": "projection_line"}),
-            ShapelyGeoJsonFeature(
-                [self.projected_point],
-                {
-                    "type": "projected_point",
-                    "measure_2d": self.measure_2d,
-                    "measure_3d": self.measure_3d,
-                    "side": self.side.value,
-                    "projection_status": self.overshoot_undershoot.value,
-                },
-            ),
-            ShapelyGeoJsonFeature(
-                [LineString([self.point_to_project, self.projected_point])],
-                {"type": "perpendicular_line"},
-            ),
-        ]
-        return features
+def _get_at_measure_key(ref_field: str) -> str:
+    # todo: check if all imx version still the same?
+    return ref_field.replace("@railConnectionRef", "@atMeasure")
 
 
-class MeasureLine:
-    def __init__(
-        self, line: list[list[float]] | NDArray[np.float64] | LineString
-    ) -> None:
-        shapely_input_line, line_array, is_3d = self._process_input(line)
-
-        self.shapely_line: LineString = shapely_input_line
-        self._line_array: NDArray[np.float64] = line_array
-        self.is_3d: bool = is_3d
-
-        cum_lengths_2d, cum_lengths_3d = self._compute_cumulative_distance()
-
-        self._cum_lengths_2d: NDArray[np.float64] = cum_lengths_2d
-        self._cum_lengths_3d: NDArray[np.float64] | None = cum_lengths_3d
-
-    @staticmethod
-    def _process_input(line) -> tuple[LineString, NDArray[np.float64], bool]:
-        if isinstance(line, LineString):
-            shapely_input_line = line
-            line_array = np.array(list(line.coords), dtype=float)
-        else:
-            shapely_input_line = LineString(line)
-            line_array = np.asarray(line, dtype=float)
-
-        # Validate input line dimensions (must be 2D array with 2 or 3 columns)
-        if line_array.ndim != 2 or line_array.shape[1] not in (2, 3):
-            raise ValueError(
-                "Input line must be a 2D array with shape (N, 2) or (N, 3)."
-            )
-
-        # If the line has 2D points, convert them to 3D by adding z=0
-        if line_array.shape[1] == 2:
-            line_array = np.column_stack((line_array, np.zeros(line_array.shape[0])))
-            is_3d = False
-        else:
-            is_3d = True
-
-        return shapely_input_line, line_array, is_3d
-
-    def _compute_cumulative_distance(
-        self,
-    ) -> tuple[NDArray[np.float64], NDArray[np.float64] | None]:
-        """Precompute cumulative 2D distances along the line"""
-        # Extract 2D coordinates
-        coords_2d = self._line_array[:, :2]
-        # Calculate differences between consecutive points
-        diffs_2d = np.diff(coords_2d, axis=0)
-        # Calculate lengths of each segment
-        seg_lengths_2d = np.linalg.norm(diffs_2d, axis=1)
-        # Cumulative 2D lengths
-        cum_lengths_2d: NDArray[np.float64] = np.concatenate(
-            ([0], np.cumsum(seg_lengths_2d))
-        )
-
-        # Precompute cumulative 3D distances if the line is 3D
-        cum_lengths_3d: NDArray[np.float64] | None = None
-        if self.is_3d:
-            # Calculate differences between consecutive 3D points
-            diffs_3d = np.diff(self._line_array, axis=0)
-            # Calculate lengths of each segment in 3D
-            seg_lengths_3d = np.linalg.norm(diffs_3d, axis=1)
-            # Cumulative 3D lengths
-            cum_lengths_3d = np.concatenate(([0], np.cumsum(seg_lengths_3d)))
-
-        return cum_lengths_2d, cum_lengths_3d
-
-    def project(
-        self, point: list[float] | NDArray[np.float64] | Point
-    ) -> LineMeasureResult:
-        point = self._validate_and_process_point(point)
-
-        # Use shapely project as it haz tested perpendicular projection and interpolated z
-        input_point_shapely_2d, proj_measure_shapely, proj_point_shapely = (
-            self._shapely_projection(point)
-        )
-
-        seg_index, prev_point_3d, next_point_3d = self._get_segment_data(
-            proj_measure_shapely
-        )
-
-        proj_point_3d = np.array(
-            [proj_point_shapely.x, proj_point_shapely.y, proj_point_shapely.z]
-        )
-        measure_3d = self._get_3d_measure(proj_point_3d, prev_point_3d, seg_index)
-
-        is_perpendicular = self._is_perpendicular_projection(input_point_shapely_2d)
-        side_of_line = ProjectionPointPosition.UNDEFINED
-        if is_perpendicular:
-            side_of_line = self._determine_side(
-                Point(point), Point(prev_point_3d[:2]), Point(next_point_3d[:2])
-            )
-            projection_angle = ProjectionsStatus.PERPENDICULAR
-        elif proj_measure_shapely == 0:
-            # if not perpendicular and 0 length we assume its undershooting the line
-            projection_angle = ProjectionsStatus.UNDERSHOOT
-        elif proj_measure_shapely == self.shapely_line.length:
-            # if not perpendicular and length max we assume its overshooting the line
-            projection_angle = ProjectionsStatus.OVERSHOOT
-        else:
-            # we cant reverse point by projecting on measure and offset!
-            # todo: calculate angle so we can use it to recreate input point
-            side_of_line = self._determine_side(
-                Point(point), Point(prev_point_3d[:2]), Point(next_point_3d[:2])
-            )
-            projection_angle = ProjectionsStatus.ANGLE
-
-        shapely_projection = Point(proj_point_3d)
-
-        # todo: add distance to line in 2d and 3d
-        return LineMeasureResult(
-            point_to_project=Point(point),
-            projection_line=self.shapely_line,
-            projected_point=shapely_projection,
-            measure_2d=proj_measure_shapely,
-            measure_3d=measure_3d,
-            side=side_of_line,
-            overshoot_undershoot=projection_angle,
-        )
-
-    @staticmethod
-    def _validate_and_process_point(
-        point: Point | list[float] | np.ndarray,
-    ) -> np.ndarray:
-        if isinstance(point, Point):
-            # If the point has only 2 coordinates, add z=0 to convert it to 3D
-            point = np.array([point.x, point.y, point.z if point.has_z else 0.0])
-
-        # Ensure point is a numpy array and flatten it to 1D
-        point = np.array(point, dtype=float).flatten()
-
-        # If the point has only 2 coordinates, add z=0 to convert it to 3D
-        if point.shape[0] == 2:
-            point = np.append(point, 0)
-        elif point.shape[0] != 3:
-            raise ValueError("Input point must have 2 or 3 coordinates (x, y, [z]).")
-        return point
-
-    def _shapely_projection(self, point: np.ndarray) -> tuple[Point, float, Point]:
-        input_point_shapely_2d = Point(float(point[0]), float(point[1]))
-        proj_measure_shapely = self.shapely_line.project(input_point_shapely_2d)
-        proj_point_shapely = self.shapely_line.interpolate(proj_measure_shapely)
-        return input_point_shapely_2d, proj_measure_shapely, proj_point_shapely
-
-    def _get_segment_data(self, proj_measure_shapely: float):
-        seg_index = (
-            np.searchsorted(self._cum_lengths_2d, proj_measure_shapely, side="right")
-            - 1
-        )
-        seg_index = min(max(seg_index, 0), len(self._cum_lengths_2d) - 2)  # type: ignore
-        prev_point_3d = self._line_array[seg_index]
-        next_point_3d = self._line_array[seg_index + 1]
-        return seg_index, prev_point_3d, next_point_3d
-
-    def _get_projected_z(
-        self, seg_index, proj_measure_shapely, prev_point_3d, next_point_3d
-    ):
-        seg_length = (
-            self._cum_lengths_2d[seg_index + 1] - self._cum_lengths_2d[seg_index]
-        )
-        interpolation_factor_t = (
-            0.0
-            if seg_length == 0
-            else (proj_measure_shapely - self._cum_lengths_2d[seg_index]) / seg_length
-        )
-        proj_z = prev_point_3d[2] + interpolation_factor_t * (
-            next_point_3d[2] - prev_point_3d[2]
-        )
-        return proj_z
-
-    def _get_3d_measure(self, proj_point_3d, prev_point_3d, seg_index):
-        measure_3d = None
-        if self.is_3d:
-            # Calculate 3D distance along the segment
-            d_segment = np.linalg.norm(proj_point_3d - prev_point_3d)
-            # Total 3D distance
-            if self._cum_lengths_3d is not None:
-                measure_3d = self._cum_lengths_3d[seg_index] + d_segment
-        return measure_3d
-
-    @staticmethod
-    def _determine_side(
-        point: Point, segment_start: Point, segment_end: Point
-    ) -> ProjectionPointPosition:
-        delta_x = segment_end.x - segment_start.x
-        delta_y = segment_end.y - segment_start.y
-
-        # Compute the cross product (2D determinant)
-        cross = delta_x * (point.y - segment_start.y) - delta_y * (
-            point.x - segment_start.x
-        )
-
-        if cross > 0:
-            return ProjectionPointPosition.LEFT
-        elif cross < 0:
-            return ProjectionPointPosition.RIGHT
-        else:
-            return ProjectionPointPosition.ON_LINE
-
-    def _is_perpendicular_projection(self, point: Point, tol: float = 1e-7) -> bool:
-        # Project the point onto the line.
-        proj_distance = self.shapely_line.project(point)
-        proj_point = self.shapely_line.interpolate(proj_distance)
-
-        # Identify the segment containing the projection.
-        coords = list(self.shapely_line.coords)
-        cum_distance = 0.0
-        segment = None
-
-        for i in range(len(coords) - 1):
-            seg_start = coords[i]
-            seg_end = coords[i + 1]
-            seg_line = LineString([seg_start, seg_end])
-            seg_length = seg_line.length
-            if cum_distance <= proj_distance <= cum_distance + seg_length:
-                segment = (seg_start, seg_end)
-                break
-            cum_distance += seg_length
-
-        if segment is None:
-            raise ValueError("Projection did not fall on any segment of the line.")
-
-        # Compute the direction vector of the segment in 2D.
-        seg_start, seg_end = segment
-        seg_start_2d = np.array(seg_start)[:2]
-        seg_end_2d = np.array(seg_end)[:2]
-        seg_vec_2d = seg_end_2d - seg_start_2d
-
-        norm_seg = np.linalg.norm(seg_vec_2d)
-        if norm_seg == 0:
-            raise ValueError("Encountered a segment with zero length.")
-        seg_unit = seg_vec_2d / norm_seg
-
-        # Compute the vector from the projected point to the original point in 2D.
-        pt_coords_2d = np.array(point.coords[0])[:2]
-        proj_coords_2d = np.array(proj_point.coords[0])[:2]
-        pt_vec = pt_coords_2d - proj_coords_2d
-
-        # Check for orthogonality using the dot product.
-        dot_product = np.dot(seg_unit, pt_vec)
-        return abs(dot_product) < tol
+def _get_or_create_measure_line(
+    puic: str, rail_con, cache: dict[str, MeasureLine]
+) -> MeasureLine:
+    if puic not in cache:
+        cache[puic] = MeasureLine(rail_con.geometry)
+    return cache[puic]
 
 
-def calculate_measurements(imx: ImxRepo, create_geojson_debug: bool = False):
-    out_list = []
-    measure_line_dict: dict[str, MeasureLine] = {}
+def _extract_at_measure(ref_field: str, properties: dict) -> float | None:
+    at_measure_field = _get_at_measure_key(ref_field)
+    at_measure = properties.get(at_measure_field, None)
+    return float(at_measure) if at_measure else None
 
-    for imx_object in imx.get_all():
-        geometry = imx_object.geometry
-        if not isinstance(geometry, Point):
+
+def _calculate_row(
+    imx_object, ref_field, rail_con, at_measure, projection_result
+) -> list:
+    puic = rail_con.puic
+    projected_2d = rail_con.geometry.project(imx_object.geometry)
+
+    diff_3d = (
+        abs(at_measure - projection_result.measure_3d)
+        if at_measure is not None and projection_result.measure_3d is not None
+        else None
+    )
+
+    diff_2d = abs(at_measure - projected_2d) if at_measure is not None else None
+
+    return [
+        imx_object.path,
+        imx_object.puic,
+        imx_object.name,
+        ref_field,
+        puic,
+        rail_con.name,
+        at_measure,
+        round(projection_result.measure_3d, 3),
+        diff_3d,
+        projected_2d,
+        diff_2d,
+    ]
+
+
+def calculate_measurements(imx: ImxRepo) -> list:
+    results = []
+    measure_lines: dict[str, MeasureLine] = {}
+
+    for obj in imx.get_all():
+        if not _is_valid_point_geometry(obj.geometry):
             continue
 
-        for ref in imx_object.refs:
-            ref_field = ref.field
-            if not ref_field.endswith("@railConnectionRef"):
+        for ref in obj.refs:
+            if not _is_rail_connection_ref(ref.field):
                 continue
 
             rail_con = ref.imx_object
-            puic = rail_con.puic
-
-            measure_line = measure_line_dict.get(puic)
-            if measure_line is None:
-                measure_line = MeasureLine(rail_con.geometry)
-                measure_line_dict[puic] = measure_line
-
-            at_measure = imx_object.properties.get(
-                ref_field.replace("@railConnectionRef", "@atMeasure")
+            measure_line = _get_or_create_measure_line(
+                rail_con.puic, rail_con, measure_lines
             )
-            projection_result = measure_line.project(geometry)
-            # if create_geojson_debug:
-            #     fc = ShapelyGeoJsonFeatureCollection(projection_result.as_geojson_features(), crs=CrsEnum.RD_NEW_NAP)
-            #     fc.to_geojson_file(ROOT_PATH / 'output' / f'{imx_object.puic}-{puic}.geojson')
+            at_measure = _extract_at_measure(ref.field, obj.properties)
 
-            out_list.append(
-                [
-                    imx_object.puic,
-                    imx_object.tag + ": " + imx_object.name,
-                    ref_field,
-                    puic,
-                    rail_con.name,
-                    float(at_measure) if at_measure else None,
-                    projection_result.measure_3d,
-                    abs(float(at_measure) - projection_result.measure_3d)
-                    if at_measure and projection_result.measure_3d
-                    else None,
-                    rail_con.geometry.project(geometry),
-                    abs(float(at_measure) - rail_con.geometry.project(geometry))
-                    if at_measure
-                    else None,
-                ]
+            assert isinstance(obj.geometry, Point)
+            projection_result = measure_line.project(obj.geometry)
+
+            results.append(
+                _calculate_row(obj, ref.field, rail_con, at_measure, projection_result)
             )
 
-    return out_list
+    return results
+
+
+def generate_measurement_dfs(
+    imx: ImxRepo, threshold: float = 0.015
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    results = calculate_measurements(imx)
+    df_analyse = pd.DataFrame(
+        results,
+        columns=[
+            "object_path",
+            "object_puic",
+            "object-name",
+            "ref_field",
+            "ref_field_value",
+            "ref_field_name",
+            "imx_measure",
+            "calculated_3d_measure",
+            "3d diff distance",
+            "calculated_2d_measure",
+            "2d diff distance",
+        ],
+    )
+
+    revision_columns = [
+        "ObjectPath",
+        "ObjectPuic",
+        "IssueComment",
+        "IssueCause",
+        "AtributeOrElement",
+        "Operation",
+        "ValueOld",
+        "ValueNew",
+        "ProcessingStatus",
+        "RevisionReasoning",
+    ]
+
+    df_issue_list = df_analyse[
+        ["object_path", "object_puic", "imx_measure", "calculated_3d_measure"]
+    ].copy()
+
+    df_issue_list = df_issue_list.rename(
+        columns={
+            "object_path": "ObjectPath",
+            "object_puic": "ObjectPuic",
+            "imx_measure": "ValueOld",
+            "calculated_3d_measure": "ValueNew",
+        }
+    )
+
+    df_issue_list["Operation"] = "UpdateAttribute"
+    df_issue_list["AtributeOrElement"] = df_analyse["ref_field"].apply(
+        lambda val: val.replace("@railConnectionRef", "@atMeasure")
+        if isinstance(val, str)
+        else val
+    )
+    df_issue_list = df_issue_list[
+        (df_issue_list["ValueOld"] - df_issue_list["ValueNew"]).abs() > threshold
+    ]
+    df_issue_list["IssueComment"] = (
+        f"Absolute difference between calculated and IMX measures exceeds the threshold of {threshold}m."
+    )
+
+    for col in revision_columns:
+        if col not in df_issue_list.columns:
+            df_issue_list[col] = None
+
+    df_issue_list = df_issue_list[revision_columns]
+
+    return df_analyse, df_issue_list
+
+
+def generate_measure_excel(imx: ImxRepo, output_path: str | Path):
+    if isinstance(output_path, str):
+        output_path = Path(output_path)
+    if output_path.is_dir():
+        output_path = output_path / f"measure_check-{create_timestamp()}.xlsx"
+
+    df_analyse, df_issue_list = generate_measurement_dfs(imx)
+    with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
+        df_analyse.to_excel(writer, index=False, sheet_name="measure_check")
+        df_issue_list.to_excel(writer, index=False, sheet_name="issue_list")
