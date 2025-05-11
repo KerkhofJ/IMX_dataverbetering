@@ -74,7 +74,7 @@ def xsd_validate(schema: xmlschema.XMLSchema, element: _Element, change: dict) -
 def apply_change(
     change: dict[Hashable, Any], element: _Element, puic_index: PuicIndex
 ) -> None:
-    operation = change[RevisionColumns.Operation.name]
+    operation = change[RevisionColumns.operation.name]
     handlers = {
         RevisionOperationValues.CreateAttribute.name: _handle_create_or_update_attr,
         RevisionOperationValues.UpdateAttribute.name: _handle_create_or_update_attr,
@@ -98,15 +98,15 @@ def _finalize(change: dict[str, str], element: _Element) -> None:
 def _handle_create_or_update_attr(
     change: dict, element: _Element, _: PuicIndex
 ) -> None:
-    new_val = change.get(RevisionColumns.ValueNew.name)
+    new_val = change.get(RevisionColumns.value_new.name)
     if not new_val:
         change["status"] = "skipped"
         return
 
-    attr_path = change[RevisionColumns.AtributeOrElement.name].strip()
-    old_val = change.get(RevisionColumns.ValueOld.name)
+    attr_path = change[RevisionColumns.attribute_or_element.name].strip()
+    old_val = change.get(RevisionColumns.value_old.name)
     is_update = (
-        change[RevisionColumns.Operation.name]
+        change[RevisionColumns.operation.name]
         == RevisionOperationValues.UpdateAttribute.name
     )
 
@@ -122,8 +122,8 @@ def _handle_create_or_update_attr(
 def _handle_delete_attr(change: dict, element: _Element, _: PuicIndex) -> None:
     delete_attribute_if_matching(
         element,
-        change[RevisionColumns.AtributeOrElement.name].strip(),
-        str(change.get(RevisionColumns.ValueOld.name, "")),
+        change[RevisionColumns.attribute_or_element.name].strip(),
+        str(change.get(RevisionColumns.value_old.name, "")),
     )
     _finalize(change, element)
 
@@ -132,15 +132,15 @@ def _handle_delete_object(
     change: dict, element: _Element, puic_index: PuicIndex
 ) -> None:
     delete_element(element)
-    puic_index.pop(change[RevisionColumns.ObjectPuic.name], None)
+    puic_index.pop(change[RevisionColumns.object_puic.name], None)
     _finalize(change, element)
 
 
 def _handle_add_element(change: dict, element: _Element, _: PuicIndex) -> None:
     create_element_under(
         element,
-        change[RevisionColumns.AtributeOrElement.name],
-        str(change.get(RevisionColumns.ValueNew.name, "")),
+        change[RevisionColumns.attribute_or_element.name],
+        str(change.get(RevisionColumns.value_new.name, "")),
     )
     _finalize(change, element)
 
@@ -148,7 +148,7 @@ def _handle_add_element(change: dict, element: _Element, _: PuicIndex) -> None:
 def _handle_delete_element(change: dict, element: _Element, _: PuicIndex) -> None:
     delete_element_that_matches(
         element,
-        change[RevisionColumns.AtributeOrElement.name],
+        change[RevisionColumns.attribute_or_element.name],
     )
     _finalize(change, element)
 
@@ -159,17 +159,17 @@ def _process_changes(
     schema: xmlschema.XMLSchema,
 ) -> None:
     for change in changes:
-        if not change.get(RevisionColumns.ProcessingStatus.name):
+        if not change.get(RevisionColumns.processing_status.name):
             continue
 
-        puic = change[RevisionColumns.ObjectPuic.name]
+        puic = change[RevisionColumns.object_puic.name]
         element = puic_index.get(puic)
         if element is None:
             change["status"] = f"object not present: {puic}"
             continue
 
         try:
-            validate_tag(change[RevisionColumns.ObjectPath.name], element)
+            validate_tag(change[RevisionColumns.object_path.name], element)
             apply_change(change, element, puic_index)
         except Exception as e:
             logger.error(e)

@@ -2,16 +2,16 @@ from enum import Enum
 
 
 class RevisionColumns(Enum):
-    ObjectPath = "Imx Object Path"
-    ObjectPuic = "Puic of object for revision"
-    IssueComment = "What is the issue"
-    IssueCause = "What is the cause of the issue"
-    AtributeOrElement = "The attribute or element path"
-    Operation = "Type of revision operation"
-    ValueOld = "Old value that is being checked if it is still like this"
-    ValueNew = "Revision Value"
-    ProcessingStatus = "Boolean If revision need to be processed"
-    RevisionReasoning = "Revision reasoning, why this value, or why not to revision?"
+    object_path = "Imx Object Path"
+    object_puic = "Puic of object for revision"
+    issue_comment = "What is the issue"
+    issue_cause = "What is the cause of the issue"
+    attribute_or_element = "The attribute or element path"
+    operation = "Type of revision operation"
+    value_old = "Old value that is being checked if it is still like this"
+    value_new = "Revision Value"
+    processing_status = "Boolean If revision need to be processed"
+    revision_reasoning = "Revision reasoning, why this value, or why not to revision?"
 
 
 class RevisionOperationValues(Enum):

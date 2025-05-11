@@ -1,6 +1,8 @@
 from datetime import datetime
 from pathlib import Path
 
+# TODO: Identify and extract configurable parameters into settings or environment variables.
+
 ROOT_PATH = Path(__file__).resolve().parent.parent
 ADD_COMMENTS = False
 SET_METADATA_PARENTS = False

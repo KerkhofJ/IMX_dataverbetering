@@ -79,22 +79,22 @@ def validate_ref_list(refs_str: str) -> bool:
 def validate_input_excel_content(df: pd.DataFrame):
     errors: list[str] = []
 
-    mask_coords = df[RevisionColumns.AtributeOrElement.name].str.endswith(
+    mask_coords = df[RevisionColumns.attribute_or_element.name].str.endswith(
         ("gml:LineString.gml:coordinates", "gml:Point.gml:coordinates")
     )
     for idx, row in df[mask_coords].iterrows():
-        coord_str = row[RevisionColumns.ValueNew.name]
+        coord_str = row[RevisionColumns.value_new.name]
         if not validate_gml_coordinates(f"{coord_str}"):
             errors.append(
-                f"Row {idx}: Invalid GML coordinates for '{row[RevisionColumns.AtributeOrElement.name]}': “{coord_str}”"
+                f"Row {idx}: Invalid GML coordinates for '{row[RevisionColumns.attribute_or_element.name]}': “{coord_str}”"
             )
 
-    mask_refs = df[RevisionColumns.AtributeOrElement.name].str.endswith("Refs")
+    mask_refs = df[RevisionColumns.attribute_or_element.name].str.endswith("Refs")
     for idx, row in df[mask_refs].iterrows():
-        refs_str = row[RevisionColumns.ValueNew.name]
+        refs_str = row[RevisionColumns.value_new.name]
         if not validate_ref_list(f"{refs_str}"):
             errors.append(
-                f"Row {idx}: Invalid UUID refs for '{row[RevisionColumns.AtributeOrElement.name]}': “{refs_str}”"
+                f"Row {idx}: Invalid UUID refs for '{row[RevisionColumns.attribute_or_element.name]}': “{refs_str}”"
             )
 
     if errors:
