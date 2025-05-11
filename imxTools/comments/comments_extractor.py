@@ -12,9 +12,6 @@ from openpyxl.worksheet.worksheet import Worksheet
 from imxTools.settings import ISSUE_LIST_SHEET_NAME
 
 
-# TODO: make enum for column header (snake_case)
-
-
 def get_cell_background_color(cell: Cell | MergedCell) -> str | None:
     if cell.fill and cell.fill.fgColor and cell.fill.fgColor.type == "rgb":
         return cell.fill.fgColor.rgb[-6:]

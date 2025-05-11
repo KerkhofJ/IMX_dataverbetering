@@ -11,9 +11,6 @@ from imxTools.settings import ISSUE_LIST_SHEET_NAME
 from imxTools.utils.helpers import ensure_paths
 
 
-# TODO: make enum for column header (snake_case)
-
-
 def copy_full_sheet(source_ws: Worksheet, target_ws: Worksheet) -> None:
     for row in source_ws.iter_rows():
         for cell in row:
