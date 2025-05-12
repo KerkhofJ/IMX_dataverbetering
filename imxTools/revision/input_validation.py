@@ -37,26 +37,39 @@ def validate_process_input(
     return imx_output, excel_output
 
 
+GML_COORD_REGEX_POINT_AND_LINE = re.compile(
+    r'^'
+    r'-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?(?:,-?\d+(?:\.\d+)?)?'                       # First point
+    r'(?: -?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?(?:,-?\d+(?:\.\d+)?)?)*'                # More points (exactly one space)
+    r'$'
+)
+
 def validate_gml_coordinates(coord_str: str) -> bool:
-    points = coord_str.strip().split()
-    if not points:
+    """
+    Validates a GML coordinate string as either a 2D or 3D Point or LineString.
+    Enforces:
+    - No leading or trailing spaces
+    - No spaces around commas
+    - Each coordinate is x,y or x,y,z
+    - All coordinate tuples must have the same dimensionality
+    """
+    if not coord_str:
         return False
 
+    if not GML_COORD_REGEX_POINT_AND_LINE.fullmatch(coord_str):
+        return False
+
+    # Check dimensional consistency
+    tuples = coord_str.split(" ")
     dims = None
-    for point in points:
-        parts = point.split(",")
-
-        # Each part must be a number
-        if not all(re.fullmatch(r"-?\d+(\.\d+)?", p) for p in parts):
-            return False
-
-        # Dimension check
+    for t in tuples:
+        parts = t.split(',')
         if dims is None:
             dims = len(parts)
             if dims not in (2, 3):
                 return False
         elif len(parts) != dims:
-            return False  # Mixed 2D/3D points not allowed
+            return False
 
     return True
 
@@ -84,7 +97,9 @@ def validate_input_excel_content(df: pd.DataFrame):
     )
     for idx, row in df[mask_coords].iterrows():
         coord_str = row[RevisionColumns.value_new.name]
-        if not validate_gml_coordinates(f"{coord_str}"):
+        if coord_str == "":
+            pass
+        elif not validate_gml_coordinates(f"{coord_str}"):
             errors.append(
                 f"Row {idx}: Invalid GML coordinates for '{row[RevisionColumns.attribute_or_element.name]}': “{coord_str}”"
             )
