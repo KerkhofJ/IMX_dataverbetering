@@ -220,35 +220,35 @@
 #     return df
 #
 #
-# import xmlschema
-#
-# # Load the schema
-# schema = xmlschema.XMLSchema("your_schema.xsd")  # Replace with your file path
-#
-# # Get the simpleType definition
-# simple_type = schema.types["tSignalEnum"]
-#
-# # Access enumeration facets using the hardcoded namespace
-# enumerations = simple_type.facets["{http://www.w3.org/2001/XMLSchema}enumeration"]
-#
-# # Extract documentation for each enumeration value
-# enum_docs = []
-# for facet in enumerations:
-#     value = facet.value
-#     doc = None
-#     if facet.annotation is not None:
-#         docs = facet.annotation.documentation
-#         if docs:
-#             doc = (
-#                 " ".join([d.text for d in docs if d.text])
-#                 if isinstance(docs, list)
-#                 else docs.text
-#             )
-#     enum_docs.append({"value": value, "documentation": doc})
-#
-# # Print results
-# for item in enum_docs:
-#     print(f"{item['value']}: {item['documentation']}")
+# # import xmlschema
+# #
+# # # Load the schema
+# # schema = xmlschema.XMLSchema("your_schema.xsd")  # Replace with your file path
+# #
+# # # Get the simpleType definition
+# # simple_type = schema.types["tSignalEnum"]
+# #
+# # # Access enumeration facets using the hardcoded namespace
+# # enumerations = simple_type.facets["{http://www.w3.org/2001/XMLSchema}enumeration"]
+# #
+# # # Extract documentation for each enumeration value
+# # enum_docs = []
+# # for facet in enumerations:
+# #     value = facet.value
+# #     doc = None
+# #     if facet.annotation is not None:
+# #         docs = facet.annotation.documentation
+# #         if docs:
+# #             doc = (
+# #                 " ".join([d.text for d in docs if d.text])
+# #                 if isinstance(docs, list)
+# #                 else docs.text
+# #             )
+# #     enum_docs.append({"value": value, "documentation": doc})
+# #
+# # # Print results
+# # for item in enum_docs:
+# #     print(f"{item['value']}: {item['documentation']}")
 #
 #
 # entry_points = {
@@ -257,11 +257,32 @@
 #     "IMSpoor-TrainControl.xsd": {"TrainControl"},
 # }
 #
-# xsd_files = [
-#     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-Manifest.xsd",
-#     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-SignalingDesign.xsd",
-#     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-TrainControl.xsd",
-# ]
+# # xsd_files = [
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-Manifest.xsd",
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-SignalingDesign.xsd",
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-TrainControl.xsd",
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-NetworkConfiguration.xsd"
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-ManagementAreas.xsd"
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-InstallationDesign.xsd"
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-Furniture.xsd"
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-Observations.xsd"
+# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-SystemConfiguration.xsd"
+# # ]
+#
+# base_dir = Path(r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0")
+#
+# xsd_files = []
+#
+# for filename in entry_points:
+#     full_path = base_dir / filename
+#     if full_path.exists():
+#         xsd_files.append(str(full_path))  # or just keep it as Path if preferred
+#
+# print(xsd_files)
+#
+#
+#
+#
 #
 # all_dfs = []
 # for xsd_path in xsd_files:
