@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from imxTools.revision.revision_enums import RevisionColumns
+from imxTools.revision.revision_enums import RevisionColumns, RevisionOperationValues
 from imxTools.utils.exceptions import ErrorList
 
 
@@ -93,10 +93,43 @@ def validate_ref_list(refs_str: str) -> bool:
 def validate_input_excel_content(df: pd.DataFrame):
     errors: list[str] = []
 
-    mask_coords = df[RevisionColumns.attribute_or_element.name].str.endswith((
-        "gml:LineString.gml:coordinates", "LineString.coordinates",
-        "gml:Point.gml:coordinates", "Point.coordinates"
-    ))
+    df["unique_key"] = (
+        df[RevisionColumns.object_puic.name]
+        + "_"
+        + df[RevisionColumns.attribute_or_element.name]
+    )
+    df_filtered = df[
+        df[RevisionColumns.attribute_or_element.name].notna()
+        & (df[RevisionColumns.attribute_or_element.name] != "")
+        & (
+            df[RevisionColumns.operation.name]
+            != RevisionOperationValues.AddElementUnder.name
+        )
+    ]
+
+    df_filtered["unique_key"] = (
+        df_filtered[RevisionColumns.object_puic.name]
+        + "_"
+        + df_filtered[RevisionColumns.attribute_or_element.name]
+    )
+    # duplicates = df_filtered[
+    #     df_filtered["unique_key"].duplicated(keep=False)
+    # ].sort_values(by=RevisionColumns.object_puic.name)
+    #
+    # if not duplicates.empty:
+    #     for idx, row in duplicates.iterrows():
+    #         errors.append(
+    #             f"Row {idx}: Duplicate unique_key '{row[RevisionColumns.attribute_or_element.name]}' for object_puic '{row[RevisionColumns.object_puic.name]}'"
+    #         )
+
+    mask_coords = df[RevisionColumns.attribute_or_element.name].str.endswith(
+        (
+            "gml:LineString.gml:coordinates",
+            "LineString.coordinates",
+            "gml:Point.gml:coordinates",
+            "Point.coordinates",
+        )
+    )
     for idx, row in df[mask_coords].iterrows():
         coord_str = row[RevisionColumns.value_new.name]
         if coord_str == "":

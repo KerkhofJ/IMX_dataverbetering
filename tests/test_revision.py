@@ -32,7 +32,7 @@ def test_valid_coordinates(valid_input):
 @pytest.mark.parametrize(
     "invalid_input",
     [
-        "211586.818, 473917.758 211585.069, 473917.657 211416.896, 473906.921", # line whit spacee
+        "211586.818, 473917.758 211585.069, 473917.657 211416.896, 473906.921",  # line whit spacee
         "",  # Empty string
         " ",  # Space only
         "32560.034 ,391253.849",  # Space before comma

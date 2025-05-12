@@ -130,7 +130,7 @@ def delete_attribute_if_matching(puic_object: _Element, path: str, value: str):
             add_comment(parent, None, f"Attribute {attribute_name} removed removed")
     else:
         raise ValueError(
-            f"Attribute '{attribute_name}' value does not match '{value}'."
+            f"Attribute '{attribute_name}' not found as attribute object'."
         )
 
 
