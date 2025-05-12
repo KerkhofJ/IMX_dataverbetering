@@ -22,7 +22,7 @@ dependencies = [
     "openpyxl",
     "kmService",
     "shellingham",
-    "click==8.1.8",  # Explicitly pinned version 8.2 gives issues on typer.
+    "click==8.2.0",  # Explicitly pinned version 8.2 gives issues on typer.
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
