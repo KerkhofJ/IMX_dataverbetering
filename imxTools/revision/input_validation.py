@@ -38,11 +38,12 @@ def validate_process_input(
 
 
 GML_COORD_REGEX_POINT_AND_LINE = re.compile(
-    r'^'
-    r'-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?(?:,-?\d+(?:\.\d+)?)?'                       # First point
-    r'(?: -?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?(?:,-?\d+(?:\.\d+)?)?)*'                # More points (exactly one space)
-    r'$'
+    r"^"
+    r"-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?(?:,-?\d+(?:\.\d+)?)?"  # First point
+    r"(?: -?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?(?:,-?\d+(?:\.\d+)?)?)*"  # More points (exactly one space)
+    r"$"
 )
+
 
 def validate_gml_coordinates(coord_str: str) -> bool:
     """
@@ -63,7 +64,7 @@ def validate_gml_coordinates(coord_str: str) -> bool:
     tuples = coord_str.split(" ")
     dims = None
     for t in tuples:
-        parts = t.split(',')
+        parts = t.split(",")
         if dims is None:
             dims = len(parts)
             if dims not in (2, 3):
@@ -92,9 +93,10 @@ def validate_ref_list(refs_str: str) -> bool:
 def validate_input_excel_content(df: pd.DataFrame):
     errors: list[str] = []
 
-    mask_coords = df[RevisionColumns.attribute_or_element.name].str.endswith(
-        ("gml:LineString.gml:coordinates", "gml:Point.gml:coordinates")
-    )
+    mask_coords = df[RevisionColumns.attribute_or_element.name].str.endswith((
+        "gml:LineString.gml:coordinates", "LineString.coordinates",
+        "gml:Point.gml:coordinates", "Point.coordinates"
+    ))
     for idx, row in df[mask_coords].iterrows():
         coord_str = row[RevisionColumns.value_new.name]
         if coord_str == "":
