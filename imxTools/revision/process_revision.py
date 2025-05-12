@@ -99,7 +99,7 @@ def _handle_create_or_update_attr(
     change: dict, element: _Element, _: PuicIndex
 ) -> None:
     new_val = change.get(RevisionColumns.value_new.name)
-    if not new_val:
+    if new_val is None or new_val == "":
         change["status"] = "skipped"
         return
 
