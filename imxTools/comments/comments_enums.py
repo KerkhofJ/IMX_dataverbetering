@@ -1,7 +1,7 @@
-from enum import Enum
+from utils.columnEnum import ColumnEnum
 
 
-class CommentColumns(Enum):
+class CommentColumns(ColumnEnum):
     object_path = "Full object path in IMX structure"
     object_puic = "PUIC (unique identifier) of the object"
     change_status = "Change status of the object"

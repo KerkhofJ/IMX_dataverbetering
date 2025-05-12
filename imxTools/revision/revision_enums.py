@@ -1,7 +1,7 @@
-from enum import Enum
+from utils.columnEnum import ColumnEnum
 
 
-class RevisionColumns(Enum):
+class RevisionColumns(ColumnEnum):
     object_path = "Imx Object Path"
     object_puic = "Puic of object for revision"
     issue_comment = "What is the issue"
@@ -14,7 +14,7 @@ class RevisionColumns(Enum):
     revision_reasoning = "Revision reasoning, why this value, or why not to revision?"
 
 
-class RevisionOperationValues(Enum):
+class RevisionOperationValues(ColumnEnum):
     CreateAttribute = "Create a new attribute"
     UpdateAttribute = "Update an existing attribute"
     DeleteAttribute = "Remove an attribute"
