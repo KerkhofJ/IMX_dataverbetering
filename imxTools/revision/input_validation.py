@@ -112,15 +112,15 @@ def validate_input_excel_content(df: pd.DataFrame):
         + "_"
         + df_filtered[RevisionColumns.attribute_or_element.name]
     )
-    duplicates = df_filtered[
-        df_filtered["unique_key"].duplicated(keep=False)
-    ].sort_values(by=RevisionColumns.object_puic.name)
-
-    if not duplicates.empty:
-        for idx, row in duplicates.iterrows():
-            errors.append(
-                f"Row {idx}: Duplicate unique_key '{row[RevisionColumns.attribute_or_element.name]}' for object_puic '{row[RevisionColumns.object_puic.name]}'"
-            )
+    # duplicates = df_filtered[
+    #     df_filtered["unique_key"].duplicated(keep=False)
+    # ].sort_values(by=RevisionColumns.object_puic.name)
+    #
+    # if not duplicates.empty:
+    #     for idx, row in duplicates.iterrows():
+    #         errors.append(
+    #             f"Row {idx}: Duplicate unique_key '{row[RevisionColumns.attribute_or_element.name]}' for object_puic '{row[RevisionColumns.object_puic.name]}'"
+    #         )
 
     mask_coords = df[RevisionColumns.attribute_or_element.name].str.endswith(
         (
