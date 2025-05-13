@@ -215,7 +215,9 @@ def convert_analyse_to_issue_list(
     return df_issue_list[revision_columns]
 
 
-def generate_measure_excel(imx: ImxRepo, output_path: str | Path, threshold: float = 0.015):
+def generate_measure_excel(
+    imx: ImxRepo, output_path: str | Path, threshold: float = 0.015
+):
     if isinstance(output_path, str):
         output_path = Path(output_path)
     if output_path.is_dir():
