@@ -11,6 +11,7 @@ class CommentColumns(ColumnEnum):
     value = "Current value in cell"
     comment = "Comment content"
     comment_reason = "Comment reason"
+    cell_address = "Address of the cell that contains the original comment"
     color = "Cell background color"
     comment_sheet_name = "Name of sheet with the comment"
     comment_row = "Row number of the comment"
