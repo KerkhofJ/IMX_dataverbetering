@@ -232,6 +232,7 @@ def _prepare_dataframe(excel_path: Path) -> pd.DataFrame:
         .fillna("")
         .apply(lambda col: col.map(lambda v: v.strip() if isinstance(v, str) else v))
     )
+    df[RevisionColumns.processing_status.name] = df[RevisionColumns.processing_status.name].map({"True": True, "False": False})
 
     validate_input_excel_content(df)
 
