@@ -227,7 +227,7 @@ def _prepare_paths(
 def _prepare_dataframe(excel_path: Path) -> pd.DataFrame:
     df = (
         pd.read_excel(
-            excel_path, sheet_name="revisions", na_values="", keep_default_na=False
+            excel_path, sheet_name="revisions", na_values="", keep_default_na=False, dtype=str
         )
         .fillna("")
         .apply(lambda col: col.map(lambda v: v.strip() if isinstance(v, str) else v))
