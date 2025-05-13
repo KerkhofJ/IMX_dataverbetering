@@ -25,6 +25,9 @@ def test_extract_comments_to_new_sheet_without_overwrite(diff_report):
 
 
 def test_apply_comments_to_new_file(diff_report_edit, comment_list, clean_output_path):
+    # TODO: comment sheet seems not to be on the second sheet
+    # TODO: named styles are not only background fill
+    # TODO: seems to add it to the original file
     apply_comments_from_issue_list(
         issue_list_path=comment_list,
         new_diff_path=diff_report_edit,

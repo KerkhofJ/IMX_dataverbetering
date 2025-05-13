@@ -33,11 +33,20 @@ def measure(
         "-s1",
         help="Situation type for IMX T1 (only needed for single imx files)",
     ),
+    threshold: float | None = typer.Option(
+        None,
+        "--threshold",
+        "-t",
+        help="Threshold for IMX-calculated measure values; if this value is exceeded, it will trigger a correction issue",
+    ),
 ):
     """
     Calculate measurements for IMX files and store them in an Excel file.
     """
     imx = load_imxinsights_container_or_file(imx_container, t1_situation)
     output_path = Path(output_path) if output_path else Path.cwd()
-    generate_measure_excel(imx, output_path)
+    if threshold:
+        generate_measure_excel(imx, output_path, threshold)
+    else:
+        generate_measure_excel(imx, output_path)
     typer.echo(f"✔ Measurement check Excel written to: {output_path}")
