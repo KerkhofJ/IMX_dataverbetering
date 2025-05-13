@@ -9,21 +9,6 @@
 # from openpyxl.worksheet.worksheet import Worksheet
 #
 #
-# def extract_enum_values(schema: xmlschema.XMLSchema) -> dict:
-#     # TODO: add documentation and write to df
-#
-#     enum_dict = {}
-#     for type_qname, xsd_type in schema.types.items():
-#         if (
-#             xsd_type.is_simple()
-#             and hasattr(xsd_type, "enumeration")
-#             and xsd_type.enumeration
-#         ):
-#             local_name = xsd_type.local_name
-#             enum_dict[local_name] = xsd_type
-#     return enum_dict
-#
-#
 # def qname_with_prefix(qname: str, nsmap: dict) -> str:
 #     if not qname:
 #         return qname
@@ -44,6 +29,18 @@
 #
 #     current_path = f"{path}/{qname_with_prefix(element.name, nsmap)}"
 #     formatted_path = format_path(current_path)
+#
+#     # TODO: this should be the xsd_use...
+#     model = element.type.content.model
+#     if model == 'sequence':
+#         print("The content model is a sequence")
+#     elif model == 'choice':
+#         print("The content model is a choice")
+#     elif model == 'all':
+#         print("The content model is 'all'")
+#     else:
+#         print("Unknown content model")
+#
 #
 #     min_occurs = getattr(element, "min_occurs", None)
 #     max_occurs = getattr(element, "max_occurs", None)
@@ -149,12 +146,36 @@
 #             pass
 #
 #
+# def get_enum_values_with_annotations(schema: xmlschema.XMLSchema) -> dict[str, str]:
+#     ns = "http://www.w3.org/2001/XMLSchema"
+#
+#     grouped = {}
+#
+#     for type_name, simple_type in schema.types.items():
+#         if simple_type.is_restriction():
+#             restriction_elem = simple_type.elem
+#
+#             for enum_elem in restriction_elem.findall(f"{{{ns}}}enumeration"):
+#                 value = enum_elem.get("value")
+#                 annotation = ""
+#
+#                 annotation_elem = enum_elem.find(f"{{{ns}}}annotation")
+#                 if annotation_elem is not None:
+#                     doc_elem = annotation_elem.find(f"{{{ns}}}documentation")
+#                     if doc_elem is not None and doc_elem.text:
+#                         annotation = doc_elem.text.strip()
+#
+#                 grouped.setdefault(type_name, {})[value] = annotation
+#
+#     return grouped
+#
 # def generate_xpath_overview(
-#     xsd_path: str, root_filter: set[str] = None
+#     xsd_path: str | Path, root_filter: set[str] = None, add_enum_to_list: bool | None = None
 # ) -> pd.DataFrame:
 #     xsd_path = Path(xsd_path)
 #     schema = xmlschema.XMLSchema(xsd_path)
-#     enum_dict = extract_enum_values(schema)
+#
+#     enum_dict = get_enum_values_with_annotations(schema)
 #
 #     nsmap = {uri: prefix for prefix, uri in schema.namespaces.items() if prefix}
 #     overview = []
@@ -170,17 +191,17 @@
 #     rows = []
 #     for row in overview:
 #         rows.append(row.copy())  # original row
-#
-#         # enum_values = enum_dict.get(row["xsd_type"])
-#         # if enum_values:
-#         #     for val in enum_values:
-#         #         enum_row = row.copy()
-#         #         enum_row["xsd_path"] = f"{row['xsd_path']}[{val}]"
-#         #         enum_row["xsd_type"] = f"{row['xsd_type']}_value"
-#         #         enum_row["xsd_use"] = ""
-#         #         enum_row["xsd_appdata_TypeRef"] = ""
-#         #         enum_row["xsd_documentation"] = f"Enumerated value: {val}"
-#         #         rows.append(enum_row)
+#         if add_enum_to_list:
+#             enum_values = enum_dict.get(row["xsd_type"])
+#             if enum_values:
+#                 for key, val in enum_values.items():
+#                     enum_row = row.copy()
+#                     enum_row["xsd_path"] = f"{row['xsd_path']}[{key}]"
+#                     enum_row["xsd_type"] = f"{row['xsd_type']}Value"
+#                     enum_row["xsd_use"] = ""
+#                     enum_row["xsd_appdata_TypeRef"] = ""
+#                     enum_row["xsd_documentation"] = val
+#                     rows.append(enum_row)
 #
 #     df = pd.DataFrame(rows)
 #
@@ -190,6 +211,7 @@
 #     df.insert(len(df.columns), "Invullen door ingenieursbureau fase DO", "")
 #     df.insert(len(df.columns), "Invullen door RIGD LOXIA fase RVTO", "")
 #     df.insert(len(df.columns), "Invullen door RIGD LOXIA fase DO", "")
+#     df.insert(len(df.columns), "Invullen door karteerder in karteer fase", "")
 #     df.insert(len(df.columns), "Gebruikt in CSS", "")
 #     df.insert(len(df.columns), "Gebruikt in Donna", "")
 #     df.insert(len(df.columns), "Gebruikt in Friso", "")
@@ -220,35 +242,6 @@
 #     return df
 #
 #
-# # import xmlschema
-# #
-# # # Load the schema
-# # schema = xmlschema.XMLSchema("your_schema.xsd")  # Replace with your file path
-# #
-# # # Get the simpleType definition
-# # simple_type = schema.types["tSignalEnum"]
-# #
-# # # Access enumeration facets using the hardcoded namespace
-# # enumerations = simple_type.facets["{http://www.w3.org/2001/XMLSchema}enumeration"]
-# #
-# # # Extract documentation for each enumeration value
-# # enum_docs = []
-# # for facet in enumerations:
-# #     value = facet.value
-# #     doc = None
-# #     if facet.annotation is not None:
-# #         docs = facet.annotation.documentation
-# #         if docs:
-# #             doc = (
-# #                 " ".join([d.text for d in docs if d.text])
-# #                 if isinstance(docs, list)
-# #                 else docs.text
-# #             )
-# #     enum_docs.append({"value": value, "documentation": doc})
-# #
-# # # Print results
-# # for item in enum_docs:
-# #     print(f"{item['value']}: {item['documentation']}")
 #
 #
 # entry_points = {
@@ -257,18 +250,6 @@
 #     "IMSpoor-TrainControl.xsd": {"TrainControl"},
 # }
 #
-# # xsd_files = [
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-Manifest.xsd",
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-SignalingDesign.xsd",
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-TrainControl.xsd",
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-NetworkConfiguration.xsd"
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-ManagementAreas.xsd"
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-InstallationDesign.xsd"
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-Furniture.xsd"
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-Observations.xsd"
-# #     r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0\IMSpoor-SystemConfiguration.xsd"
-# # ]
-#
 # base_dir = Path(r"C:\repos\IMX_dataverbetering\data\xsd-14.0.0")
 #
 # xsd_files = []
@@ -276,7 +257,7 @@
 # for filename in entry_points:
 #     full_path = base_dir / filename
 #     if full_path.exists():
-#         xsd_files.append(str(full_path))  # or just keep it as Path if preferred
+#         xsd_files.append(full_path)  # or just keep it as Path if preferred
 #
 # print(xsd_files)
 #
@@ -288,7 +269,7 @@
 # for xsd_path in xsd_files:
 #     xsd_filename = os.path.basename(xsd_path)
 #     root_filter = entry_points.get(xsd_filename)
-#     df = generate_xpath_overview(xsd_path, root_filter=root_filter)
+#     df = generate_xpath_overview(xsd_path, root_filter=root_filter, add_enum_to_list=True)
 #     all_dfs.append(df)
 #
 #

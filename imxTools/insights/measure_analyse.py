@@ -150,7 +150,7 @@ def generate_analyse_df(imx: ImxRepo) -> pd.DataFrame:
 
 
 def convert_analyse_to_issue_list(
-    df_analyse: pd.DataFrame, threshold: float = 0.015
+    df_analyse: pd.DataFrame, threshold: float = 0.001
 ) -> pd.DataFrame:
     revision_columns = [
         RevisionColumns.object_path.name,
@@ -215,14 +215,16 @@ def convert_analyse_to_issue_list(
     return df_issue_list[revision_columns]
 
 
-def generate_measure_excel(imx: ImxRepo, output_path: str | Path):
+def generate_measure_excel(
+    imx: ImxRepo, output_path: str | Path, threshold: float = 0.015
+):
     if isinstance(output_path, str):
         output_path = Path(output_path)
     if output_path.is_dir():
         output_path = output_path / f"measure_check-{create_timestamp()}.xlsx"
 
     df_analyse = generate_analyse_df(imx)
-    df_issue_list = convert_analyse_to_issue_list(df_analyse)
+    df_issue_list = convert_analyse_to_issue_list(df_analyse, threshold)
 
     with pd.ExcelWriter(output_path, engine="openpyxl") as writer:
         df_analyse.to_excel(writer, index=False, sheet_name="measure_check")
