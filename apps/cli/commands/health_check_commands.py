@@ -33,12 +33,12 @@ def measure(
         "-s1",
         help="Situation type for IMX T1 (only needed for single imx files)",
     ),
-        threshold: float | None = typer.Option(
-            None,
-            "--threshold",
-            "-t",
-            help="Threshold for IMX-calculated measure values; if this value is exceeded, it will trigger a correction issue",
-        ),
+    threshold: float | None = typer.Option(
+        None,
+        "--threshold",
+        "-t",
+        help="Threshold for IMX-calculated measure values; if this value is exceeded, it will trigger a correction issue",
+    ),
 ):
     """
     Calculate measurements for IMX files and store them in an Excel file.
