@@ -1,4 +1,4 @@
-#TODO: if py3.10 = eol we should consider using StrEnum
+# TODO: if py3.10 = eol we should consider using StrEnum
 from enum import Enum
 
 
@@ -36,7 +36,7 @@ class ColumnEnum(Enum):
         return {col.name: str(col.value) for col in cls}
 
     @classmethod
-    def value_to_member(cls) -> dict[str, 'ColumnEnum']:
+    def value_to_member(cls) -> dict[str, "ColumnEnum"]:
         """
         Return a mapping from human-readable labels (values) to enum members.
 
@@ -46,7 +46,7 @@ class ColumnEnum(Enum):
         return {str(col.value): col for col in cls}
 
     @classmethod
-    def from_label(cls, label: str) -> 'ColumnEnum':
+    def from_label(cls, label: str) -> "ColumnEnum":
         """
         Return the enum member corresponding to a given human-readable label (value).
 
@@ -60,3 +60,13 @@ class ColumnEnum(Enum):
             if str(member.value) == label:
                 return member
         raise ValueError(f"No column found for label: {label}")
+
+    @classmethod
+    def names(cls) -> list[str]:
+        """
+        Return a list of all enum member names.
+
+        Example:
+            ['object_path', 'comment', 'value']
+        """
+        return [member.name for member in cls]

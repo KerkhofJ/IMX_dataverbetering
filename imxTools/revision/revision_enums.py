@@ -1,4 +1,4 @@
-from utils.columnEnum import ColumnEnum
+from imxTools.utils.columnEnum import ColumnEnum
 
 
 class RevisionColumns(ColumnEnum):

@@ -1,4 +1,4 @@
-from utils.columnEnum import ColumnEnum
+from imxTools.utils.columnEnum import ColumnEnum
 
 
 class CommentColumns(ColumnEnum):
@@ -16,4 +16,3 @@ class CommentColumns(ColumnEnum):
     comment_sheet_name = "Name of sheet with the comment"
     comment_row = "Row number of the comment"
     comment_column = "Column number of the comment"
-

@@ -9,7 +9,7 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from comments.comments_enums import CommentColumns
+from imxTools.comments.comments_enums import CommentColumns
 from imxTools.settings import ISSUE_LIST_SHEET_NAME
 
 
@@ -67,9 +67,13 @@ def build_comment_dict(
         CommentColumns.color.name: get_cell_background_color(cell),
         CommentColumns.object_path.name: context[CommentColumns.object_path.name],
         CommentColumns.change_status.name: context[CommentColumns.change_status.name],
-        CommentColumns.geometry_status.name: context[CommentColumns.geometry_status.name],
+        CommentColumns.geometry_status.name: context[
+            CommentColumns.geometry_status.name
+        ],
         CommentColumns.comment_sheet_name.name: sheet_name,
-        CommentColumns.comment_row.name: comment_row if comment_row is not None else cell.row,
+        CommentColumns.comment_row.name: comment_row
+        if comment_row is not None
+        else cell.row,
         CommentColumns.comment_column.name: cell.column,
     }
 
@@ -159,20 +163,7 @@ def write_comments_sheet(
     insert_at = info_index + 1 if info_index is not None else 0
     worksheets.insert(insert_at, ws_comments)
 
-    ws_comments.append([
-        CommentColumns.object_path.name,
-        CommentColumns.object_puic.name,
-        CommentColumns.change_status.name,
-        CommentColumns.geometry_status.name,
-        CommentColumns.link.name,
-        CommentColumns.imx_path.name,
-        CommentColumns.value.name,
-        CommentColumns.comment.name,
-        CommentColumns.color.name,
-        CommentColumns.comment_sheet_name.name,
-        CommentColumns.comment_row.name,
-        CommentColumns.comment_column.name,
-    ])
+    ws_comments.append(CommentColumns.names())
     ws_comments.auto_filter.ref = f"A1:{get_column_letter(ws_comments.max_column)}1"
 
     color_to_status = {v: k for k, v in REVIEW_STYLES.items()}
@@ -180,7 +171,11 @@ def write_comments_sheet(
     for comment in comments:
         link_text = color_to_status.get(str(comment[CommentColumns.color.name]), "link")
         link = f'=HYPERLINK("#\'{comment[CommentColumns.comment_sheet_name.name]}\'!{comment[CommentColumns.cell_address.name]}", "{link_text}")'
-        color = str(comment[CommentColumns.color.name]) if comment[CommentColumns.color.name] is not None else None
+        color = (
+            str(comment[CommentColumns.color.name])
+            if comment[CommentColumns.color.name] is not None
+            else None
+        )
         row = [
             comment[CommentColumns.object_path.name],
             comment[CommentColumns.object_puic.name],

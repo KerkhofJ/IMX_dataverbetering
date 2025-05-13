@@ -1,6 +1,6 @@
 import pytest
-from enum import Enum
-from utils.columnEnum import ColumnEnum  # adjust path if needed
+
+from imxTools.utils.columnEnum import ColumnEnum  # adjust path if needed
 
 
 class DummyColumns(ColumnEnum):

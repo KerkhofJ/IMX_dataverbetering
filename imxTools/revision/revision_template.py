@@ -11,7 +11,7 @@ def get_revision_template(out_file_path: str | Path):
     if isinstance(out_file_path, str):
         out_file_path = Path(out_file_path)
 
-    columns = [_.name for _ in RevisionColumns]
+    columns = RevisionColumns.names()
 
     first_row = [_.value for _ in RevisionColumns]
 
