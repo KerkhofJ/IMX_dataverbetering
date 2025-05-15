@@ -1,3 +1,5 @@
+# comments_extractor.py
+
 import os
 import shutil
 from pathlib import Path
@@ -9,8 +11,9 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from imxTools.settings import ISSUE_LIST_SHEET_NAME
+from comments.comments_enums import CommentColumns
 
+ISSUE_LIST_SHEET_NAME = "comments"
 
 def get_cell_background_color(cell: Cell | MergedCell) -> str | None:
     if cell.fill and cell.fill.fgColor and cell.fill.fgColor.type == "rgb":
@@ -42,10 +45,10 @@ def get_cell_context(
         return str(val) if val is not None else None
 
     return {
-        "Puic": get("@puic"),
-        "ObjectPath": get("path"),
-        "ChangeStatus": get("status"),
-        "GeometryStatus": get("geometry_status"),
+        CommentColumns.object_puic.name: get("@puic"),
+        CommentColumns.object_path.name: get("path"),
+        CommentColumns.change_status.name: get("status"),
+        CommentColumns.geometry_status.name: get("geometry_status"),
     }
 
 
@@ -58,21 +61,20 @@ def build_comment_dict(
     comment_row: int | None = None,
 ) -> dict[str, str | int | None]:
     return {
-        "Sheet": sheet_name,
-        "Puic": context["Puic"],
-        "Header": header,
-        "Value": str(cell.value) if cell.value is not None else "",
-        "Comment": comment_text,
+        CommentColumns.comment_sheet_name.name: sheet_name,
+        CommentColumns.object_puic.name: context[CommentColumns.object_puic.name],
+        CommentColumns.header_value.name: header,
+        CommentColumns.value.name: str(cell.value) if cell.value is not None else "",
+        CommentColumns.comment.name: comment_text,
         "CellAddress": cell.coordinate,
-        "Color": get_cell_background_color(cell),
-        "ObjectPath": context["ObjectPath"],
-        "ChangeStatus": context["ChangeStatus"],
-        "GeometryStatus": context["GeometryStatus"],
-        "CommentSheetName": sheet_name,
-        "CommentRow": comment_row
+        CommentColumns.cell_bg_color.name: get_cell_background_color(cell),
+        CommentColumns.object_path.name: context[CommentColumns.object_path.name],
+        CommentColumns.change_status.name: context[CommentColumns.change_status.name],
+        CommentColumns.geometry_status.name: context[CommentColumns.geometry_status.name],
+        CommentColumns.comment_row.name: comment_row
         if comment_row is not None
         else cell.row,  # Fixed here
-        "CommentColumn": cell.column,
+        CommentColumns.comment_column.name: cell.column,
     }
 
 
@@ -161,43 +163,29 @@ def write_comments_sheet(
     insert_at = info_index + 1 if info_index is not None else 0
     worksheets.insert(insert_at, ws_comments)
 
-    ws_comments.append(
-        [
-            "ObjectPath",
-            "Puic",
-            "ChangeStatus",
-            "GeometryStatus",
-            "Link",
-            "ImxPath",
-            "Value",
-            "Comment",
-            "Color",
-            "CommentSheetName",
-            "CommentRow",
-            "CommentColumn",
-        ]
-    )
+    # create and auto filter header
+    ws_comments.append(CommentColumns.names())
     ws_comments.auto_filter.ref = f"A1:{get_column_letter(ws_comments.max_column)}1"
 
-    color_to_status = {v: k for k, v in REVIEW_STYLES.items()}
 
+    color_to_status = {v: k for k, v in REVIEW_STYLES.items()}
     for comment in comments:
-        link_text = color_to_status.get(str(comment["Color"]), "link")
-        link = f'=HYPERLINK("#\'{comment["Sheet"]}\'!{comment["CellAddress"]}", "{link_text}")'
-        color = str(comment["Color"]) if comment["Color"] is not None else None
+        link_text = color_to_status.get(str(comment[CommentColumns.cell_bg_color.name]), "link")
+        link = f'=HYPERLINK("#\'{comment[CommentColumns.comment_sheet_name.name]}\'!{comment["CellAddress"]}", "{link_text}")'
+        color = str(comment[CommentColumns.cell_bg_color.name]) if comment[CommentColumns.cell_bg_color.name] is not None else None
         row = [
-            comment["ObjectPath"],
-            comment["Puic"],
-            comment["ChangeStatus"],
-            comment["GeometryStatus"],
+            comment[CommentColumns.object_path.name],
+            comment[CommentColumns.object_puic.name],
+            comment[CommentColumns.change_status.name],
+            comment[CommentColumns.geometry_status.name],
             link,
-            comment["Header"],
-            comment["Value"],
-            comment["Comment"],
-            comment["Color"],
-            comment["CommentSheetName"],
-            comment["CommentRow"],
-            comment["CommentColumn"],
+            comment[CommentColumns.header_value.name],
+            comment[CommentColumns.value.name],
+            comment[CommentColumns.comment.name],
+            comment[CommentColumns.cell_bg_color.name],
+            comment[CommentColumns.comment_sheet_name.name],
+            comment[CommentColumns.comment_row.name],
+            comment[CommentColumns.comment_column.name],
         ]
         ws_comments.append(row)
         if color:
