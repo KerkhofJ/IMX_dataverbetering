@@ -1,28 +1,29 @@
-# comments_extractor.py
-
 import os
 import shutil
 from pathlib import Path
+from typing import Optional, Union
 
-from imxInsights.utils.report_helpers import REVIEW_STYLES
 from openpyxl import Workbook, load_workbook
 from openpyxl.cell import Cell, MergedCell
 from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
+from imxInsights.utils.report_helpers import REVIEW_STYLES
 from imxTools.comments.comments_enums import CommentColumns
 
 ISSUE_LIST_SHEET_NAME = "comments"
+CellType = Union[Cell, MergedCell]
+CommentDict = dict[str, Union[str, int, None]]
 
 
-def get_cell_background_color(cell: Cell | MergedCell) -> str | None:
+def get_cell_background_color(cell: CellType) -> Optional[str]:
     if cell.fill and cell.fill.fgColor and cell.fill.fgColor.type == "rgb":
         return cell.fill.fgColor.rgb[-6:]
     return None
 
 
-def get_column_indices(ws: Worksheet, header_row: int) -> dict[str, int | None]:
+def get_column_indices(ws: Worksheet, header_row: int) -> dict[str, Optional[int]]:
     keys = ["@puic", "path", "status", "geometry_status"]
     return {
         key: next(
@@ -37,10 +38,8 @@ def get_column_indices(ws: Worksheet, header_row: int) -> dict[str, int | None]:
     }
 
 
-def get_cell_context(
-    ws: Worksheet, row_idx: int, columns: dict[str, int | None]
-) -> dict[str, str | None]:
-    def get(col_key: str) -> str | None:
+def get_cell_context(ws: Worksheet, row_idx: int, columns: dict[str, Optional[int]]) -> dict[str, Optional[str]]:
+    def get(col_key: str) -> Optional[str]:
         col = columns.get(col_key)
         val = ws.cell(row=row_idx, column=col).value if col else None
         return str(val) if val is not None else None
@@ -54,13 +53,13 @@ def get_cell_context(
 
 
 def build_comment_dict(
-    context: dict[str, str | None],
-    cell: Cell | MergedCell,
+    context: dict[str, Optional[str]],
+    cell: CellType,
     header: str,
     sheet_name: str,
     comment_text: str,
-    comment_row: int | None = None,
-) -> dict[str, str | int | None]:
+    comment_row: Optional[int] = None,
+) -> CommentDict:
     return {
         CommentColumns.comment_sheet_name: sheet_name,
         CommentColumns.object_puic: context[CommentColumns.object_puic],
@@ -71,64 +70,47 @@ def build_comment_dict(
         CommentColumns.cell_bg_color: get_cell_background_color(cell),
         CommentColumns.object_path: context[CommentColumns.object_path],
         CommentColumns.change_status: context[CommentColumns.change_status],
-        CommentColumns.geometry_status: context[
-            CommentColumns.geometry_status
-        ],
-        CommentColumns.comment_row: comment_row
-        if comment_row is not None
-        else cell.row,  # Fixed here
+        CommentColumns.geometry_status: context[CommentColumns.geometry_status],
+        CommentColumns.comment_row: comment_row if comment_row is not None else cell.row,
         CommentColumns.comment_column: cell.column,
     }
 
 
 def handle_header_comment(
-    cell: Cell | MergedCell,
+    cell: CellType,
     ws: Worksheet,
     header_value: str,
-    columns: dict[str, int | None],
+    columns: dict[str, Optional[int]],
     sheet_name: str,
     header_row: int,
-) -> tuple[list[dict[str, str | int | None]], list[str]]:
-    comments: list[dict[str, str | int | None]] = []
-    inherited_cells: list[str] = []
+) -> tuple[list[CommentDict], list[str]]:
+    comments, inherited_cells = [], []
 
     if get_cell_background_color(cell) == "FFFFFF":
         return comments, inherited_cells
 
     for row_idx in range(header_row + 1, ws.max_row + 1):
-        if cell.column is None:
-            continue
         target_cell = ws.cell(row=row_idx, column=cell.column)
-
         if target_cell.comment or not target_cell.value:
             continue
         color = get_cell_background_color(target_cell)
         if color and color != "000000":
             context = get_cell_context(ws, row_idx, columns)
-            if cell.comment is not None:
+            if cell.comment:
                 comments.append(
-                    build_comment_dict(
-                        context,
-                        target_cell,
-                        header_value,
-                        sheet_name,
-                        cell.comment.text,
-                        comment_row=header_row,  # <-- use header row here
-                    )
+                    build_comment_dict(context, target_cell, header_value, sheet_name, cell.comment.text, header_row)
                 )
                 inherited_cells.append(target_cell.coordinate)
     return comments, inherited_cells
 
 
 def handle_data_comment(
-    cell: Cell | MergedCell,
+    cell: CellType,
     ws: Worksheet,
     header_value: str,
-    columns: dict[str, int | None],
+    columns: dict[str, Optional[int]],
     sheet_name: str,
-) -> list[dict[str, str | int | None]]:
-    if cell.row is None:
-        return []
+) -> list[CommentDict]:
     context = get_cell_context(ws, cell.row, columns)
     return [
         build_comment_dict(
@@ -143,44 +125,28 @@ def handle_data_comment(
 
 def write_comments_sheet(
     wb: Workbook,
-    comments: list[dict[str, str | int | None]],
+    comments: list[CommentDict],
     overwrite: bool = False,
 ) -> None:
     if ISSUE_LIST_SHEET_NAME in wb.sheetnames:
         if overwrite:
             del wb[ISSUE_LIST_SHEET_NAME]
         else:
-            raise ValueError(
-                f"Sheet '{ISSUE_LIST_SHEET_NAME}' already exists. Set overwrite=True to overwrite."
-            )
+            raise ValueError(f"Sheet '{ISSUE_LIST_SHEET_NAME}' already exists. Set overwrite=True to overwrite.")
 
-    # Create the new sheet
     ws_comments = wb.create_sheet(ISSUE_LIST_SHEET_NAME)
-
-    # Reorder the sheet to be after 'info' or first if 'info' not present
-    info_index = next(
-        (i for i, ws in enumerate(wb.worksheets) if ws.title == "info"), None
-    )
     worksheets = wb.worksheets
     worksheets.remove(ws_comments)
-    insert_at = info_index + 1 if info_index is not None else 0
+    insert_at = next((i + 1 for i, ws in enumerate(worksheets) if ws.title == "info"), 0)
     worksheets.insert(insert_at, ws_comments)
 
-    # create and auto filter header
     ws_comments.append(CommentColumns.names())
     ws_comments.auto_filter.ref = f"A1:{get_column_letter(ws_comments.max_column)}1"
 
     color_to_status = {v: k for k, v in REVIEW_STYLES.items()}
     for comment in comments:
-        link_text = color_to_status.get(
-            str(comment[CommentColumns.cell_bg_color]), "link"
-        )
+        link_text = color_to_status.get(str(comment[CommentColumns.cell_bg_color]), "link")
         link = f'=HYPERLINK("#\'{comment[CommentColumns.comment_sheet_name]}\'!{comment["CellAddress"]}", "{link_text}")'
-        color = (
-            str(comment[CommentColumns.cell_bg_color])
-            if comment[CommentColumns.cell_bg_color] is not None
-            else None
-        )
         row = [
             comment[CommentColumns.object_path],
             comment[CommentColumns.object_puic],
@@ -196,12 +162,9 @@ def write_comments_sheet(
             comment[CommentColumns.comment_column],
         ]
         ws_comments.append(row)
+        color = str(comment[CommentColumns.cell_bg_color]) or None
         if color:
-            ws_comments[f"E{ws_comments.max_row}"].fill = PatternFill(
-                start_color=color,
-                end_color=color,
-                fill_type="solid",
-            )
+            ws_comments[f"E{ws_comments.max_row}"].fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
 
     ws_comments.freeze_panes = "A2"
 
@@ -212,27 +175,23 @@ def write_comments_sheet(
 
 
 def extract_comments_to_new_sheet(
-    file_path: str | Path,
-    output_path: str | None = None,
+    file_path: Union[str, Path],
+    output_path: Optional[str] = None,
     header_row: int = 1,
     add_to_wb: bool = False,
     overwrite: bool = False,
 ) -> None:
-    # TODO: support path objects
-
     if not output_path and not add_to_wb:
         raise ValueError("When adding to an existing workbook, provide an output path.")
 
     target_path = output_path if output_path and add_to_wb else file_path
     if output_path and add_to_wb:
         if os.path.exists(output_path) and not overwrite:
-            raise FileExistsError(
-                f"File '{output_path}' already exists. Set overwrite=True."
-            )
+            raise FileExistsError(f"File '{output_path}' already exists. Set overwrite=True.")
         shutil.copyfile(file_path, output_path)
 
     wb = load_workbook(target_path, data_only=True)
-    all_comments: list[dict[str, str | int | None]] = []
+    all_comments: list[CommentDict] = []
     inherited_cells: set[str] = set()
 
     for sheet_name in wb.sheetnames:
@@ -241,80 +200,32 @@ def extract_comments_to_new_sheet(
 
         for row in ws.iter_rows():
             for cell in row:
-                if cell.column is None:
-                    continue
                 header_cell = ws[f"{get_column_letter(cell.column)}{header_row}"]
-                header_value = header_cell.value if header_cell else None
-                header_value_str = str(header_value) if header_value is not None else ""
+                header_value = str(header_cell.value or "")
 
                 if cell.comment:
-                    if cell.row == header_row and isinstance(header_value, str):
-                        comments, inherited = handle_header_comment(
-                            cell, ws, header_value, columns, sheet_name, header_row
-                        )
+                    if cell.row == header_row:
+                        comments, inherited = handle_header_comment(cell, ws, header_value, columns, sheet_name, header_row)
                         all_comments.extend(comments)
                         inherited_cells.update(inherited)
-                    elif cell.row != header_row:
-                        if cell.row is not None:
-                            all_comments.extend(
-                                handle_data_comment(
-                                    cell, ws, header_value_str, columns, sheet_name
-                                )
-                            )
+                    else:
+                        all_comments.extend(handle_data_comment(cell, ws, header_value, columns, sheet_name))
                 else:
                     color = get_cell_background_color(cell)
-                    if (
-                        cell.row is not None
-                        and cell.row > header_row
-                        and color in REVIEW_STYLES.values()
-                        and cell.value
-                        and cell.coordinate not in inherited_cells
-                    ):
+                    if cell.row > header_row and color in REVIEW_STYLES.values() and cell.value and cell.coordinate not in inherited_cells:
                         context = get_cell_context(ws, cell.row, columns)
-                        all_comments.append(
-                            build_comment_dict(
-                                context, cell, header_value_str, sheet_name, ""
-                            )
-                        )
+                        all_comments.append(build_comment_dict(context, cell, header_value, sheet_name, ""))
 
     if add_to_wb:
         if os.path.exists(file_path) and not overwrite:
-            raise FileExistsError(
-                f"File '{file_path}' already exists. Set overwrite=True."
-            )
+            raise FileExistsError(f"File '{file_path}' already exists. Set overwrite=True.")
         write_comments_sheet(wb, all_comments, overwrite)
-
         wb.save(target_path)
-        print(
-            f"Comments sheet written to '{target_path}' (in-place={target_path == file_path})."
-        )
+        print(f"Comments sheet written to '{target_path}' (in-place={target_path == file_path}).")
     else:
-        if output_path and os.path.exists(output_path) and not overwrite:
-            raise FileExistsError(
-                f"File '{output_path}' already exists. Set overwrite=True."
-            )
-        wb_new = Workbook()
-        active_sheet = wb_new.active
-        if isinstance(active_sheet, Worksheet):
-            wb_new.remove(active_sheet)
-
-        # Ensure output_path is a string, and avoid Path.replace misuse
         output_path = output_path or str(file_path).replace(".xlsx", "_comments.xlsx")
-        output_path = str(output_path)  # Ensure it's a string
-
-        # Create a new workbook and remove the default sheet
         wb_new = Workbook()
-        active_sheet = wb_new.active
-        if isinstance(active_sheet, Worksheet):
-            wb_new.remove(active_sheet)
-
-        # Write comments to the new sheet
+        wb_new.remove(wb_new.active)
         write_comments_sheet(wb_new, all_comments, overwrite)
-
-        # Ensure output_path is not None (mypy-safe) and save the workbook
-        assert output_path is not None
         wb_new.save(output_path)
-
-        print(
-            f"Comments extracted successfully to '{output_path}' in sheet '{ISSUE_LIST_SHEET_NAME}'."
-        )
+        print(f"Comments extracted successfully to '{output_path}' in sheet '{ISSUE_LIST_SHEET_NAME}'.")
