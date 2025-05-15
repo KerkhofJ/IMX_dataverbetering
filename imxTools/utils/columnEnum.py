@@ -1,10 +1,11 @@
-from enum import Enum
-from functools import lru_cache
 import sys
+from enum import Enum
+from functools import cache
 
 if sys.version_info >= (3, 11):
     from enum import StrEnum
 else:
+
     class StrEnum(str, Enum):
         pass
 
@@ -94,7 +95,9 @@ class ColumnEnum(StrEnum):
             CommentColumns.from_description("Comment content") -> CommentColumns.comment
         """
         for col in cls:
-            if (ignore_case and str(col.value).lower() == label.lower()) or str(col.value) == label:
+            if (ignore_case and str(col.value).lower() == label.lower()) or str(
+                col.value
+            ) == label:
                 return col
         raise ValueError(f"No column found for label: {label}")
 
@@ -141,21 +144,21 @@ class ColumnEnum(StrEnum):
             raise ValueError(f"No column found for name: {name}")
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def _description_to_header_cached(enum_cls) -> dict[str, str]:
         return {str(col.value): col.name for col in enum_cls}
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def _header_to_description_cached(enum_cls) -> dict[str, str]:
         return {col.name: str(col.value) for col in enum_cls}
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def _description_to_member_cached(enum_cls) -> dict[str, "ColumnEnum"]:
         return {str(col.value): col for col in enum_cls}
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def _to_dict_cached(enum_cls) -> dict[str, str]:
         return {col.name: str(col.value) for col in enum_cls}

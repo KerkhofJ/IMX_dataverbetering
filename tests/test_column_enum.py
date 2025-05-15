@@ -3,7 +3,6 @@ import pytest
 from imxTools.utils.columnEnum import ColumnEnum
 
 
-
 class TestColumns(ColumnEnum):
     object_path = "Full object path in IMX structure"
     comment = "Comment content"
@@ -44,7 +43,10 @@ def test_from_description():
 
 
 def test_from_description_case_insensitive():
-    assert TestColumns.from_description("comment content", ignore_case=True) == TestColumns.comment
+    assert (
+        TestColumns.from_description("comment content", ignore_case=True)
+        == TestColumns.comment
+    )
     with pytest.raises(ValueError):
         TestColumns.from_description("comment content", ignore_case=False)
 
