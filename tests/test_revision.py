@@ -1,17 +1,27 @@
+from pathlib import Path
+
 import pytest
 
 from imxTools.revision.input_validation import validate_gml_coordinates
 from imxTools.revision.process_revision import process_imx_revisions
 from imxTools.revision.revision_enums import RevisionColumns
+from imxTools.revision.revision_template import get_revision_template
 
 
 def test_process(issue_list: str, imx_12_xml_file: str, clean_output_path: str):
     df = process_imx_revisions(imx_12_xml_file, issue_list, clean_output_path)
-    filtered_df = df[df[RevisionColumns.processing_status.name]]
+    filtered_df = df[df[RevisionColumns.will_be_processed.name]]
     unique_statuses = filtered_df["status"].unique().tolist()
     assert len(unique_statuses) == 1 and unique_statuses[0] == "processed", (
         "should all be processed"
     )
+
+
+def test_get_template(clean_output_path: str):
+    out_path = Path(clean_output_path) / "template.xlsx"
+    get_revision_template(out_path)
+    assert out_path.exists()
+    # todo: should test if sheet and all columns are present
 
 
 @pytest.mark.parametrize(

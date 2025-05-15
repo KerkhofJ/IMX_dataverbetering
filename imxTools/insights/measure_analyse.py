@@ -161,7 +161,7 @@ def convert_analyse_to_issue_list(
         RevisionColumns.operation.name,
         RevisionColumns.value_old.name,
         RevisionColumns.value_new.name,
-        RevisionColumns.processing_status.name,
+        RevisionColumns.will_be_processed.name,
         RevisionColumns.revision_reasoning.name,
     ]
 

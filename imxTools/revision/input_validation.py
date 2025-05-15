@@ -107,11 +107,12 @@ def validate_input_excel_content(df: pd.DataFrame):
         )
     ]
 
-    df_filtered["unique_key"] = (
+    df_filtered.loc[:, "unique_key"] = (
         df_filtered[RevisionColumns.object_puic.name]
         + "_"
         + df_filtered[RevisionColumns.attribute_or_element.name]
     )
+
     # duplicates = df_filtered[
     #     df_filtered["unique_key"].duplicated(keep=False)
     # ].sort_values(by=RevisionColumns.object_puic.name)

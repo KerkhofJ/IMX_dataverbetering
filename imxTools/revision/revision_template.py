@@ -8,68 +8,65 @@ from imxTools.revision.revision_enums import RevisionColumns, RevisionOperationV
 
 
 def get_revision_template(out_file_path: str | Path):
-    if isinstance(out_file_path, str):
-        out_file_path = Path(out_file_path)
+    out_file_path = Path(out_file_path)
 
-    columns = [_.name for _ in RevisionColumns]
+    # Header row (keys) and column descriptions (values)
+    columns = RevisionColumns.headers()
+    first_row = [RevisionColumns.to_dict()[col] for col in columns]
 
-    first_row = [_.value for _ in RevisionColumns]
+    # Example rows using enum keys for clarity
+    example_row_1 = {
+        RevisionColumns.object_path.name: "dummy.object.path",
+        RevisionColumns.object_puic.name: "a8cfb00e-bbb3-4a83-9783-4f94e013fa9d",
+        RevisionColumns.issue_comment.name: "Unknown upgrade",
+        RevisionColumns.issue_cause.name: "just a example",
+        RevisionColumns.attribute_or_element.name: "@name",
+        RevisionColumns.operation.name: "UpdateAttribute",
+        RevisionColumns.value_old.name: "Unknown",
+        RevisionColumns.value_new.name: "SomeOtherValue",
+        RevisionColumns.will_be_processed.name: "True",
+        RevisionColumns.revision_reasoning.name: "Will revision if old value still matches",
+    }
 
-    example_row_1 = [
-        "dummy.object.path",
-        "a8cfb00e-bbb3-4a83-9783-4f94e013fa9d",
-        "Unknown upgrade",
-        "just a example",
-        "@name",
-        "UpdateAttribute",
-        "Unknown",
-        "SomeOtherValue",
-        "True",
-        "Will revision if old value still matches",
-    ]
+    example_row_2 = {
+        RevisionColumns.object_path.name: "dumy.obkect.path",
+        RevisionColumns.object_puic.name: "a8cfb00e-bbb3-4a83-9783-4f94e013fa9d",
+        RevisionColumns.issue_comment.name: "Unknown upgrade",
+        RevisionColumns.issue_cause.name: "just a example",
+        RevisionColumns.attribute_or_element.name: "RailConnectionInfo.@atMeasure",
+        RevisionColumns.operation.name: "UpdateAttribute",
+        RevisionColumns.value_old.name: "0",
+        RevisionColumns.value_new.name: "0.255",
+        RevisionColumns.will_be_processed.name: "False",
+        RevisionColumns.revision_reasoning.name: "Will NOT revision ProcessingStatus = False",
+    }
 
-    example_row_2 = [
-        "dumy.obkect.path",
-        "a8cfb00e-bbb3-4a83-9783-4f94e013fa9d",
-        "Unknown upgrade",
-        "just a example",
-        "RailConnectionInfo.@atMeasure",
-        "UpdateAttribute",
-        "0",
-        "0.255",
-        "False",
-        "Will NOT revision ProcessingStatus = False",
-    ]
-
+    # Create workbook and worksheet
     wb = Workbook()
     ws = wb.active
     if not ws:
-        raise ValueError("Workbook not found")
+        raise ValueError("No Active worksheet")
 
     ws.title = "revisions"
 
-    # set header
-    for col_idx, value in enumerate(columns, start=1):
-        ws.cell(row=1, column=col_idx, value=value)
+    # Write enum member names as headers
+    for col_idx, col_name in enumerate(columns, start=1):
+        ws.cell(row=1, column=col_idx, value=col_name)
     ws.freeze_panes = "A2"
     ws.auto_filter.ref = f"A1:{get_column_letter(len(columns))}1"
 
-    # first row should have column info
-    for col_idx, value in enumerate(first_row, start=1):
-        ws.cell(row=2, column=col_idx, value=value)
+    # Write descriptions
+    for col_idx, desc in enumerate(first_row, start=1):
+        ws.cell(row=2, column=col_idx, value=desc)
 
-    # first row should have column info
-    for col_idx, value in enumerate(example_row_1, start=1):
-        ws.cell(row=3, column=col_idx, value=value)
+    # Write example rows
+    for row_idx, example_row in enumerate([example_row_1, example_row_2], start=3):
+        for col_idx, col in enumerate(columns, start=1):
+            ws.cell(row=row_idx, column=col_idx, value=example_row.get(col, ""))
 
-    # first row should have column info
-    for col_idx, value in enumerate(example_row_2, start=1):
-        ws.cell(row=4, column=col_idx, value=value)
-
-    for col_idx in range(1, ws.max_column + 1):  # Loop through columns
-        column = get_column_letter(col_idx)
-
-        # Get the maximum length of the values in the column (including padding)
+    # Autosize columns
+    for col_idx in range(1, ws.max_column + 1):
+        col_letter = get_column_letter(col_idx)
         max_length = max(
             (
                 len(str(cell))
@@ -78,39 +75,35 @@ def get_revision_template(out_file_path: str | Path):
                 )
                 for cell in row
             ),
-            default=0,  # In case there are empty columns, avoid errors
+            default=0,
         )
+        ws.column_dimensions[col_letter].width = max_length + 2
 
-        # Set the column width, adding padding for visibility
-        ws.column_dimensions[column].width = max_length + 2
-
-    operation_values = [_.name for _ in RevisionOperationValues]
-
-    dv = DataValidation(
+    # Add dropdown for operation type
+    operation_dv = DataValidation(
         type="list",
-        formula1=f'"{",".join(operation_values)}"',
+        formula1=f'"{",".join(RevisionOperationValues.headers())}"',
         allow_blank=True,
-        showDropDown=False,  # counterintuitive, false to show dropdown :/
+        showDropDown=False,
     )
-    ws.add_data_validation(dv)
+    ws.add_data_validation(operation_dv)
     operation_col_letter = get_column_letter(
         columns.index(RevisionColumns.operation.name) + 1
     )
-    dv_range = f"{operation_col_letter}2:{operation_col_letter}1048576"
-    dv.add(dv_range)
+    operation_dv.add(f"{operation_col_letter}2:{operation_col_letter}1048576")
 
-    operation_values = ["True", "False"]
-    dv = DataValidation(
+    # Add dropdown for processing status
+    status_dv = DataValidation(
         type="list",
-        formula1=f'"{",".join(operation_values)}"',
+        formula1='"True,False"',
         allow_blank=True,
-        showDropDown=False,  # counterintuitive, false to show dropdown :/
+        showDropDown=False,
     )
-    ws.add_data_validation(dv)
-    operation_col_letter = get_column_letter(
-        columns.index(RevisionColumns.processing_status.name) + 1
+    ws.add_data_validation(status_dv)
+    status_col_letter = get_column_letter(
+        columns.index(RevisionColumns.will_be_processed.name) + 1
     )
-    dv_range = f"{operation_col_letter}2:{operation_col_letter}1048576"
-    dv.add(dv_range)
+    status_dv.add(f"{status_col_letter}2:{status_col_letter}1048576")
 
+    # Save Excel file
     wb.save(out_file_path)

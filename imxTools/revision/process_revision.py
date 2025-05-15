@@ -74,7 +74,7 @@ def xsd_validate(schema: xmlschema.XMLSchema, element: _Element, change: dict) -
 def apply_change(
     change: dict[Hashable, Any], element: _Element, puic_index: PuicIndex
 ) -> None:
-    operation = change[RevisionColumns.operation.name]
+    operation = change.get(RevisionColumns.operation.name, "")
     handlers = {
         RevisionOperationValues.CreateAttribute.name: _handle_create_or_update_attr,
         RevisionOperationValues.UpdateAttribute.name: _handle_create_or_update_attr,
@@ -99,14 +99,14 @@ def _handle_create_or_update_attr(
     change: dict, element: _Element, _: PuicIndex
 ) -> None:
     new_val = change.get(RevisionColumns.value_new.name)
-    if new_val is None or new_val == "":
+    if not new_val:
         change["status"] = "skipped"
         return
 
-    attr_path = change[RevisionColumns.attribute_or_element.name].strip()
+    attr_path = change.get(RevisionColumns.attribute_or_element.name, "").strip()
     old_val = change.get(RevisionColumns.value_old.name)
     is_update = (
-        change[RevisionColumns.operation.name]
+        change.get(RevisionColumns.operation.name)
         == RevisionOperationValues.UpdateAttribute.name
     )
 
@@ -114,7 +114,7 @@ def _handle_create_or_update_attr(
         element,
         attr_path,
         str(new_val),
-        None if not is_update else str(old_val),
+        str(old_val) if is_update and old_val is not None else None,
     )
     _finalize(change, element)
 
@@ -122,7 +122,7 @@ def _handle_create_or_update_attr(
 def _handle_delete_attr(change: dict, element: _Element, _: PuicIndex) -> None:
     delete_attribute_if_matching(
         element,
-        change[RevisionColumns.attribute_or_element.name].strip(),
+        change.get(RevisionColumns.attribute_or_element.name, "").strip(),
         str(change.get(RevisionColumns.value_old.name, "")),
     )
     _finalize(change, element)
@@ -132,14 +132,14 @@ def _handle_delete_object(
     change: dict, element: _Element, puic_index: PuicIndex
 ) -> None:
     delete_element(element)
-    puic_index.pop(change[RevisionColumns.object_puic.name], None)
+    puic_index.pop(change.get(RevisionColumns.object_puic.name), None)
     _finalize(change, element)
 
 
 def _handle_add_element(change: dict, element: _Element, _: PuicIndex) -> None:
     create_element_under(
         element,
-        change[RevisionColumns.attribute_or_element.name],
+        change.get(RevisionColumns.attribute_or_element.name, ""),
         str(change.get(RevisionColumns.value_new.name, "")),
     )
     _finalize(change, element)
@@ -148,7 +148,7 @@ def _handle_add_element(change: dict, element: _Element, _: PuicIndex) -> None:
 def _handle_delete_element(change: dict, element: _Element, _: PuicIndex) -> None:
     delete_element_that_matches(
         element,
-        change[RevisionColumns.attribute_or_element.name],
+        change.get(RevisionColumns.attribute_or_element.name, ""),
     )
     _finalize(change, element)
 
@@ -159,17 +159,17 @@ def _process_changes(
     schema: xmlschema.XMLSchema,
 ) -> None:
     for change in changes:
-        if not change.get(RevisionColumns.processing_status.name):
+        if not change.get(RevisionColumns.will_be_processed.name):
             continue
 
-        puic = change[RevisionColumns.object_puic.name]
+        puic = change.get(RevisionColumns.object_puic.name)
         element = puic_index.get(puic)
         if element is None:
             change["status"] = f"object not present: {puic}"
             continue
 
         try:
-            validate_tag(change[RevisionColumns.object_path.name], element)
+            validate_tag(change.get(RevisionColumns.object_path.name, ""), element)
             apply_change(change, element, puic_index)
         except Exception as e:
             logger.error(e)
@@ -236,13 +236,16 @@ def _prepare_dataframe(excel_path: Path) -> pd.DataFrame:
         .fillna("")
         .apply(lambda col: col.map(lambda v: v.strip() if isinstance(v, str) else v))
     )
-    df[RevisionColumns.processing_status.name] = df[
-        RevisionColumns.processing_status.name
-    ].map({"True": True, "False": False})
+
+    header_map = RevisionColumns.description_to_header()
+    df.rename(columns=header_map, inplace=True)
+
+    proc_col = RevisionColumns.will_be_processed.name
+    df[proc_col] = df[proc_col].map({"True": True, "False": False})
 
     validate_input_excel_content(df)
 
-    missing = {col.name for col in RevisionColumns} - set(df.columns)
+    missing = set(RevisionColumns.headers()) - set(df.columns)
     if missing:
         raise ValueError(f"Missing template headers: {', '.join(sorted(missing))}")
     return df
