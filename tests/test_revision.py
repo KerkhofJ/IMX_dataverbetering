@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from imxTools.revision.input_validation import validate_gml_coordinates
@@ -21,7 +22,16 @@ def test_get_template(clean_output_path: str):
     out_path = Path(clean_output_path) / "template.xlsx"
     get_revision_template(out_path)
     assert out_path.exists()
-    # todo: should test if sheet and all columns are present
+
+    # Gebruik contextmanager om het bestand netjes af te sluiten
+    with pd.ExcelFile(out_path) as xl:
+        assert "revisions" in xl.sheet_names, "'revisions' sheet is missing"
+        df = xl.parse("revisions")
+
+    actual_columns = list(df.columns)
+    expected_columns = [col.name for col in RevisionColumns]
+    for col in expected_columns:
+        assert col in actual_columns, f"Missing header column: {col}"
 
 
 @pytest.mark.parametrize(
