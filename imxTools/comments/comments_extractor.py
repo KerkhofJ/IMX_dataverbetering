@@ -11,9 +11,10 @@ from openpyxl.styles import PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
-from comments.comments_enums import CommentColumns
+from imxTools.comments.comments_enums import CommentColumns
 
 ISSUE_LIST_SHEET_NAME = "comments"
+
 
 def get_cell_background_color(cell: Cell | MergedCell) -> str | None:
     if cell.fill and cell.fill.fgColor and cell.fill.fgColor.type == "rgb":
@@ -70,7 +71,9 @@ def build_comment_dict(
         CommentColumns.cell_bg_color.name: get_cell_background_color(cell),
         CommentColumns.object_path.name: context[CommentColumns.object_path.name],
         CommentColumns.change_status.name: context[CommentColumns.change_status.name],
-        CommentColumns.geometry_status.name: context[CommentColumns.geometry_status.name],
+        CommentColumns.geometry_status.name: context[
+            CommentColumns.geometry_status.name
+        ],
         CommentColumns.comment_row.name: comment_row
         if comment_row is not None
         else cell.row,  # Fixed here
@@ -167,12 +170,17 @@ def write_comments_sheet(
     ws_comments.append(CommentColumns.names())
     ws_comments.auto_filter.ref = f"A1:{get_column_letter(ws_comments.max_column)}1"
 
-
     color_to_status = {v: k for k, v in REVIEW_STYLES.items()}
     for comment in comments:
-        link_text = color_to_status.get(str(comment[CommentColumns.cell_bg_color.name]), "link")
+        link_text = color_to_status.get(
+            str(comment[CommentColumns.cell_bg_color.name]), "link"
+        )
         link = f'=HYPERLINK("#\'{comment[CommentColumns.comment_sheet_name.name]}\'!{comment["CellAddress"]}", "{link_text}")'
-        color = str(comment[CommentColumns.cell_bg_color.name]) if comment[CommentColumns.cell_bg_color.name] is not None else None
+        color = (
+            str(comment[CommentColumns.cell_bg_color.name])
+            if comment[CommentColumns.cell_bg_color.name] is not None
+            else None
+        )
         row = [
             comment[CommentColumns.object_path.name],
             comment[CommentColumns.object_puic.name],

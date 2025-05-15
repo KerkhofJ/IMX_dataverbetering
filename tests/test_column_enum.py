@@ -11,7 +11,9 @@ class CustomColumnEnum(ColumnEnum):
 
 def test_str_and_repr():
     assert str(CustomColumnEnum.comment) == "comment"
-    assert repr(CustomColumnEnum.comment) == "<CustomColumnEnum.comment: Comment content>"
+    assert (
+        repr(CustomColumnEnum.comment) == "<CustomColumnEnum.comment: Comment content>"
+    )
 
 
 def test_description_to_header():
@@ -39,13 +41,15 @@ def test_description_to_member():
 
 
 def test_from_description():
-    assert CustomColumnEnum.from_description("Comment content") == CustomColumnEnum.comment
+    assert (
+        CustomColumnEnum.from_description("Comment content") == CustomColumnEnum.comment
+    )
 
 
 def test_from_description_case_insensitive():
     assert (
-            CustomColumnEnum.from_description("comment content", ignore_case=True)
-            == CustomColumnEnum.comment
+        CustomColumnEnum.from_description("comment content", ignore_case=True)
+        == CustomColumnEnum.comment
     )
     with pytest.raises(ValueError):
         CustomColumnEnum.from_description("comment content", ignore_case=False)

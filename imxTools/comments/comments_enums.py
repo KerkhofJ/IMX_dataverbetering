@@ -9,7 +9,9 @@ class CommentColumns(ColumnEnum):
     object_puic = "PUIC (unique identifier) of the object"
     change_status = "Change status of the object"
     geometry_status = "Geometry change status"
-    comment_type = "Will be determinate by cell color, clickable Excel hyperlink to the comment"
+    comment_type = (
+        "Will be determinate by cell color, clickable Excel hyperlink to the comment"
+    )
     header_value = "The value in the header of the colum"
     value = "Current value in cell"
     comment = "Comment content"
