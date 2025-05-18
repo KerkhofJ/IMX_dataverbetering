@@ -4,12 +4,12 @@ from copy import copy
 from pathlib import Path
 from typing import Any, cast
 
-from imxTools.comments.comments_enums import CommentColumns
 from openpyxl import Workbook, load_workbook
 from openpyxl.comments import Comment
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
+from imxTools.comments.comments_enums import CommentColumns
 from imxTools.utils.helpers import ensure_paths
 
 ISSUE_LIST_SHEET_NAME = "comments"
@@ -134,9 +134,7 @@ def apply_comment_to_cell(
 
     cell = ws.cell(row=target_row, column=header_col)
 
-    style_name = extract_display_text(
-        str(data.get(CommentColumns.comment_type, ""))
-    )
+    style_name = extract_display_text(str(data.get(CommentColumns.comment_type, "")))
     parent_wb = ws.parent if isinstance(ws.parent, Workbook) else None
     if parent_wb and style_name in parent_wb.named_styles:
         cell.style = style_name

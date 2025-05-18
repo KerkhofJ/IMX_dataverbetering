@@ -4,9 +4,9 @@ from imxTools.comments.comments_extractor import extract_comments_to_new_sheet
 from imxTools.comments.comments_replacer import apply_comments_from_issue_list
 
 
-def test_extract_comments_to_new_sheet(diff_report, output_path):
+def test_extract_comments_to_new_sheet(diff_report, clean_output_path):
     extract_comments_to_new_sheet(
-        diff_report, f"{Path(output_path) / 'comment-list.xlsx'}", overwrite=True
+        diff_report, f"{Path(clean_output_path) / 'comment-list.xlsx'}", overwrite=True
     )
 
 

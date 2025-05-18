@@ -14,21 +14,7 @@ def get_revision_template(out_file_path: str | Path):
     columns = RevisionColumns.headers()
     first_row = [RevisionColumns.to_dict()[col] for col in columns]
 
-    # Example rows using enum keys for clarity
     example_row_1 = {
-        RevisionColumns.object_path.name: "dummy.object.path",
-        RevisionColumns.object_puic.name: "a8cfb00e-bbb3-4a83-9783-4f94e013fa9d",
-        RevisionColumns.issue_comment.name: "Unknown upgrade",
-        RevisionColumns.issue_cause.name: "just a example",
-        RevisionColumns.attribute_or_element.name: "@name",
-        RevisionColumns.operation.name: "UpdateAttribute",
-        RevisionColumns.value_old.name: "Unknown",
-        RevisionColumns.value_new.name: "SomeOtherValue",
-        RevisionColumns.will_be_processed.name: "True",
-        RevisionColumns.revision_reasoning.name: "Will revision if old value still matches",
-    }
-
-    example_row_2 = {
         RevisionColumns.object_path.name: "dumy.obkect.path",
         RevisionColumns.object_puic.name: "a8cfb00e-bbb3-4a83-9783-4f94e013fa9d",
         RevisionColumns.issue_comment.name: "Unknown upgrade",
@@ -60,7 +46,7 @@ def get_revision_template(out_file_path: str | Path):
         ws.cell(row=2, column=col_idx, value=desc)
 
     # Write example rows
-    for row_idx, example_row in enumerate([example_row_1, example_row_2], start=3):
+    for row_idx, example_row in enumerate([example_row_1], start=3):
         for col_idx, col in enumerate(columns, start=1):
             ws.cell(row=row_idx, column=col_idx, value=example_row.get(col, ""))
 
