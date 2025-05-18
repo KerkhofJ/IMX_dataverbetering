@@ -11,8 +11,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 from imxTools.comments.comments_enums import CommentColumns
 from imxTools.utils.helpers import ensure_paths
-
-ISSUE_LIST_SHEET_NAME = "comments"
+from imxTools.settings import ISSUE_LIST_SHEET_NAME
 
 
 def copy_full_sheet(source_ws: Worksheet, target_ws: Worksheet) -> None:

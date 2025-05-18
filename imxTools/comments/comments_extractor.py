@@ -18,9 +18,7 @@ from imxTools.comments.openpyxl_helpers import (
     get_column_indices,
     move_sheet_after,
 )
-
-# Constants
-ISSUE_LIST_SHEET_NAME = "comments"
+from imxTools.settings import ISSUE_LIST_SHEET_NAME
 
 
 def get_cell_context(
