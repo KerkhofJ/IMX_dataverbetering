@@ -10,8 +10,8 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
 from imxTools.comments.comments_enums import CommentColumns
-from imxTools.utils.helpers import ensure_paths
 from imxTools.settings import ISSUE_LIST_SHEET_NAME
+from imxTools.utils.helpers import ensure_paths
 
 
 def copy_full_sheet(source_ws: Worksheet, target_ws: Worksheet) -> None:
