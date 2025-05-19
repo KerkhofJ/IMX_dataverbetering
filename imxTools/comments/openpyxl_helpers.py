@@ -84,7 +84,7 @@ def auto_size_columns(ws):
 
 
 def move_sheet_after(
-    workbook: Workbook, sheet_to_move, after_title: str = "info"
+    workbook: Workbook, sheet_to_move, after_title: str
 ) -> None:
     """
     Moves the given worksheet to a position immediately after the sheet with the specified title.
@@ -96,14 +96,26 @@ def move_sheet_after(
         after_title: The title of the sheet after which to insert the moved sheet.
     """
     worksheets = workbook.worksheets
-    if sheet_to_move not in worksheets:
-        return  # Sheet not in workbook; nothing to do.
 
-    worksheets.remove(sheet_to_move)
-    insert_at = next(
-        (i + 1 for i, ws in enumerate(worksheets) if ws.title == after_title), 0
-    )
-    worksheets.insert(insert_at, sheet_to_move)
+    if sheet_to_move not in worksheets:
+        return
+
+    current_index = worksheets.index(sheet_to_move)
+
+    try:
+        after_index = next(i for i, ws in enumerate(worksheets) if ws.title == after_title)
+    except StopIteration:
+        after_index = -1  # Insert at beginning
+
+    # Adjust after_index if sheet_to_move is before the target
+    if current_index <= after_index:
+        target_index = after_index
+    else:
+        target_index = after_index + 1
+
+    offset = target_index - current_index
+    if offset != 0:
+        workbook.move_sheet(sheet_to_move, offset)
 
 
 def add_header_and_auto_filter(

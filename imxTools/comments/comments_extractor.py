@@ -2,7 +2,7 @@ import os
 import shutil
 from pathlib import Path
 
-from imxInsights.utils.report_helpers import REVIEW_STYLES
+from imxInsights.utils.report_helpers import REVIEW_STYLES, add_review_styles_to_excel
 from openpyxl import Workbook, load_workbook
 from openpyxl.cell import Cell, MergedCell
 from openpyxl.utils import get_column_letter
@@ -21,6 +21,7 @@ from imxTools.comments.openpyxl_helpers import (
 from imxTools.settings import ISSUE_LIST_SHEET_NAME
 
 
+# todo: better naming: something like get diff context
 def get_cell_context(
     ws: Worksheet, row_idx: int, columns: dict[str, int]
 ) -> dict[str, str]:
@@ -77,6 +78,7 @@ def handle_header_comment(
     """
     Handles comments placed in a header cell.
     These comments are inherited by cells underneath that share the same color.
+    # TODO: if header, its for all except those whit a comment it self.
     """
     if get_cell_background_color(cell) == "FFFFFF":
         return [], []  # Skip plain white background cells
@@ -179,7 +181,10 @@ def write_comments_sheet(
         _set_comment_fill(ws_comments, ws_comments.max_row, "E", entry.bg_color)
 
     auto_size_columns(ws_comments)
-
+    comment_idx = wb.sheetnames.index(ISSUE_LIST_SHEET_NAME)
+    wb.active = comment_idx
+    for i, ws in enumerate(wb.worksheets):
+        ws.sheet_view.tabSelected = (i == comment_idx)
 
 def extract_comments_to_new_sheet(
     file_path: str | Path,
@@ -225,8 +230,7 @@ def extract_comments_to_new_sheet(
                 header_value = str(header_cell.value or "")
 
                 if cell.comment:
-                    # Process header-level comments
-                    if cell.row == header_row:
+                    if cell.row == header_row:  # Process header-level comments
                         comments, inherited = handle_header_comment(
                             cell, ws, header_value, columns, sheet_name, header_row
                         )
@@ -261,6 +265,9 @@ def extract_comments_to_new_sheet(
             )
         write_comments_sheet(wb, all_comments, overwrite)
         wb.save(target_path)
+
+        add_review_styles_to_excel(target_path)
+
     else:
         output_path = output_path or str(file_path).replace(".xlsx", "_comments.xlsx")
         wb_new = Workbook()
@@ -268,3 +275,5 @@ def extract_comments_to_new_sheet(
             wb_new.remove(wb_new.active)
         write_comments_sheet(wb_new, all_comments, overwrite)
         wb_new.save(output_path)
+
+        add_review_styles_to_excel(output_path)
