@@ -2,6 +2,9 @@ import zipfile
 import shutil
 from datetime import datetime
 from pathlib import Path
+import sys
+import ctypes
+
 import xml.etree.ElementTree as ET
 
 from fastapi.responses import FileResponse
@@ -13,11 +16,25 @@ from imxTools.insights.diff_and_population import write_diff_output_files, write
 
 client_states = {}
 
+
+
+# All per-client data will be stored under this hidden folder
+HIDDEN_BASE_DIR = Path('.imx_hidden')
+
+def make_hidden_dir(path: Path):
+    path.mkdir(parents=True, exist_ok=True)
+    if sys.platform == "win32":
+        # Set the hidden attribute explicitly on Windows
+        FILE_ATTRIBUTE_HIDDEN = 0x02
+        ctypes.windll.kernel32.SetFileAttributesW(str(path.resolve()), FILE_ATTRIBUTE_HIDDEN)
+
+make_hidden_dir(HIDDEN_BASE_DIR)
+
+
+# -------------------- Utility Functions --------------------
 def zip_output_folder(output_path: Path, destination_dir: Path | None = None) -> Path:
-    if destination_dir is None:
-        destination_dir = output_path.parent
-    zip_name = f'{output_path.name}.zip'
-    zip_path = destination_dir / zip_name
+    destination_dir = destination_dir or output_path.parent
+    zip_path = destination_dir / f'{output_path.name}.zip'
     with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for file in output_path.rglob('*'):
             if file.is_file():
@@ -28,18 +45,18 @@ def find_situations_in_xml(xml_file_path: Path) -> list[str]:
     try:
         tree = ET.parse(xml_file_path)
         root = tree.getroot()
-        found_situations = []
-        for enum_name in ImxSituationEnum.__members__:
-            if root.find(f".//{{*}}{enum_name}") is not None:
-                found_situations.append(enum_name)
-        return found_situations
+        return [name for name in ImxSituationEnum.__members__ if root.find(f".//{{*}}{name}") is not None]
     except Exception as e:
         print(f"⚠️ Error parsing XML: {e}")
         return []
 
+def get_situation_enum(value: str | None):
+    return ImxSituationEnum(value) if value else None
+
+# -------------------- Upload Handling --------------------
 def handle_upload(e, label, situation_element, state):
     client_id = context.client.id
-    base_dir = Path(f'temp_uploads/{client_id}')
+    base_dir = HIDDEN_BASE_DIR / client_id / 'temp_uploads'
     base_dir.mkdir(parents=True, exist_ok=True)
 
     save_path = base_dir / f'{datetime.now().strftime("%Y%m%d%H%M%S")}_{e.name}'
@@ -50,29 +67,30 @@ def handle_upload(e, label, situation_element, state):
     state['file_extensions'][label] = save_path.suffix.lower()
     state['temp_files'].append(str(save_path))
 
-    if state['file_extensions'][label] == '.xml':
+    ext = state['file_extensions'][label]
+    if ext == '.xml':
         situations = find_situations_in_xml(save_path)
-        if situations:
-            situation_element.options = situations
-            situation_element.props(remove='disable')
-            if len(situations) == 1:
-                situation_element.value = situations[0]
-                ui.notify(f'🧠 Auto-detected situation: {situations[0]}', type='info')
-            else:
-                situation_element.value = ''
-                ui.notify(f'🧠 Multiple situations found: {", ".join(situations)}', type='info')
-        else:
-            situation_element.options = []
-            situation_element.value = ''
-            situation_element.props(remove='disable')
-            ui.notify('❓ No known situation elements found in XML.', type='warning')
+        update_situation_select(situations, situation_element)
     else:
-        situation_element.options = []
-        situation_element.value = ''
+        situation_element.options, situation_element.value = [], ''
         situation_element.props('disable')
 
     ui.notify(f'📁 {label.upper()} uploaded: {save_path.name} 🎉', type='info')
 
+def update_situation_select(situations, element):
+    if situations:
+        element.options = situations
+        element.props(remove='disable')
+        if len(situations) == 1:
+            element.value = situations[0]
+            ui.notify(f'🧠 Auto-detected situation: {situations[0]}', type='info')
+        else:
+            element.value = ''
+            ui.notify(f'🧠 Multiple situations found: {", ".join(situations)}', type='info')
+    else:
+        element.options, element.value = [], ''
+        element.props(remove='disable')
+        ui.notify('❓ No known situation elements found in XML.', type='warning')
 
 def reset_situation(label: str, situation_element, state):
     state['uploaded_files'].pop(label, None)
@@ -81,16 +99,18 @@ def reset_situation(label: str, situation_element, state):
     situation_element.props('disable')
     ui.notify(f'🗑️ {label.upper()} file removed. Situation reset.', type='warning')
 
-def get_situation_enum(value: str | None):
-    return ImxSituationEnum(value) if value else None
-
+# -------------------- Lifecycle Events --------------------
 @app.on_startup
 def setup_dark_mode():
+    HIDDEN_BASE_DIR.mkdir(parents=True, exist_ok=True)
+
     dark_mode = ui.dark_mode()
     dark_mode.enable()
+
     def toggle_dark_light():
         dark_mode.toggle()
         toggle_button.text = '🔦 Flashbang Mode' if dark_mode.value else '🌙 Dark Mode'
+
     global toggle_button
     toggle_button = ui.button(
         '🔦 Flashbang Mode' if dark_mode.value else '🌙 Dark Mode',
@@ -102,12 +122,14 @@ def setup_dark_mode():
 def cleanup_user_temp_files():
     client_id = context.client.id
     state = client_states.pop(client_id, None)
+    client_root = HIDDEN_BASE_DIR / client_id
+
     base_dirs = [
-        Path(f'temp_uploads/{client_id}'),
-        Path(f'output_population/{client_id}'),
-        Path(f'work/{client_id}'),
-        Path(f'zips/{client_id}')
+        client_root / 'temp_uploads',
+        client_root / 'output',
+        client_root / 'work',
     ]
+
     if state:
         for tab_state in state.values():
             for path_str in tab_state.get('temp_files', []):
@@ -119,25 +141,25 @@ def cleanup_user_temp_files():
                         path.unlink(missing_ok=True)
                 except Exception as e:
                     print(f'⚠️ Error deleting {path_str}: {e}')
+
     for folder in base_dirs:
         try:
             shutil.rmtree(folder, ignore_errors=True)
         except Exception as e:
             print(f'⚠️ Error deleting folder {folder}: {e}')
 
+    try:
+        if client_root.exists() and not any(client_root.iterdir()):
+            client_root.rmdir()
+    except Exception as e:
+        print(f'⚠️ Error deleting client root folder {client_root}: {e}')
+
 @app.on_shutdown
 def cleanup_temp_files():
     print("🧹 Global cleanup on shutdown...")
-    try:
-        shutil.rmtree('temp_uploads', ignore_errors=True)
-        shutil.rmtree('output_diff', ignore_errors=True)
-        shutil.rmtree('output_population', ignore_errors=True)
-        shutil.rmtree('work', ignore_errors=True)
-        shutil.rmtree('zips', ignore_errors=True)
-        for zip_file in Path('.').glob('*.zip'):
-            zip_file.unlink()
-    except Exception as e:
-        print(f'Error cleaning up files: {e}')
+    if HIDDEN_BASE_DIR.exists():
+        for folder in HIDDEN_BASE_DIR.glob('*'):
+            shutil.rmtree(folder, ignore_errors=True)
 
 @ui.page('/')
 def main_page():
@@ -197,8 +219,8 @@ def main_page():
                 spinner_dialog.open()
                 try:
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    base_dir = Path(f'work/{client_id}/diff_{timestamp}')
-                    zip_dir = Path(f'zips/{client_id}')
+                    base_dir = HIDDEN_BASE_DIR / client_id / f'work/diff_{timestamp}'
+                    zip_dir = HIDDEN_BASE_DIR / client_id
                     base_dir.mkdir(parents=True, exist_ok=True)
                     zip_dir.mkdir(parents=True, exist_ok=True)
                     await run.cpu_bound(
@@ -242,7 +264,7 @@ def main_page():
                     return
                 spinner_dialog.open()
                 try:
-                    output_path = Path(f'output_population/{client_id}')
+                    output_path = HIDDEN_BASE_DIR / client_id
                     output_path.mkdir(parents=True, exist_ok=True)
                     await run.cpu_bound(
                         write_population_output_files,
