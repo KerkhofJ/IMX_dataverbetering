@@ -1,131 +1,120 @@
 import os
 import platform
-import re
+import shutil
 import subprocess
 import sys
-import zipfile
-from datetime import date
 from pathlib import Path
 
-from imxInsights import __version__ as imxInsights_version
-
+from apps.build_helpers import (
+    insert_readable_metadata,
+    zip_result,
+    remove_folder_safely,
+)
 from imxTools import __version__ as imxTools_version
 
+# App constants
+EXECUTABLE_NAME = "open-imx-cli"
+APP_FOLDER_NAME = f"{EXECUTABLE_NAME}-{imxTools_version}-windows"
+ENTRY_FILE = Path("apps/cli/main.py")
 
-def extract_version(init_file: Path = Path("imxTools/__init__.py")) -> str:
-    content = init_file.read_text()
-    match = re.search(r'__version__\s*=\s*"([^"]+)"', content)
-    if not match:
-        raise ValueError(f"Version not found in {init_file}")
-    return match.group(1)
+# Paths
+DATA_FOLDER = Path("data")
+DIST_ROOT = Path("dist")
+FINAL_APP_FOLDER = DIST_ROOT / APP_FOLDER_NAME
+BUILD_FOLDER = Path(".build_cli_app")
 
+# Cleanup flags
+CLEAN_BUILD_FOLDER = True
+CLEANUP = True
 
-def insert_readable_metadata(file_path: Path):
-    metadata = (
-        f"# **imxTools CLI App** (v{imxTools_version})  \n"
-        f"**Build Date**: {date.today().isoformat()}  \n"
-        f"**imxInsights Version**: {imxInsights_version}  \n\n"
-        f"---\n\n"
-        f"## MIT License\n\n"
-        "Copyright (c) 2023–present Open-IMX. All rights reserved.\n\n"
-        f"Permission is hereby granted, free of charge, to any person obtaining a copy "
-        f"of this software and associated documentation files (the \"Software\"), to deal "
-        f"in the Software without restriction, including without limitation the rights "
-        f"to use, copy, modify, merge, publish, distribute, sublicense, and/or sell "
-        f"copies of the Software, and to permit persons to whom the Software is "
-        f"furnished to do so, subject to the following conditions:  \n\n"
-        f"The above copyright notice and this permission notice shall be included "
-        f"in all copies or substantial portions of the Software.  \n\n"
-        f"THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR "
-        f"IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, "
-        f"FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE "
-        f"AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER "
-        f"LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, "
-        f"OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE "
-        f"SOFTWARE.  \n\n"
-        f"---\n\n"
-    )
-    original_content = file_path.read_text(encoding="utf-8")
-    file_path.write_text(metadata + original_content, encoding="utf-8")
+if CLEAN_BUILD_FOLDER and BUILD_FOLDER.exists():
+    print("🧹 Cleaning build folder...")
+    shutil.rmtree(BUILD_FOLDER)
 
 
-
-def _get_pyinstaller_command(script_path: Path, dist_path: Path, exe_name: str, data_path: Path) -> list[str]:
+def _get_pyinstaller_command(script_path: Path, output_folder_name: str, data_path: Path) -> list[str]:
     sep = ';' if os.name == 'nt' else ':'
     return [
         "pyinstaller",
         str(script_path),
         "--noconfirm",
         "--clean",
-        "--distpath", str(dist_path),
-        "--name", exe_name,
-        "--add-data", f"{data_path}{sep}data",
+        "--name", output_folder_name,
+        "--distpath", str(DIST_ROOT),
+        "--workpath", str(BUILD_FOLDER),
+        "--add-data", f"{data_path}{sep}{data_path.name}",
         "--hidden-import=shellingham.nt",
         "--hidden-import=shellingham.posix",
     ]
 
 
-def _generate_readme(script_path: Path, readme_path: Path):
-    typer_cmd = [
-        sys.executable,
-        "-m", "typer",
-        str(script_path),
-        "utils",
-        "docs",
-        "--output", str(readme_path),
-    ]
-    subprocess.run(typer_cmd, check=True)
-    insert_readable_metadata(readme_path)
-
-
-def zip_result(folder_path: Path, version: str, system: str):
-    zip_name = f"imxTools-{version}-{system}.zip"
-    zip_path = folder_path.parent / zip_name
-    print(f"Creating ZIP: {zip_path}")
-
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for file in folder_path.rglob("*"):
-            zipf.write(file, arcname=file.relative_to(folder_path))
-
-    print(f"Packaged: {zip_path}")
-
-
 def build_cli_app():
-    script_path = Path("apps/cli/cliApp.py")
-    data_path = Path("data")
-    dist_path = Path("dist")
-    exe_name = "open-imx"
+    if not ENTRY_FILE.exists():
+        raise FileNotFoundError(f"❌ Script not found: {ENTRY_FILE}")
+    if not DATA_FOLDER.exists():
+        raise FileNotFoundError(f"❌ Data folder not found: {DATA_FOLDER}")
 
-    if not script_path.exists():
-        raise FileNotFoundError(f"Script not found: {script_path}")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data folder not found: {data_path}")
+    print(f"🚀 Building CLI app: {APP_FOLDER_NAME}")
 
-    version = extract_version()
-    command = _get_pyinstaller_command(script_path, dist_path, exe_name, data_path)
+    remove_folder_safely(FINAL_APP_FOLDER)
+    remove_folder_safely(BUILD_FOLDER)
+    FINAL_APP_FOLDER.mkdir(parents=True, exist_ok=True)
+    BUILD_FOLDER.mkdir(parents=True, exist_ok=True)
 
-    print("Running:", " ".join(command))
+    command = _get_pyinstaller_command(ENTRY_FILE, APP_FOLDER_NAME, DATA_FOLDER)
+    print(f"🛠️ Running PyInstaller...\n{' '.join(command)}")
+
     try:
-        subprocess.run(command, check=True)
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            universal_newlines=True,
+        )
 
-        exe_suffix = ".exe" if os.name == "nt" else ""
-        folder_path = dist_path / exe_name
-        exe_path = folder_path / f"{exe_name}{exe_suffix}"
+        for line in process.stdout:
+            print(line, end="")
 
-        if not exe_path.exists():
-            raise FileNotFoundError(f"Executable not found: {exe_path}")
-        print(f"\nBuilt: {exe_path}")
+        process.wait()
+        if process.returncode != 0:
+            raise subprocess.CalledProcessError(process.returncode, command)
 
-        readme_path = folder_path / "README.md"
-        _generate_readme(script_path, readme_path)
-        print(f"Added metadata to README: {readme_path}")
+        # List contents of FINAL_APP_FOLDER
+        print(f"📂 Scanning folder contents in: {FINAL_APP_FOLDER}")
+        for f in FINAL_APP_FOLDER.rglob("*"):
+            print(" -", f.relative_to(FINAL_APP_FOLDER))
 
-        zip_result(folder_path, version, platform.system().lower())
+        # Look for the executable inside FINAL_APP_FOLDER
+        exe_files = list(FINAL_APP_FOLDER.glob("*.exe"))
+        if not exe_files:
+            raise FileNotFoundError(f"❌ No .exe file found in {FINAL_APP_FOLDER}. Check PyInstaller output.")
+        original_exe_path = exe_files[0]
+
+        # Rename it to remove version and OS
+        final_exe_path = FINAL_APP_FOLDER / f"{EXECUTABLE_NAME}.exe"
+        original_exe_path.rename(final_exe_path)
+
+        print(f"✅ Renamed executable to: {final_exe_path}")
+
+        # Generate README
+        readme_path = FINAL_APP_FOLDER / "README.md"
+        insert_readable_metadata(readme_path, APP_FOLDER_NAME)
+        print(f"📘 Added metadata to README: {readme_path}")
+
+        # Zip it
+        zip_result(FINAL_APP_FOLDER, imxTools_version, platform.system().lower(), EXECUTABLE_NAME, DIST_ROOT)
+        print(f"🎉 CLI app ready at: {FINAL_APP_FOLDER}")
 
     except subprocess.CalledProcessError as e:
-        print(f"\nBuild failed: {e}")
+        print(f"\n❌ Build failed: {e}")
         sys.exit(e.returncode)
 
 
 if __name__ == "__main__":
     build_cli_app()
+
+    if CLEANUP and BUILD_FOLDER.exists():
+        print("🧹 Cleaning build folder...")
+        shutil.rmtree(BUILD_FOLDER)

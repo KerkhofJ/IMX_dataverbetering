@@ -15,7 +15,7 @@ def write_diff_output_files(
     t2_situation: ImxSituationEnum | None,
     geojson: bool,
     to_wgs: bool,
-    version_safe:bool=False
+    version_safe: bool = False,
 ):
     out_path = Path(out_path) if out_path else Path.cwd()
 
@@ -36,18 +36,17 @@ def write_diff_output_files(
             "IMX T2 results in None. Is the situation present in the IMX file?"
         )
 
-    # multi_repo = ImxMultiRepo([t1, t2], version_safe=version_safe)  # type: ignore[abstract]
-    # compare = multi_repo.compare(
-    #     container_id_1=t1.container_id,
-    #     container_id_2=t2.container_id,
-    # )
+    multi_repo = ImxMultiRepo([t1, t2], version_safe=version_safe)  # type: ignore[abstract]
+    compare = multi_repo.compare(
+        container_id_1=t1.container_id,
+        container_id_2=t2.container_id,
+    )
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    # compare.to_excel(out_path / f"{timestamp}-diff.xlsx")
+    compare.to_excel(out_path / f"{timestamp}-diff.xlsx")
 
     if geojson:
-        pass
-        # compare.create_geojson_files(out_path / f"{timestamp}-geojsons", to_wgs=to_wgs)
+        compare.create_geojson_files(out_path / f"{timestamp}-geojsons", to_wgs=to_wgs)
 
 
 def write_population_output_files(

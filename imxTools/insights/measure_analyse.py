@@ -92,6 +92,9 @@ def calculate_measurements(imx: ImxRepo) -> list:
                 continue
 
             rail_con = ref.imx_object
+            if not rail_con:
+                continue
+
             measure_line = _get_or_create_measure_line(
                 rail_con.puic, rail_con, measure_lines
             )
