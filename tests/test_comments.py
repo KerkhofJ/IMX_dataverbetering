@@ -45,7 +45,9 @@ def test_extract_comments_to_new_sheet_with_add_to_wb(diff_report, clean_output_
     check_comment_sheet_is_present(output_file)
 
 
-def test_extract_comments_to_new_sheet_without_overwrite(diff_report, clean_output_path):
+def test_extract_comments_to_new_sheet_without_overwrite(
+    diff_report, clean_output_path
+):
     temp_report = Path(clean_output_path) / Path(diff_report).name
     shutil.copy(diff_report, temp_report)
 
@@ -56,7 +58,6 @@ def test_extract_comments_to_new_sheet_without_overwrite(diff_report, clean_outp
     )
     assert temp_report.exists(), f"Excel file not found at {temp_report}"
     check_comment_sheet_is_present(temp_report)
-
 
 
 def test_apply_comments_to_new_file(diff_report_edit, comment_list, clean_output_path):

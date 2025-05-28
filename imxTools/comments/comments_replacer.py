@@ -133,7 +133,7 @@ def apply_comment_to_cell(
 
     cell = ws.cell(row=target_row, column=header_col)
 
-    style_name = extract_display_text(str(data.get(CommentColumns.comment_type, "")))
+    style_name = extract_display_text(str(data.get(CommentColumns.comment_type.name, "")))
     parent_wb = ws.parent if isinstance(ws.parent, Workbook) else None
     if parent_wb and style_name in parent_wb.named_styles:
         cell.style = style_name
@@ -235,10 +235,10 @@ def apply_comments_from_issue_list(
 
     for data in all_rows:
         try:
-            sheetname = str(data.get(CommentColumns.comment_sheet_name))
-            imx_path = str(data.get(CommentColumns.header_value))
-            puic = data.get(CommentColumns.object_puic)
-            comment_val = data.get(CommentColumns.comment)
+            sheetname = str(data.get(CommentColumns.comment_sheet_name.name))
+            imx_path = str(data.get(CommentColumns.header_value.name))
+            puic = data.get(CommentColumns.object_puic.name)
+            comment_val = data.get(CommentColumns.comment.name)
             comment_text = str(comment_val).strip() if comment_val else ""
 
             if not all([sheetname, imx_path, puic]):

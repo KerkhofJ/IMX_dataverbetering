@@ -56,7 +56,7 @@ def get_situation_enum(value: str | None):
 # -------------------- Upload Handling --------------------
 def handle_upload(e, label, situation_element, state):
     client_id = context.client.id
-    base_dir = HIDDEN_BASE_DIR / client_id / 'temp_uploads'
+    base_dir = HIDDEN_BASE_DIR / client_id / 'uploads'
     base_dir.mkdir(parents=True, exist_ok=True)
 
     save_path = base_dir / f'{datetime.now().strftime("%Y%m%d%H%M%S")}_{e.name}'
@@ -125,7 +125,7 @@ def cleanup_user_temp_files():
     client_root = HIDDEN_BASE_DIR / client_id
 
     base_dirs = [
-        client_root / 'temp_uploads',
+        client_root / 'uploads',
         client_root / 'output',
         client_root / 'work',
     ]
@@ -289,4 +289,15 @@ def main_page():
         ui.label(f'⚙️ Powered by ImxInsights 🚀v{insights_version}').classes('text-1xl font-bold')
         ui.link('🌐 Visit on PyPI', target='https://pypi.org/project/imxInsights/').classes('text-1xl font-bold text-blue-500 underline')
 
-ui.run(reload=True, port=native.find_open_port(), title="🚆 IMX Diff GUI", dark=True, fastapi_docs=True)
+
+is_frozen = getattr(sys, 'frozen', False)
+
+chosen_port = 8003 if is_frozen else native.find_open_port()
+
+ui.run(
+    reload=False,
+    port=chosen_port,
+    title="🚆 IMX Diff GUI",
+    dark=True,
+    fastapi_docs=True
+)

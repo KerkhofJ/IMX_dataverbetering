@@ -20,13 +20,13 @@ state = {
 app.add_typer(
     diff_population_commands.app, name="report", help="general report actions"
 )
-app.add_typer(revision_commands.app, name="revision", help="imx revision actions")
-app.add_typer(
-    experimental_commands.app,
-    name="experimental",
-    help="experimental actions",
-)
-app.add_typer(health_check_commands.app, name="health-check", help="health-checks")
+# app.add_typer(revision_commands.app, name="revision", help="imx revision actions")
+# app.add_typer(
+#     experimental_commands.app,
+#     name="experimental",
+#     help="experimental actions",
+# )
+# app.add_typer(health_check_commands.app, name="health-check", help="health-checks")
 
 
 @app.callback(invoke_without_command=True)
