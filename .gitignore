@@ -179,3 +179,5 @@ cython_debug/
 /dist
 /build
 /klad/
+/.build_gui_app/
+/.build_cli_app/

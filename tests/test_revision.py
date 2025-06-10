@@ -1,17 +1,37 @@
+from pathlib import Path
+
+import pandas as pd
 import pytest
 
 from imxTools.revision.input_validation import validate_gml_coordinates
 from imxTools.revision.process_revision import process_imx_revisions
 from imxTools.revision.revision_enums import RevisionColumns
+from imxTools.revision.revision_template import get_revision_template
 
 
 def test_process(issue_list: str, imx_12_xml_file: str, clean_output_path: str):
     df = process_imx_revisions(imx_12_xml_file, issue_list, clean_output_path)
-    filtered_df = df[df[RevisionColumns.processing_status.name]]
+    filtered_df = df[df[RevisionColumns.will_be_processed.name]]
     unique_statuses = filtered_df["status"].unique().tolist()
     assert len(unique_statuses) == 1 and unique_statuses[0] == "processed", (
         "should all be processed"
     )
+
+
+def test_get_template(clean_output_path: str):
+    out_path = Path(clean_output_path) / "template.xlsx"
+    get_revision_template(out_path)
+    assert out_path.exists()
+
+    # Gebruik contextmanager om het bestand netjes af te sluiten
+    with pd.ExcelFile(out_path) as xl:
+        assert "revisions" in xl.sheet_names, "'revisions' sheet is missing"
+        df = xl.parse("revisions")
+
+    actual_columns = list(df.columns)
+    expected_columns = [col.name for col in RevisionColumns]
+    for col in expected_columns:
+        assert col in actual_columns, f"Missing header column: {col}"
 
 
 @pytest.mark.parametrize(

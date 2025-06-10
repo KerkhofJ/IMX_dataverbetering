@@ -1,3 +1,5 @@
+# comments_replacer.py
+
 from copy import copy
 from pathlib import Path
 from typing import Any, cast
@@ -7,6 +9,7 @@ from openpyxl.comments import Comment
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.worksheet import Worksheet
 
+from imxTools.comments.comments_enums import CommentColumns
 from imxTools.settings import ISSUE_LIST_SHEET_NAME
 from imxTools.utils.helpers import ensure_paths
 
@@ -130,14 +133,16 @@ def apply_comment_to_cell(
 
     cell = ws.cell(row=target_row, column=header_col)
 
-    style_name = extract_display_text(str(data.get("Link", "")))
+    style_name = extract_display_text(
+        str(data.get(CommentColumns.comment_type.name, ""))
+    )
     parent_wb = ws.parent if isinstance(ws.parent, Workbook) else None
     if parent_wb and style_name in parent_wb.named_styles:
         cell.style = style_name
     else:
         print(f"Style '{style_name}' not found.")
 
-    is_header_comment = data.get("CommentRow") == header_row
+    is_header_comment = data.get(CommentColumns.comment_row) == header_row
     if is_header_comment:
         header_cell = ws.cell(row=header_row, column=header_col)
         existing_comment = header_cell.comment
@@ -228,14 +233,14 @@ def apply_comments_from_issue_list(
         except Exception:
             return 1_000_000_000
 
-    all_rows.sort(key=lambda d: safe_int(d.get("CommentRow")))
+    all_rows.sort(key=lambda d: safe_int(d.get(CommentColumns.comment_row)))
 
     for data in all_rows:
         try:
-            sheetname = str(data.get("CommentSheetName"))
-            imx_path = str(data.get("ImxPath"))
-            puic = data.get("Puic")
-            comment_val = data.get("Comment")
+            sheetname = str(data.get(CommentColumns.comment_sheet_name.name))
+            imx_path = str(data.get(CommentColumns.header_value.name))
+            puic = data.get(CommentColumns.object_puic.name)
+            comment_val = data.get(CommentColumns.comment.name)
             comment_text = str(comment_val).strip() if comment_val else ""
 
             if not all([sheetname, imx_path, puic]):
@@ -296,6 +301,8 @@ def apply_comments_from_issue_list(
     diff_wb.active = diff_wb.sheetnames.index("info")  # type: ignore[assignment]
     for sheet in diff_wb.worksheets:
         sheet.sheet_view.tabSelected = sheet.title == "info"
+
+    create_summary_sheet(diff_wb, processed, skipped, not_found)
 
     diff_wb.save(output_path)
     print(f"✅ Comments copied and saved to '{output_path}'")

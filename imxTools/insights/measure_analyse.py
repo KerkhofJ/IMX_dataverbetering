@@ -92,6 +92,9 @@ def calculate_measurements(imx: ImxRepo) -> list:
                 continue
 
             rail_con = ref.imx_object
+            if not rail_con:
+                continue
+
             measure_line = _get_or_create_measure_line(
                 rail_con.puic, rail_con, measure_lines
             )
@@ -161,7 +164,7 @@ def convert_analyse_to_issue_list(
         RevisionColumns.operation.name,
         RevisionColumns.value_old.name,
         RevisionColumns.value_new.name,
-        RevisionColumns.processing_status.name,
+        RevisionColumns.will_be_processed.name,
         RevisionColumns.revision_reasoning.name,
     ]
 

@@ -1,7 +1,7 @@
 import pytest
 from typer.testing import CliRunner
 
-from apps.cli.cliApp import app
+from apps.cli.main import app
 from tests.helpers import assert_path_glob
 
 runner = CliRunner()

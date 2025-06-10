@@ -1,7 +1,7 @@
-from enum import Enum
+from imxTools.utils.columnEnum import ColumnEnum
 
 
-class RevisionColumns(Enum):
+class RevisionColumns(ColumnEnum):
     object_path = "Imx Object Path"
     object_puic = "Puic of object for revision"
     issue_comment = "What is the issue"
@@ -10,11 +10,11 @@ class RevisionColumns(Enum):
     operation = "Type of revision operation"
     value_old = "Old value that is being checked if it is still like this"
     value_new = "Revision Value"
-    processing_status = "Boolean If revision need to be processed"
+    will_be_processed = "Boolean If revision need to be processed"
     revision_reasoning = "Revision reasoning, why this value, or why not to revision?"
 
 
-class RevisionOperationValues(Enum):
+class RevisionOperationValues(ColumnEnum):
     CreateAttribute = "Create a new attribute"
     UpdateAttribute = "Update an existing attribute"
     DeleteAttribute = "Remove an attribute"

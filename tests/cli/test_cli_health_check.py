@@ -2,7 +2,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from apps.cli.cliApp import app
+from apps.cli.main import app
 
 runner = CliRunner()
 
