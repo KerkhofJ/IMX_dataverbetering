@@ -14,12 +14,11 @@ from apps.build_helpers import (
 from imxTools import __version__ as imxTools_version
 
 # App constants
-EXECUTABLE_NAME = "open-imx-gui"
+EXECUTABLE_NAME = "imx-tools-gui"
 APP_FOLDER_NAME = f"{EXECUTABLE_NAME}-{imxTools_version}-windows"
 ENTRY_FILE = "apps/nicegui/main.py"
 
-# Paths
-DATA_FOLDER = Path("data")
+# PathsDATA_FOLDER = Path("data")
 DIST_ROOT = Path("dist")
 FINAL_APP_FOLDER = DIST_ROOT / APP_FOLDER_NAME
 BUILD_FOLDER = Path(".build_gui_app")

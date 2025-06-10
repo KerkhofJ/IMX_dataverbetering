@@ -10,11 +10,11 @@ from apps.build_helpers import (
     zip_result,
     remove_folder_safely,
 )
-from imxTools import __version__ as imxTools_version
+from imxTools import __version__ as app_version
 
 # App constants
-EXECUTABLE_NAME = "open-imx-cli"
-APP_FOLDER_NAME = f"{EXECUTABLE_NAME}-{imxTools_version}-windows"
+EXECUTABLE_NAME = "imx-tools-cli"
+APP_FOLDER_NAME = f"{EXECUTABLE_NAME}-{app_version}-windows"
 ENTRY_FILE = Path("apps/cli/main.py")
 
 # Paths
@@ -104,7 +104,7 @@ def build_cli_app():
         print(f"📘 Added metadata to README: {readme_path}")
 
         # Zip it
-        zip_result(FINAL_APP_FOLDER, imxTools_version, platform.system().lower(), EXECUTABLE_NAME, DIST_ROOT)
+        zip_result(FINAL_APP_FOLDER, app_version, platform.system().lower(), EXECUTABLE_NAME, DIST_ROOT)
         print(f"🎉 CLI app ready at: {FINAL_APP_FOLDER}")
 
     except subprocess.CalledProcessError as e:
