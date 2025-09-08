@@ -66,7 +66,7 @@ jobs:
 
       - name: Upload pre-release
         if: env.should_release == 'true'
-        uses: ncipollo/release-action@440c8c1cb0ed28b9f43e4d1d670870f059653174
+        uses: ncipollo/release-action@b7eabc95ff50cbeeedec83973935c8f306dfcd0b
         with:
           draft: true
           name: 🚀 Version ${{ env.version }}
